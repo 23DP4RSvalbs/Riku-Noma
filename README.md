@@ -116,9 +116,26 @@ riki-noma/
 └── docs/               # Diagrammas, skices, instrukcijas
 ```
 
-**GitHub darba kārtība:** zari `feature/TRELLO-ID-nosaukums`, commit formāts
-`[TRELLO-ID] Verb: apraksts`, katrs PR jāapstiprina citam dalībniekam un jāsaista
-ar Trello karti.
+**GitHub darba kārtība:** izmantojam zarus `feature/TRELLO-ID-nosaukums` un
+commit formātu `[TRELLO-ID] Verb: apraksts`. Izmaiņas nedrīkst tieši nosūtīt uz
+`main` zaru. Darba autors nosūta savu feature zaru uz GitHub, izveido Pull
+Request (PR), pievieno Trello kartes saiti un gaida vismaz viena cita komandas
+dalībnieka apstiprinājumu. Pēc apstiprinājuma un visu pārbaužu iziešanas PR var
+apvienot ar `main`.
+
+### PR apstiprināšanas process
+
+1. Izveidojiet feature zaru no aktuālā `main` zara.
+2. Veiciet izmaiņas un nosūtiet tikai šo zaru uz GitHub.
+3. Atveriet PR, aprakstā pievienojiet Trello kartes saiti un norādiet, kā
+   pārbaudīt izmaiņas.
+4. Nogaidiet cita komandas dalībnieka pārskatīšanu un apstiprinājumu.
+5. Pēc apstiprinājuma un pārbaužu iziešanas apvienojiet PR ar `main`.
+
+Repozitorija administratoriem jāieslēdz GitHub `main` zara aizsardzība, lai
+tiešie push uz `main` būtu aizliegti un PR prasītu vismaz vienu apstiprinājumu.
+Administrators var pārvaldīt iestatījumus un apvienot PR, bet arī viņam
+jāievēro šis pārskatīšanas process.
 
 ## Uzstādīšana un palaišana
 
