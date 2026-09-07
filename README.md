@@ -116,31 +116,22 @@ riki-noma/
 └── docs/               # Diagrammas, skices, instrukcijas
 ```
 
-**GitHub darba kārtība:** izmantojam zarus `feature/TRELLO-ID-nosaukums` un
-commit formātu `[TRELLO-ID] Verb: apraksts`. Izmaiņas nedrīkst tieši nosūtīt uz
-`main` zaru. Darba autors nosūta savu feature zaru uz GitHub, izveido Pull
-Request (PR), pievieno Trello kartes saiti un gaida vismaz viena cita komandas
-dalībnieka apstiprinājumu. Pēc apstiprinājuma un visu pārbaužu iziešanas PR var
-apvienot ar `main`.
 
 ### PR apstiprināšanas process
 
-1. Izveidojiet feature zaru no aktuālā `main` zara.
-2. Veiciet izmaiņas un nosūtiet tikai šo zaru uz GitHub.
-3. Atveriet PR, aprakstā pievienojiet Trello kartes saiti un norādiet, kā
-   pārbaudīt izmaiņas.
-4. Nogaidiet cita komandas dalībnieka pārskatīšanu un apstiprinājumu.
-5. Pēc apstiprinājuma un pārbaužu iziešanas apvienojiet PR ar `main`.
+Izmantojam zarus `feature/TRELLO-ID-nosaukums` un
+commit formātu latviešu valodā `[TRELLO-ID] Darbības Vārds: apraksts`.
 
-Repozitorija administratoriem jāieslēdz GitHub `main` zara aizsardzība, lai
-tiešie push uz `main` būtu aizliegti un PR prasītu vismaz vienu apstiprinājumu.
-Administrators var pārvaldīt iestatījumus un apvienot PR, bet arī viņam
-jāievēro šis pārskatīšanas process.
+Katrs uzdevums sākas ar jaunu zaru no `main`, nekad nepievienojam izmaiņas
+tieši `main`. Kad zars ir gatavs, izveidojam Pull Request (PR). Kamēr PR
+gaida apstiprinājumu, tas paliek atsevišķā zarā un nemaina `main`.
+
+Citi var droši strādāt savos zaros, jo katrs zars iziet no tā brīža `main`.
+Pirms jauna uzdevuma vienmēr izpildām `git pull origin main`, lai strādātu
+ar jaunāko kodu. Ja kāda cita PR tiek apstiprināta ātrāk, tās izmaiņas
+parādās `main` un mēs tās saņemam ar nākamo `pull`.
 
 ## Uzstādīšana un palaišana
-
-> Komandas ir paredzētas gatavajai projekta struktūrai. Tās pārbaudīsim
-> reāli Fāzes 3, Sprinta 1 beigās, kad repozitorijā būs kods (sk. Trello karti DEV-27).
 
 **Priekšnosacījumi:** PHP 8.2+, Composer, Node.js 18+, MySQL 8+, Git.
 
