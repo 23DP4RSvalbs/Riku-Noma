@@ -8,7 +8,7 @@ class Loma extends Model
 {
     protected $table = 'loma';
     protected $primaryKey = 'lomasID';
-    protected $fillable = ['lomasnosaukums'];
+    protected $fillable = ['nosaukums'];
 
     public function lietotaji()
     {
