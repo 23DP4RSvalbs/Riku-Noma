@@ -28,7 +28,9 @@ return new class extends Migration
             $table->index('statuss');
         });
 
-        DB::statement('ALTER TABLE pasutijums ADD CONSTRAINT chk_pasutijums_kopsumma CHECK (kopsumma >= 0)');
+        if (DB::connection()->getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE pasutijums ADD CONSTRAINT chk_pasutijums_kopsumma CHECK (kopsumma >= 0)');
+        }
     }
 
     public function down(): void

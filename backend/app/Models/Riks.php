@@ -8,7 +8,7 @@ class Riks extends Model
 {
     protected $table = 'riks';
     protected $primaryKey = 'rikID';
-    protected $fillable = ['nosaukums','apraksts','daudzums','cenadiena','foto','kods','zinols','nomasilgumsmin','nomasilgumsmax','redzamsKatalogs','kategorijaID'];
+    protected $fillable = ['nosaukums','apraksts','daudzums','cenadiena','foto','kods','zimols','nomasilgumsmin','nomasilgumsmax','redzamsKatalogs','statuss','kategorijaID'];
     protected $casts = ['cenadiena' => 'decimal:2', 'redzamsKatalogs' => 'boolean'];
 
     public function kategorija() 

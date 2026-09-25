@@ -30,8 +30,10 @@ return new class extends Migration
         });
 
             // CHECK ierobežojumi no prasībām
-            DB::statement('ALTER TABLE riks ADD CONSTRAINT chk_riks_cena CHECK (cenadiena >= 0)');
-            DB::statement('ALTER TABLE riks ADD CONSTRAINT chk_riks_daudzums CHECK (daudzums >= 0)');
+            if (DB::connection()->getDriverName() === 'mysql') {
+                DB::statement('ALTER TABLE riks ADD CONSTRAINT chk_riks_cena CHECK (cenadiena >= 0)');
+                DB::statement('ALTER TABLE riks ADD CONSTRAINT chk_riks_daudzums CHECK (daudzums >= 0)');
+            }
     }
 
     /**
