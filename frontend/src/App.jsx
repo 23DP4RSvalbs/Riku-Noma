@@ -39,7 +39,79 @@ function Catalog() {
   return <section className="page-width catalog-page"><div className="page-intro"><div><p className="eyebrow">INVENTĀRS / 2026</p><h1>Atrodi savu<br /><em>instrumentu.</em></h1></div><p>Viss, kas vajadzīgs nākamajam projektam.<br />Pārbaudīts un gatavs darbam.</p></div><div className="catalog-controls"><label className="search"><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Meklēt instrumentu..." /></label><div className="filters">{categories.map((item) => <button className={category === item ? 'active' : ''} key={item} onClick={() => setCategory(item)}>{item}</button>)}</div></div><p className="result-count">{filtered.length} instrumenti</p><ToolGrid tools={filtered} /></section>
 }
 
-function ToolDetail() { const { id } = useParams(); const { user } = useAuth(); const tool = fallbackTools.find((item) => item.id === Number(id)) || fallbackTools[0]; return <section className="page-width detail-page"><Link className="back-link" to="/katalogs">← Atpakaļ uz katalogu</Link><div className="detail-layout"><div className={`detail-image tool-image ${tool.accent}`}><span>✦</span></div><div className="detail-copy"><p className="eyebrow">{tool.kategorija}</p><h1>{tool.nosaukums}</h1><p>{tool.apraksts}</p><div className="price-line"><strong>{tool.cena} €</strong><span>dienā</span></div><Link className="button" to={user ? '/rezervacijas' : '/ieiet'}>Rezervēt rīku <span>↗</span></Link><p className="availability">● Pieejams rezervācijai</p></div></div></section> }
+function ToolDetail() {
+  const { id } = useParams()
+  const { user } = useAuth()
+  const [tool, setTool] = useState(null)
+  const [dates, setDates] = useState({ from: '', to: '' })
+  const [availability, setAvailability] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [availabilityLoading, setAvailabilityLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    let active = true
+    api.get(`/tools/${id}`).then(({ data }) => {
+      if (active) setTool(data)
+    }).catch(() => {
+      if (active) setError('Neizdevās ielādēt rīka informāciju.')
+    }).finally(() => {
+      if (active) setLoading(false)
+    })
+    return () => { active = false }
+  }, [id])
+
+  useEffect(() => {
+    if (!dates.from || !dates.to || dates.to < dates.from) {
+      return undefined
+    }
+
+    let active = true
+    Promise.resolve().then(() => {
+      if (active) setAvailabilityLoading(true)
+      return api.get(`/tools/${id}/availability`, { params: dates })
+    }).then(({ data }) => {
+      if (active) setAvailability(data)
+    }).catch(() => {
+      if (active) setAvailability(null)
+    }).finally(() => {
+      if (active) setAvailabilityLoading(false)
+    })
+    return () => { active = false }
+  }, [dates, id])
+
+  if (loading) return <div className="loading">Ielādē rīku...</div>
+  if (error || !tool) return <section className="page-width error-page"><h1>{error || 'Rīks nav atrasts.'}</h1><Link className="button" to="/katalogs">Atgriezties katalogā ↗</Link></section>
+
+  const category = tool.kategorija?.nosaukums || tool.kategorija || 'Instruments'
+  const imageUrl = tool.foto ? (tool.foto.startsWith('http') ? tool.foto : `${import.meta.env.VITE_STORAGE_URL || api.defaults.baseURL.replace(/\/api\/?$/, '') + '/storage'}/${tool.foto}`) : null
+  const isAvailable = availability ? availability.available_quantity > 0 : tool.statuss === 'pieejams' && tool.daudzums > 0
+  const reservationPath = `/rezervacijas?rikID=${tool.rikID}&nomasSakums=${dates.from}&nomasBeigums=${dates.to}`
+
+  return <section className="page-width detail-page">
+    <Link className="back-link" to="/katalogs">← Atpakaļ uz katalogu</Link>
+    <div className="detail-layout">
+      <div className="detail-image tool-image lime">
+        {imageUrl ? <img src={imageUrl} alt={tool.nosaukums} /> : <span>✦</span>}
+      </div>
+      <div className="detail-copy">
+        <p className="eyebrow">{category}</p>
+        <h1>{tool.nosaukums}</h1>
+        <div className="tool-meta"><span>{tool.zimols || 'ToolRent'}</span>{tool.kods && <span>Kods: {tool.kods}</span>}</div>
+        <p>{tool.apraksts || 'Profesionāls rīks, kas gatavs nākamajam darbam.'}</p>
+        <div className="price-line"><strong>{tool.cenadiena} €</strong><span>/ dienā</span></div>
+        <div className="availability-row"><span className={`availability-dot ${isAvailable ? 'is-free' : 'is-busy'}`} />{isAvailable ? 'Brīvs' : 'Aizņemts'}</div>
+        <div className="rental-dates">
+          <label><span>Nomas sākums</span><input type="date" value={dates.from} onChange={(event) => setDates((current) => ({ ...current, from: event.target.value }))} /></label>
+          <label><span>Nomas beigas</span><input type="date" min={dates.from || undefined} value={dates.to} onChange={(event) => setDates((current) => ({ ...current, to: event.target.value }))} /></label>
+        </div>
+        {availabilityLoading && <p className="availability-note">Pārbauda pieejamību...</p>}
+        {!availabilityLoading && availability && <p className="availability-note">Pieejami {availability.available_quantity} no {availability.total_quantity} vienībām.</p>}
+        <Link className={`button ${!isAvailable ? 'button-disabled' : ''}`} to={user ? reservationPath : '/ieiet'}>Rezervēt rīku <span>↗</span></Link>
+      </div>
+    </div>
+  </section>
+}
 
 function AuthPage({ mode }) { const isLogin = mode === 'login'; const { login, register } = useAuth(); const navigate = useNavigate(); const [form, setForm] = useState({ vards: '', epasts: '', parole: '', parole_confirmation: '' }); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const submit = async (event) => { event.preventDefault(); setError(''); setBusy(true); try { await (isLogin ? login({ epasts: form.epasts, parole: form.parole }) : register(form)); navigate('/katalogs') } catch (requestError) { setError(requestError.response?.data?.message || 'Neizdevās pabeigt darbību. Pārbaudiet ievadītos datus.') } finally { setBusy(false) } }; return <section className="auth-page"><div className="auth-panel"><p className="eyebrow">RĪKU NOMA</p><h1>{isLogin ? 'Prieks redzēt.' : 'Sāc savu projektu.'}</h1><p>{isLogin ? 'Ieej, lai pārvaldītu rezervācijas.' : 'Izveido kontu un rezervē vajadzīgo rīku.'}</p><form onSubmit={submit}>{!isLogin && <Field label="Vārds" name="vards" value={form.vards} setForm={setForm} />}<Field label="E-pasts" name="epasts" type="email" value={form.epasts} setForm={setForm} /><Field label="Parole" name="parole" type="password" value={form.parole} setForm={setForm} />{!isLogin && <Field label="Atkārto paroli" name="parole_confirmation" type="password" value={form.parole_confirmation} setForm={setForm} />}{error && <p className="form-error">{error}</p>}<button className="button submit-button" disabled={busy}>{busy ? 'Apstrādā...' : isLogin ? 'Ieiet kontā ↗' : 'Izveidot kontu ↗'}</button></form><p className="auth-switch">{isLogin ? 'Vēl nav konta?' : 'Jau esi reģistrējies?'} <Link to={isLogin ? '/registracija' : '/ieiet'}>{isLogin ? 'Reģistrēties' : 'Ieiet'}</Link></p></div><div className="auth-note"><span>RN</span><p>Rīki, kas palīdz<br /><em>izdarīt vairāk.</em></p></div></section> }
 function Field({ label, name, type = 'text', value, setForm }) { return <label className="field"><span>{label}</span><input required name={name} type={type} value={value} onChange={(event) => setForm((current) => ({ ...current, [name]: event.target.value }))} /></label> }
