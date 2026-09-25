@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { BrowserRouter, Link, NavLink, Outlet, Route, Routes, useNavigate, useParams } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { useAuth } from './context/useAuth'
@@ -29,14 +29,82 @@ function Layout() {
 }
 
 function Home() { return <><section className="hero-section page-width"><div className="hero-copy"><p className="eyebrow">INSTRUMENTI, KAD TIE VAJADZĪGI</p><h1>Izīrē rīku.<br /><em>Padari vairāk.</em></h1><p className="hero-text">Profesionāli instrumenti bez liekiem izdevumiem. Izvēlies, rezervē un saņem tepat Rīgā.</p><Link className="button" to="/katalogs">Apskatīt katalogu <span>↗</span></Link></div><div className="hero-art"><div className="tool-illustration">↗</div><div className="art-label">LABS RĪKS<br />LABAM DARBAM</div></div></section><section className="ticker"><span>ĀTRA REZERVĀCIJA</span><span>◼</span><span>UZTICAMI RĪKI</span><span>◼</span><span>LATVIJAS MEISTARIEM</span><span>◼</span></section><section className="page-width home-catalog"><div className="section-heading"><div><p className="eyebrow">IZVĒLIES SAVU</p><h2>Populārākie rīki</h2></div><Link className="arrow-link" to="/katalogs">Viss katalogs ↗</Link></div><ToolGrid tools={fallbackTools.slice(0, 3)} /></section></> }
-function ToolGrid({ tools }) { return <div className="tool-grid">{tools.map((tool) => <Link className="tool-card" to={`/katalogs/${tool.id}`} key={tool.id}><div className={`tool-image ${tool.accent}`}><span>✦</span></div><div className="tool-info"><p>{tool.kategorija}</p><h3>{tool.nosaukums}</h3><strong>{tool.cena} € <small>/ dienā</small></strong></div><span className="card-arrow">↗</span></Link>)}</div> }
+function getToolId(tool) { return tool.rikID || tool.id }
+function getToolCategory(tool) { return tool.kategorija?.nosaukums || tool.kategorija || 'Instruments' }
+function getToolImage(tool) {
+  if (!tool.foto) return null
+  if (tool.foto.startsWith('http')) return tool.foto
+  const storageUrl = import.meta.env.VITE_STORAGE_URL || api.defaults.baseURL.replace(/\/api\/?$/, '') + '/storage'
+  return `${storageUrl}/${tool.foto.replace(/^\//, '')}`
+}
+
+function ToolGrid({ tools }) {
+  return <div className="tool-grid">{tools.map((tool) => {
+    const imageUrl = getToolImage(tool)
+    return <Link className="tool-card" to={`/katalogs/${getToolId(tool)}`} key={getToolId(tool)}>
+      <div className={`tool-image ${tool.accent || 'lime'}`}>
+        {imageUrl ? <img src={imageUrl} alt={tool.nosaukums} /> : <span>✦</span>}
+      </div>
+      <div className="tool-info"><p>{getToolCategory(tool)}</p><h3>{tool.nosaukums}</h3><strong>{tool.cenadiena ?? tool.cena} € <small>/ dienā</small></strong></div>
+      <span className="card-arrow">↗</span>
+    </Link>
+  })}</div>
+}
 
 function Catalog() {
-  const [query, setQuery] = useState(''); const [category, setCategory] = useState('Visi'); const [tools, setTools] = useState(fallbackTools)
-  useEffect(() => { Promise.any(['/tools', '/riki'].map((path) => api.get(path).then(({ data }) => data))).then((data) => setTools(data.data || data)).catch(() => {}) }, [])
-  const categories = ['Visi', ...new Set(tools.map((tool) => tool.kategorija))]
-  const filtered = useMemo(() => tools.filter((tool) => (category === 'Visi' || tool.kategorija === category) && tool.nosaukums.toLowerCase().includes(query.toLowerCase())), [category, query, tools])
-  return <section className="page-width catalog-page"><div className="page-intro"><div><p className="eyebrow">INVENTĀRS / 2026</p><h1>Atrodi savu<br /><em>instrumentu.</em></h1></div><p>Viss, kas vajadzīgs nākamajam projektam.<br />Pārbaudīts un gatavs darbam.</p></div><div className="catalog-controls"><label className="search"><span>⌕</span><input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Meklēt instrumentu..." /></label><div className="filters">{categories.map((item) => <button className={category === item ? 'active' : ''} key={item} onClick={() => setCategory(item)}>{item}</button>)}</div></div><p className="result-count">{filtered.length} instrumenti</p><ToolGrid tools={filtered} /></section>
+  const [query, setQuery] = useState('')
+  const [debouncedQuery, setDebouncedQuery] = useState('')
+  const [categoryId, setCategoryId] = useState('')
+  const [categories, setCategories] = useState([])
+  const [tools, setTools] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    const timeout = setTimeout(() => setDebouncedQuery(query.trim()), 350)
+    return () => clearTimeout(timeout)
+  }, [query])
+
+  useEffect(() => {
+    let active = true
+    api.get('/categories').then(({ data }) => {
+      if (active) setCategories(data.data || data)
+    }).catch(() => {
+      if (active) setError('Neizdevās ielādēt kategorijas.')
+    })
+    return () => { active = false }
+  }, [])
+
+  useEffect(() => {
+    let active = true
+    api.get('/tools', { params: { search: debouncedQuery || undefined, category_id: categoryId || undefined, per_page: 100 } })
+      .then(({ data }) => {
+        if (active) setTools(data.data || data)
+      })
+      .catch(() => {
+        if (active) {
+          setTools([])
+          setError('Neizdevās ielādēt instrumentus. Mēģiniet vēlreiz.')
+        }
+      })
+      .finally(() => {
+        if (active) setLoading(false)
+      })
+    return () => { active = false }
+  }, [categoryId, debouncedQuery])
+
+  const updateQuery = (value) => {
+    setQuery(value)
+    setLoading(true)
+    setError('')
+  }
+  const updateCategory = (value) => {
+    setCategoryId(value)
+    setLoading(true)
+    setError('')
+  }
+
+  return <section className="page-width catalog-page"><div className="page-intro"><div><p className="eyebrow">INVENTĀRS / 2026</p><h1>Atrodi savu<br /><em>instrumentu.</em></h1></div><p>Viss, kas vajadzīgs nākamajam projektam.<br />Pārbaudīts un gatavs darbam.</p></div><div className="catalog-controls"><label className="search"><span>⌕</span><input value={query} onChange={(event) => updateQuery(event.target.value)} placeholder="Meklēt instrumentu..." aria-label="Meklēt instrumentu" /></label><div className="filters"><button className={!categoryId ? 'active' : ''} onClick={() => updateCategory('')}>Visi</button>{categories.map((category) => <button className={String(categoryId) === String(category.kategorijaID) ? 'active' : ''} key={category.kategorijaID} onClick={() => updateCategory(category.kategorijaID)}>{category.nosaukums}</button>)}</div></div>{error && <p className="catalog-error" role="alert">{error}</p>}{loading ? <div className="catalog-state">Ielādē instrumentus...</div> : tools.length === 0 ? <div className="catalog-state"><h2>Netika atrasti instrumenti</h2><p>Mainiet meklēšanas tekstu vai izvēlieties citu kategoriju.</p></div> : <><p className="result-count">{tools.length} instrumenti</p><ToolGrid tools={tools} /></>}</section>
 }
 
 function ToolDetail() {
