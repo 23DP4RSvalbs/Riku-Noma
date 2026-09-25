@@ -8,7 +8,7 @@ class Riks extends Model
 {
     protected $table = 'riks';
     protected $primaryKey = 'rikID';
-    protected $fillable = ['nosaukums','apraksts','daudzums','cenadiena','foto','kods','zinols','nomasilgumsmin','nomasilgumsmax','redzamsKatalogs','kategorijaID'];
+    protected $fillable = ['nosaukums','apraksts','daudzums','statuss','cenadiena','foto','kods','zinols','nomasilgumsmin','nomasilgumsmax','redzamsKatalogs','kategorijaID'];
     protected $casts = ['cenadiena' => 'decimal:2', 'redzamsKatalogs' => 'boolean'];
 
     public function kategorija() 
@@ -19,6 +19,6 @@ class Riks extends Model
     public function pasutijumi()
     {
         return $this->belongsToMany(Pasutijums::class, 'pasutijuma_riks', 'rikID', 'pasutijumsID')
-                    ->withPivot(['daudzums_pozicija', 'nomasSakums', 'nomasBeigums']);
+                    ->withPivot(['daudzums_pozicija', 'nomassakums', 'nomasbeigums']);
     }
 }
