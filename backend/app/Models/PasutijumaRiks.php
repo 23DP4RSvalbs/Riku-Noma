@@ -8,6 +8,11 @@ class PasutijumaRiks extends Model
 {
     protected $table = 'pasutijuma_riks';
     protected $primaryKey = 'pasutijumarikID';
-    protected $fillable = ['daudzums_pozicija', 'nomasSakums', 'nomasBeigums', 'rikID', 'pasutijumsID'];
-    protected $casts = ['nomasSakums' => 'date', 'nomasBeigums' => 'date'];
+    protected $fillable = ['daudzums_pozicija', 'nomassakums', 'nomasbeigums', 'rikID', 'pasutijumsID'];
+    protected $casts = ['nomassakums' => 'date', 'nomasbeigums' => 'date'];
+
+    public function pasutijums()
+    {
+        return $this->belongsTo(Pasutijums::class, 'pasutijumsID');
+    }
 }
