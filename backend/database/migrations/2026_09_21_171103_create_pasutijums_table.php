@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::create('pasutijums', function (Blueprint $table) {
             $table->id('pasutijumsID');
             $table->decimal('kopsumma', 10, 2)->default(0);
-            $table->string('statuss', 50)->default('gaida');
+            $table->string('statuss', 50)->default('Jauns');
             $table->timestamp('izveidesdatums')->useCurrent();
 
             $table->unsignedBigInteger('lietotajID');

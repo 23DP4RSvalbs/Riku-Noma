@@ -19,6 +19,6 @@ class Pasutijums extends Model
     public function riki()
     {
         return $this->belongsToMany(Riks::class, 'pasutijuma_riks', 'pasutijumsID', 'rikID')
-                    ->withPivot(['daudzums_pozicija', 'nomasSakums', 'nomasBeigums']);
+                    ->withPivot(['daudzums_pozicija', 'nomassakums', 'nomasbeigums']);
     }
 }
