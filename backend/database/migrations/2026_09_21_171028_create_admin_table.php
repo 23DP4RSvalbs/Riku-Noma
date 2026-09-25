@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('administratorID');
             $table->integer('aktivs')->default(1);
             $table->timestamp('pedejaPieslegsanas')->nullable();
-            $table->foreignId('lietotajID')->unique()->constrained('lietotajs', 'LietotajsID')->cascadeOnDelete();
+            $table->foreignId('lietotajID')->unique()->constrained('lietotajs', 'lietotajsID')->cascadeOnDelete();
             $table->timestamps();
         });
     }

@@ -18,12 +18,12 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('lietotajID')
-                  ->references('LietotajsID')
+                ->references('lietotajsID')
                   ->on('lietotajs')
                   ->cascadeOnDelete();
 
             $table->foreign('lomasID')
-                  ->references('LomasID')
+                ->references('lomasID')
                   ->on('loma')
                   ->restrictOnDelete();
 
