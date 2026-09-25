@@ -66,6 +66,29 @@ class AuthTest extends TestCase
             ->assertJsonPath('message', 'Nepareizs e-pasts vai parole.');
     }
 
+    public function test_user_can_login_and_read_profile(): void
+    {
+        $user = Lietotajs::create([
+            'vards' => 'Anna Kalniņa',
+            'epasts' => 'anna@example.com',
+            'parole' => Hash::make('drosha123'),
+        ]);
+
+        $login = $this->postJson('/api/login', [
+            'epasts' => $user->epasts,
+            'parole' => 'drosha123',
+        ]);
+
+        $login->assertOk()
+            ->assertJsonPath('user.epasts', 'anna@example.com')
+            ->assertJsonStructure(['token', 'user']);
+
+        $this->withToken($login->json('token'))
+            ->getJson('/api/user')
+            ->assertOk()
+            ->assertJsonPath('epasts', 'anna@example.com');
+    }
+
     public function test_user_can_logout_and_token_is_revoked(): void
     {
         $user = Lietotajs::create([
