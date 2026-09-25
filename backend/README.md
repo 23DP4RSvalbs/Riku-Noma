@@ -19,6 +19,10 @@ maršrutiem `Authorization: Bearer <token>`.
 | POST | `/api/login` | Pieslēdz pēc `epasts` un `parole`; kļūdainiem datiem atgriež `Nepareizs e-pasts vai parole.` |
 | POST | `/api/logout` | Anulē pašreizējo tokenu |
 | GET | `/api/user` | Atgriež autentificētā lietotāja profilu un lomas |
+| GET | `/api/categories` | Atgriež kategorijas |
+| GET | `/api/tools` | Publiskais katalogs ar `search`, `category_id`, `page` un `per_page` filtriem |
+| GET | `/api/tools/{id}` | Publiski redzama un pieejama rīka detaļas |
+| GET | `/api/tools/{id}/availability` | Brīvais daudzums periodam ar `from=YYYY-MM-DD` un `to=YYYY-MM-DD` |
 
 Parolei jābūt vismaz 8 rakstzīmes garai un jāsatur burti un cipari.
 Lomu middleware izmanto ar `role:admin`; tas pārbauda lomu `Administrators`.

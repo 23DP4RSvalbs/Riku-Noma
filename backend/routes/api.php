@@ -11,12 +11,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::get('/tools', [ToolController::class, 'index']);
 Route::get('/tools/{rik}', [ToolController::class, 'show']);
 Route::get('/categories', [ToolController::class, 'categories']);
-
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
-    Route::post('/tools', [ToolController::class, 'store']);
-    Route::patch('/tools/{rik}', [ToolController::class, 'update']);
-    Route::delete('/tools/{rik}', [ToolController::class, 'destroy']);
-});
+Route::get('/tools/{rik}/availability', [ToolController::class, 'availability']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
@@ -29,4 +24,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::patch('/orders/{order}/status', [OrderController::class, 'updateStatus']);
+    Route::post('/tools', [ToolController::class, 'store']);
+    Route::patch('/tools/{rik}', [ToolController::class, 'update']);
+    Route::delete('/tools/{rik}', [ToolController::class, 'destroy']);
 });
