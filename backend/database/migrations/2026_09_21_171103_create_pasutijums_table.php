@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::create('pasutijums', function (Blueprint $table) {
             $table->id('pasutijumsID');
             $table->decimal('kopsumma', 10, 2)->default(0);
-            $table->string('statuss', 50)->default('gaida');
+            $table->string('statuss', 50)->default('Jauns');
             $table->timestamp('izveidesdatums')->useCurrent();
 
             $table->unsignedBigInteger('lietotajID');
@@ -28,7 +28,9 @@ return new class extends Migration
             $table->index('statuss');
         });
 
-        DB::statement('ALTER TABLE pasutijums ADD CONSTRAINT chk_pasutijums_kopsumma CHECK (kopsumma >= 0)');
+        if (DB::connection()->getDriverName() === 'mysql') {
+            DB::statement('ALTER TABLE pasutijums ADD CONSTRAINT chk_pasutijums_kopsumma CHECK (kopsumma >= 0)');
+        }
     }
 
     public function down(): void

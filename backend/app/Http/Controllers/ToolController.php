@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Kategorija;
 use App\Models\Riks;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 
 class ToolController extends Controller
 {
+    private const STATUSES = ['pieejams', 'iznomats', 'apkope', 'bojats', 'arhivets'];
+
     public function index(Request $request): JsonResponse
     {
         $validated = $request->validate([
@@ -20,8 +24,9 @@ class ToolController extends Controller
         ]);
 
         $tools = Riks::with('kategorija')
-            ->where('redzamsKatalogs', true)
-            ->where('statuss', 'pieejams')
+            ->when(! $this->isAdministrator($request), function ($query) {
+                $query->where('redzamsKatalogs', true)->where('statuss', 'pieejams');
+            })
             ->when($validated['search'] ?? null, function ($query, string $search) {
                 $query->where('nosaukums', 'like', '%' . $search . '%');
             })
@@ -34,174 +39,126 @@ class ToolController extends Controller
         return response()->json($tools);
     }
 
-    public function show(Riks $tool): JsonResponse
+    public function show(Request $request, Riks $rik): JsonResponse
     {
-        abort_unless($this->isPubliclyAvailable($tool), 404);
+        if (! $this->isAdministrator($request) && ! $this->isPubliclyAvailable($rik)) {
+            return response()->json(['message' => 'Rīks nav pieejams katalogā.'], 404);
+        }
 
-        return response()->json($tool->load('kategorija'));
+        return response()->json($rik->load('kategorija'));
     }
 
-    public function availability(Request $request, Riks $tool): JsonResponse
+    public function availability(Request $request, Riks $rik): JsonResponse
     {
-        abort_unless($this->isPubliclyAvailable($tool), 404);
+        if (! $this->isAdministrator($request) && ! $this->isPubliclyAvailable($rik)) {
+            return response()->json(['message' => 'Rīks nav pieejams katalogā.'], 404);
+        }
 
         $validated = $request->validate([
             'from' => ['required', 'date_format:Y-m-d'],
             'to' => ['required', 'date_format:Y-m-d', 'after_or_equal:from'],
         ]);
 
-        $reservedQuantity = $tool->pasutijumi()
+        $reservedQuantity = $rik->pasutijumi()
             ->whereRaw("LOWER(pasutijums.statuss) NOT IN ('atcelts', 'izpildits', 'izpildīts')")
             ->wherePivot('nomassakums', '<=', $validated['to'])
             ->wherePivot('nomasbeigums', '>=', $validated['from'])
             ->sum('pasutijuma_riks.daudzums_pozicija');
 
-        $availableQuantity = max(0, $tool->daudzums - $reservedQuantity);
-
         return response()->json([
-            'tool_id' => $tool->rikID,
+            'tool_id' => $rik->rikID,
             'from' => $validated['from'],
             'to' => $validated['to'],
-            'total_quantity' => $tool->daudzums,
+            'total_quantity' => $rik->daudzums,
             'reserved_quantity' => (int) $reservedQuantity,
-            'available_quantity' => $availableQuantity,
+            'available_quantity' => max(0, $rik->daudzums - $reservedQuantity),
         ]);
     }
 
-    protected function isPubliclyAvailable(Riks $tool): bool
+    public function categories(): JsonResponse
     {
-        return $tool->redzamsKatalogs && $tool->statuss === 'pieejams';
+        return response()->json(Kategorija::orderBy('nosaukums')->get());
     }
 
     public function store(Request $request): JsonResponse
     {
+        $validated = $this->validateTool($request);
+        $validated['foto'] = $this->storePhoto($request->file('foto'));
+
+        return response()->json(Riks::create($validated)->load('kategorija'), 201);
+    }
+
+    public function update(Request $request, Riks $rik): JsonResponse
+    {
         $validated = $this->validateTool($request, true);
 
         if ($request->hasFile('foto')) {
+            $this->deletePhoto($rik->foto);
             $validated['foto'] = $this->storePhoto($request->file('foto'));
         }
 
-        $tool = Riks::create($validated);
+        $rik->update($validated);
 
-        return response()->json([
-            'message' => 'Rīks veiksmīgi izveidots.',
-            'tool' => $tool->load('kategorija'),
-        ], 201);
+        return response()->json($rik->fresh()->load('kategorija'));
     }
 
-    public function update(Request $request, Riks $tool): JsonResponse
+    public function destroy(Request $request, Riks $rik): JsonResponse
     {
-        $validated = $this->validateTool($request, false, $tool);
+        $mode = $request->input('dzeshanas_modelis', $request->input('modelis', 'arhivet'));
+        $request->merge(['dzeshanas_modelis' => $mode]);
+        $request->validate(['dzeshanas_modelis' => ['required', Rule::in(['dzest', 'arhivet'])]]);
 
-        if ($request->hasFile('foto')) {
-            $this->deletePhotoIfExists($tool->foto);
-            $validated['foto'] = $this->storePhoto($request->file('foto'));
+        if ($mode === 'arhivet') {
+            $rik->update(['redzamsKatalogs' => false, 'statuss' => 'arhivets']);
+
+            return response()->json(['message' => 'Rīks arhivēts.', 'tool' => $rik->fresh()]);
         }
 
-        $tool->update($validated);
+        $this->deletePhoto($rik->foto);
+        $rik->delete();
 
-        return response()->json([
-            'message' => 'Rīks veiksmīgi atjaunināts.',
-            'tool' => $tool->fresh()->load('kategorija'),
+        return response()->json(['message' => 'Rīks dzēsts.']);
+    }
+
+    private function validateTool(Request $request, bool $partial = false): array
+    {
+        $required = $partial ? ['sometimes'] : ['required'];
+
+        return $request->validate([
+            'nosaukums' => [...$required, 'string', 'max:100'],
+            'apraksts' => ['sometimes', 'nullable', 'string'],
+            'cenadiena' => [...$required, 'numeric', 'decimal:0,2', 'min:0'],
+            'daudzums' => [...$required, 'integer', 'min:0'],
+            'kategorijaID' => [...$required, 'integer', 'exists:kategorija,kategorijaID'],
+            'statuss' => [...$required, 'string', Rule::in(self::STATUSES)],
+            'kods' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'zimols' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'nomasilgumsmin' => ['sometimes', 'nullable', 'integer', 'min:1'],
+            'nomasilgumsmax' => ['sometimes', 'nullable', 'integer', 'min:1', 'gte:nomasilgumsmin'],
+            'redzamsKatalogs' => ['sometimes', 'boolean'],
+            'foto' => [$partial ? 'sometimes' : 'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
         ]);
     }
 
-    public function destroy(Request $request, Riks $tool): JsonResponse
+    private function storePhoto(?UploadedFile $photo): ?string
     {
-        $mode = strtolower($request->query('mode', 'delete'));
-
-        if ($mode === 'archive') {
-            $tool->update([
-                'redzamsKatalogs' => false,
-                'statuss' => 'slēgts',
-            ]);
-
-            return response()->json([
-                'message' => 'Rīks arhivēts.',
-                'tool' => $tool->fresh()->load('kategorija'),
-            ]);
-        }
-
-        $this->deletePhotoIfExists($tool->foto);
-        $tool->delete();
-
-        return response()->json([
-            'message' => 'Rīks dzēsts.',
-        ]);
+        return $photo?->store('tools', 'public');
     }
 
-    protected function validateTool(Request $request, bool $isCreate, ?Riks $existing = null): array
+    private function deletePhoto(?string $path): void
     {
-        $rules = [
-            'nosaukums' => ['required', 'string', 'max:100'],
-            'cenadiena' => ['required', 'numeric', 'min:0', 'max:99999999.99'],
-            'daudzums' => ['required', 'integer', 'min:0'],
-            'kategorijaID' => ['required', 'integer', 'exists:kategorija,kategorijaID'],
-            'statuss' => ['required', 'string', Rule::in(['pieejams', 'aizņemts', 'remonts', 'slēgts'])],
-            'apraksts' => ['nullable', 'string'],
-            'kods' => ['nullable', 'string', 'max:50'],
-            'zinols' => ['nullable', 'string', 'max:100'],
-            'foto' => ['nullable', 'file', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'redzamsKatalogs' => ['nullable', 'boolean'],
-            'nomasilgumsmin' => ['nullable', 'integer', 'min:1'],
-            'nomasilgumsmax' => ['nullable', 'integer', 'min:1'],
-        ];
-
-        if (! $isCreate) {
-            $rules['nosaukums'][0] = 'sometimes';
-            $rules['cenadiena'][0] = 'sometimes';
-            $rules['daudzums'][0] = 'sometimes';
-            $rules['kategorijaID'][0] = 'sometimes';
-            $rules['statuss'][0] = 'sometimes';
+        if ($path) {
+            Storage::disk('public')->delete($path);
         }
-
-        if ($existing) {
-            $rules['kategorijaID'][] = Rule::exists('kategorija', 'kategorijaID');
-        }
-
-        $validated = $request->validate($rules, [
-            'nosaukums.required' => 'Nosaukums ir obligāts.',
-            'nosaukums.max' => 'Nosaukums nedrīkst pārsniegt 100 rakstzīmes.',
-            'cenadiena.required' => 'Cena ir obligāta.',
-            'cenadiena.numeric' => 'Cena ir jābūt skaitlim.',
-            'cenadiena.min' => 'Cena nedrīkst būt negatīva.',
-            'daudzums.required' => 'Daudzums ir obligāts.',
-            'daudzums.min' => 'Daudzums nedrīkst būt negatīvs.',
-            'kategorijaID.exists' => 'Izvēlētā kategorija neeksistē.',
-            'statuss.in' => 'Statuss nav derīgs.',
-            'foto.image' => 'Foto ir jābūt attēla failam.',
-            'foto.mimes' => 'Foto formāts drīkst būt tikai JPG, JPEG vai PNG.',
-        ], [
-            'nosaukums' => 'nosaukums',
-            'cenadiena' => 'cena',
-            'daudzums' => 'daudzums',
-            'kategorijaID' => 'kategorija',
-            'statuss' => 'statuss',
-        ]);
-
-        if ($request->has('redzamsKatalogs')) {
-            $validated['redzamsKatalogs'] = (bool) $request->boolean('redzamsKatalogs');
-        }
-
-        return $validated;
     }
 
-    protected function storePhoto($file): string
+    private function isAdministrator(Request $request): bool
     {
-        $path = $file->storePublicly('tools', 'public');
-
-        return Storage::disk('public')->url($path);
+        return $request->user()?->lomas()->where('nosaukums', 'Administrators')->exists() ?? false;
     }
 
-    protected function deletePhotoIfExists(?string $photoPath): void
+    private function isPubliclyAvailable(Riks $rik): bool
     {
-        if (! $photoPath) {
-            return;
-        }
-
-        $relative = str_replace('/storage/', '', parse_url($photoPath, PHP_URL_PATH) ?? '');
-        if ($relative && Storage::disk('public')->exists($relative)) {
-            Storage::disk('public')->delete($relative);
-        }
+        return $rik->redzamsKatalogs && $rik->statuss === 'pieejams';
     }
 }

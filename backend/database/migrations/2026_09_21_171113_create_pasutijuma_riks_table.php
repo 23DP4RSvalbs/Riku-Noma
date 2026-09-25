@@ -27,8 +27,10 @@ return new class extends Migration
             
         });
 
-         DB::statement('ALTER TABLE pasutijuma_riks ADD CONSTRAINT chk_pr_daudzums CHECK (daudzums_pozicija >= 0)');
-         DB::statement('ALTER TABLE pasutijuma_riks ADD CONSTRAINT chk_pr_datumi CHECK (nomasbeigums >= nomassakums)');
+         if (DB::connection()->getDriverName() === 'mysql') {
+             DB::statement('ALTER TABLE pasutijuma_riks ADD CONSTRAINT chk_pr_daudzums CHECK (daudzums_pozicija >= 0)');
+             DB::statement('ALTER TABLE pasutijuma_riks ADD CONSTRAINT chk_pr_datumi CHECK (nomasbeigums >= nomassakums)');
+         }
     }
 
     /**
