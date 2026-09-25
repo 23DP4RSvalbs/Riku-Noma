@@ -7,6 +7,22 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
+## Rīku noma API
+
+Autentifikācijas API izmanto Laravel Sanctum bearer tokenus. Pieprasījumiem ar
+JSON datiem jāizmanto `Content-Type: application/json` un aizsargātiem
+maršrutiem `Authorization: Bearer <token>`.
+
+| Metode | Maršruts | Apraksts |
+|---|---|---|
+| POST | `/api/register` | Reģistrē lietotāju ar `vards`, `epasts`, `parole`, `parole_confirmation` un izvēles `telefons`; piešķir `Klients` lomu un atgriež tokenu |
+| POST | `/api/login` | Pieslēdz pēc `epasts` un `parole`; kļūdainiem datiem atgriež `Nepareizs e-pasts vai parole.` |
+| POST | `/api/logout` | Anulē pašreizējo tokenu |
+| GET | `/api/user` | Atgriež autentificētā lietotāja profilu un lomas |
+
+Parolei jābūt vismaz 8 rakstzīmes garai un jāsatur burti un cipari.
+Lomu middleware izmanto ar `role:admin`; tas pārbauda lomu `Administrators`.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
