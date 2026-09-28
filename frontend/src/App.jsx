@@ -210,16 +210,111 @@ async function fetchDashboard(currentFilters) {
     datums_no: toApiDate(currentFilters.datums_no),
     datums_lidz: toApiDate(currentFilters.datums_lidz),
   }
-  const [{ data: toolResponse }, { data: orderResponse }] = await Promise.all([
+  const [{ data: toolResponse }, { data: orderResponse }, { data: categoryResponse }] = await Promise.all([
     api.get('/tools', { params: { per_page: 100 } }),
     api.get('/orders', { params }),
+    api.get('/categories'),
   ])
   const { data: allOrdersResponse } = await api.get('/orders')
-  return { tools: toolResponse.data || toolResponse, orders: orderResponse.data || orderResponse, allOrders: allOrdersResponse.data || allOrdersResponse }
+  return { tools: toolResponse.data || toolResponse, categories: categoryResponse.data || categoryResponse, orders: orderResponse.data || orderResponse, allOrders: allOrdersResponse.data || allOrdersResponse }
+}
+
+const toolStatuses = ['pieejams', 'iznomats', 'apkope', 'bojats', 'arhivets']
+const emptyToolForm = { nosaukums: '', apraksts: '', cenadiena: '', daudzums: '', kategorijaID: '', statuss: 'pieejams', kods: '', zimols: '', nomasilgumsmin: '', nomasilgumsmax: '', redzamsKatalogs: true, foto: null }
+
+function AdminToolForm({ tool, categories, onClose, onSaved }) {
+  const [form, setForm] = useState(tool ? { ...emptyToolForm, ...tool, kategorijaID: tool.kategorijaID || tool.kategorija?.kategorijaID || '' } : emptyToolForm)
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+  const update = (name, value) => setForm((current) => ({ ...current, [name]: value }))
+
+  const submit = async (event) => {
+    event.preventDefault()
+    setBusy(true)
+    setError('')
+    const payload = new FormData()
+    if (tool) payload.append('_method', 'PATCH')
+    Object.entries(form).forEach(([name, value]) => {
+      if (name !== 'foto' && value !== '' && value !== null) payload.append(name, name === 'redzamsKatalogs' ? (value ? '1' : '0') : value)
+    })
+    if (form.foto) payload.append('foto', form.foto)
+    try {
+      const response = tool
+        ? await api.post(`/tools/${getToolId(tool)}`, payload)
+        : await api.post('/tools', payload)
+      onSaved(response.data)
+    } catch (requestError) {
+      const validation = requestError.response?.data?.errors
+      setError(validation ? Object.values(validation).flat().join(' ') : requestError.response?.data?.message || 'Neizdevās saglabāt rīku.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+    <form className="tool-form modal-panel" onSubmit={submit}>
+      <div className="modal-heading"><div><p className="eyebrow">{tool ? 'REDIĢĒT RĪKU' : 'JAUNS RĪKS'}</p><h2>{tool ? tool.nosaukums : 'Pievienot jaunu rīku'}</h2></div><button type="button" className="modal-close" onClick={onClose} aria-label="Aizvērt">×</button></div>
+      <div className="form-grid">
+        <label className="field"><span>Rīka nosaukums *</span><input required value={form.nosaukums} onChange={(event) => update('nosaukums', event.target.value)} /></label>
+        <label className="field"><span>Kategorija *</span><select required value={form.kategorijaID} onChange={(event) => update('kategorijaID', event.target.value)}><option value="">Izvēlies kategoriju</option>{categories.map((category) => <option key={category.kategorijaID} value={category.kategorijaID}>{category.nosaukums}</option>)}</select></label>
+        <label className="field"><span>Cena dienā (€) *</span><input required type="number" min="0" step="0.01" value={form.cenadiena} onChange={(event) => update('cenadiena', event.target.value)} /></label>
+        <label className="field"><span>Daudzums *</span><input required type="number" min="0" step="1" value={form.daudzums} onChange={(event) => update('daudzums', event.target.value)} /></label>
+        <label className="field"><span>Statuss *</span><select required value={form.statuss} onChange={(event) => update('statuss', event.target.value)}>{toolStatuses.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
+        <label className="field"><span>Redzams katalogā</span><select value={form.redzamsKatalogs ? '1' : '0'} onChange={(event) => update('redzamsKatalogs', event.target.value === '1')}><option value="1">Jā</option><option value="0">Nē</option></select></label>
+        <label className="field"><span>Kods</span><input value={form.kods || ''} onChange={(event) => update('kods', event.target.value)} /></label>
+        <label className="field"><span>Zīmols</span><input value={form.zimols || ''} onChange={(event) => update('zimols', event.target.value)} /></label>
+        <label className="field"><span>Min. nomas ilgums (dienas)</span><input type="number" min="1" value={form.nomasilgumsmin || ''} onChange={(event) => update('nomasilgumsmin', event.target.value)} /></label>
+        <label className="field"><span>Maks. nomas ilgums (dienas)</span><input type="number" min="1" value={form.nomasilgumsmax || ''} onChange={(event) => update('nomasilgumsmax', event.target.value)} /></label>
+        <label className="field field-wide"><span>Foto (JPG, PNG, līdz 5 MB)</span><input type="file" accept="image/jpeg,image/png" onChange={(event) => update('foto', event.target.files?.[0] || null)} /></label>
+        <label className="field field-wide"><span>Apraksts</span><textarea rows="4" value={form.apraksts || ''} onChange={(event) => update('apraksts', event.target.value)} /></label>
+      </div>
+      {error && <p className="form-error" role="alert">{error}</p>}
+      <div className="modal-actions"><button type="button" className="clear-button" onClick={onClose}>Atcelt</button><button className="button" disabled={busy}>{busy ? 'Saglabā...' : 'Saglabāt rīku ↗'}</button></div>
+    </form>
+  </div>
+}
+
+function DeleteToolModal({ tool, onClose, onDeleted }) {
+  const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
+  const remove = async () => {
+    setBusy(true)
+    try {
+      await api.delete(`/tools/${getToolId(tool)}`, { data: { dzeshanas_modelis: 'arhivet' } })
+      onDeleted(tool)
+    } catch (requestError) {
+      setError(requestError.response?.data?.message || 'Neizdevās dzēst rīku.')
+      setBusy(false)
+    }
+  }
+  return <div className="modal-backdrop" role="presentation"><div className="modal-panel confirm-panel"><p className="eyebrow">APSTIPRINĀT DARBĪBU</p><h2>Dzēst “{tool.nosaukums}”?</h2><p>Rīks tiks arhivēts un vairs nebūs redzams katalogā.</p>{error && <p className="form-error" role="alert">{error}</p>}<div className="modal-actions"><button className="clear-button" onClick={onClose} disabled={busy}>Atcelt</button><button className="danger-button" onClick={remove} disabled={busy}>{busy ? 'Dzēš...' : 'Dzēst rīku'}</button></div></div></div>
+}
+
+function AdminTools({ tools, categories, onChange }) {
+  const [filters, setFilters] = useState({ search: '', category: '', price: '', quantity: '', visibility: '' })
+  const [editingTool, setEditingTool] = useState(null)
+  const [deletingTool, setDeletingTool] = useState(null)
+  const [showForm, setShowForm] = useState(false)
+  const updateFilter = (name, value) => setFilters((current) => ({ ...current, [name]: value }))
+  const filteredTools = tools.filter((tool) => {
+    const categoryId = tool.kategorijaID || tool.kategorija?.kategorijaID
+    return (!filters.search || tool.nosaukums.toLowerCase().includes(filters.search.toLowerCase())) && (!filters.category || String(categoryId) === filters.category) && (!filters.price || Number(tool.cenadiena) <= Number(filters.price)) && (!filters.quantity || Number(tool.daudzums) >= Number(filters.quantity)) && (filters.visibility === '' || (filters.visibility === 'yes' ? tool.redzamsKatalogs : !tool.redzamsKatalogs))
+  })
+  const saved = (tool) => { setShowForm(false); setEditingTool(null); onChange({ type: 'saved', tool }) }
+  const deleted = (tool) => { setDeletingTool(null); onChange({ type: 'deleted', tool }) }
+
+  return <div className="tools-section"><div className="section-heading"><div><p className="eyebrow">INVENTĀRS</p><h2>Rīki</h2></div><button className="button" onClick={() => setShowForm(true)}>Pievienot jaunu rīku <span>+</span></button></div>
+    <div className="tool-filters"><label><span>Rīks</span><input placeholder="Meklēt pēc nosaukuma" value={filters.search} onChange={(event) => updateFilter('search', event.target.value)} /></label><label><span>Kategorija</span><select value={filters.category} onChange={(event) => updateFilter('category', event.target.value)}><option value="">Visas kategorijas</option>{categories.map((category) => <option key={category.kategorijaID} value={category.kategorijaID}>{category.nosaukums}</option>)}</select></label><label><span>Cena līdz (€)</span><input type="number" min="0" value={filters.price} onChange={(event) => updateFilter('price', event.target.value)} /></label><label><span>Daudzums no</span><input type="number" min="0" value={filters.quantity} onChange={(event) => updateFilter('quantity', event.target.value)} /></label><label><span>Redzamība</span><select value={filters.visibility} onChange={(event) => updateFilter('visibility', event.target.value)}><option value="">Visi</option><option value="yes">Redzami</option><option value="no">Slēpti</option></select></label></div>
+    <p className="result-count">{filteredTools.length} no {tools.length} rīkiem</p>
+    {filteredTools.length === 0 ? <div className="admin-empty">Šiem filtriem rīku nav.</div> : <div className="tools-table-wrap"><table className="tools-table"><thead><tr><th>Rīks</th><th>Kategorija</th><th>Cena / dienā</th><th>Daudzums</th><th>Redzamība</th><th aria-label="Darbības" /></tr></thead><tbody>{filteredTools.map((tool) => <tr key={getToolId(tool)}><td><strong>{tool.nosaukums}</strong><small>{tool.kods || 'Bez koda'}</small></td><td>{getToolCategory(tool)}</td><td>{formatMoney(tool.cenadiena)}</td><td>{tool.daudzums}</td><td><span className={`visibility-badge ${tool.redzamsKatalogs ? 'is-visible' : 'is-hidden'}`}>{tool.redzamsKatalogs ? 'Redzams' : 'Slēpts'}</span></td><td><div className="table-actions"><button onClick={() => setEditingTool(tool)}>Rediģēt</button><button className="delete-link" onClick={() => setDeletingTool(tool)}>Dzēst</button></div></td></tr>)}</tbody></table></div>}
+    {(showForm || editingTool) && <AdminToolForm tool={editingTool} categories={categories} onClose={() => { setShowForm(false); setEditingTool(null) }} onSaved={saved} />}
+    {deletingTool && <DeleteToolModal tool={deletingTool} onClose={() => setDeletingTool(null)} onDeleted={deleted} />}
+  </div>
 }
 
 function Admin() {
   const [tools, setTools] = useState([])
+  const [categories, setCategories] = useState([])
   const [orders, setOrders] = useState([])
   const [allOrders, setAllOrders] = useState([])
   const [filters, setFilters] = useState({ statuss: '', datums_no: '', datums_lidz: '' })
@@ -227,12 +322,21 @@ function Admin() {
   const [error, setError] = useState('')
   const [updatingOrder, setUpdatingOrder] = useState(null)
 
+  const updateTools = ({ type, tool }) => {
+    setTools((current) => type === 'deleted'
+      ? current.map((item) => getToolId(item) === getToolId(tool) ? { ...item, redzamsKatalogs: false, statuss: 'arhivets' } : item)
+      : current.some((item) => getToolId(item) === getToolId(tool))
+        ? current.map((item) => getToolId(item) === getToolId(tool) ? tool : item)
+        : [tool, ...current])
+  }
+
   const loadDashboard = async (currentFilters = filters) => {
     setLoading(true)
     setError('')
     try {
       const dashboard = await fetchDashboard(currentFilters)
       setTools(dashboard.tools)
+      setCategories(dashboard.categories)
       setOrders(dashboard.orders)
       setAllOrders(dashboard.allOrders)
     } catch (requestError) {
@@ -245,6 +349,7 @@ function Admin() {
   useEffect(() => {
     fetchDashboard({ statuss: '', datums_no: '', datums_lidz: '' }).then((dashboard) => {
       setTools(dashboard.tools)
+      setCategories(dashboard.categories)
       setOrders(dashboard.orders)
       setAllOrders(dashboard.allOrders)
     }).catch((requestError) => {
@@ -276,6 +381,7 @@ function Admin() {
       <div><span>AKTĪVIE PASŪTĪJUMI</span><strong>{activeOrders.length}</strong><small>neatcelti pasūtījumi</small></div>
       <div><span>APGROZĪJUMS</span><strong>{formatMoney(turnover)}</strong><small>neatcelti pasūtījumi</small></div>
     </div>
+    <AdminTools tools={tools} categories={categories} onChange={updateTools} />
     <div className="orders-section">
       <div className="section-heading"><div><p className="eyebrow">PĒDĒJĀ AKTIVITĀTE</p><h2>Pasūtījumi</h2></div><span className="result-count">{orders.length} ieraksti</span></div>
       <div className="order-filters">
