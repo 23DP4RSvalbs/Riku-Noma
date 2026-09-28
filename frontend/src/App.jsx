@@ -268,12 +268,117 @@ function Field({ label, name, type = 'text', value, error, onChange, autoComplet
   const errorId = `${name}-error`
   return <label className="field"><span>{label}</span><input name={name} type={type} value={value} onChange={onChange} autoComplete={autoComplete} aria-invalid={Boolean(error)} aria-describedby={error ? errorId : undefined} />{error && <span className="field-error" id={errorId} role="alert">{error}</span>}</label>
 }
-function Profile() { const { user } = useAuth(); return <section className="page-width simple-page"><p className="eyebrow">MANS KONTS</p><h1>Sveiks, <em>{user?.vards}</em>.</h1><div className="profile-box"><span className="large-avatar">{user?.vards?.slice(0, 1)}</span><div><p>Vārds</p><strong>{user?.vards}</strong><p>E-pasts</p><strong>{user?.epasts}</strong></div></div></section> }
-function Reservations() { return <section className="page-width simple-page"><p className="eyebrow">MANAS REZERVĀCIJAS</p><h1>Manas<br /><em>rezervācijas.</em></h1><div className="empty-state"><span>◌</span><h2>Vēl nav rezervāciju</h2><p>Atrodi rīku katalogā un sāc savu nākamo projektu.</p><Link className="button" to="/katalogs">Apskatīt katalogu ↗</Link></div></section> }
+function Profile() {
+  const { user } = useAuth()
+
+  return <section className="page-width simple-page">
+    <p className="eyebrow">MANS KONTS</p>
+    <h1>Sveiks, <em>{user?.vards}</em>.</h1>
+    <div className="profile-box">
+      <span className="large-avatar">{user?.vards?.slice(0, 1).toUpperCase()}</span>
+      <div className="profile-details">
+        <div><p>Vārds</p><strong>{user?.vards || '-'}</strong></div>
+        <div><p>E-pasts</p><strong>{user?.epasts || '-'}</strong></div>
+        <div><p>Tālrunis</p><strong>{user?.telefons || 'Nav norādīts'}</strong></div>
+      </div>
+    </div>
+    <Link className="arrow-link profile-orders-link" to="/rezervacijas">Skatīt pasūtījumu vēsturi ↗</Link>
+  </section>
+}
+
+function Reservations() {
+  const [orders, setOrders] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [selectedOrder, setSelectedOrder] = useState(null)
+  const [cancelBusy, setCancelBusy] = useState(false)
+  const [cancelError, setCancelError] = useState('')
+
+  useEffect(() => {
+    let active = true
+    api.get('/my-orders').then(({ data }) => {
+      if (active) setOrders(data.data || data)
+    }).catch((requestError) => {
+      if (active) setError(requestError.response?.data?.message || 'Neizdevās ielādēt pasūtījumu vēsturi.')
+    }).finally(() => {
+      if (active) setLoading(false)
+    })
+    return () => { active = false }
+  }, [])
+
+  const cancelOrder = async () => {
+    setCancelBusy(true)
+    setCancelError('')
+    try {
+      const { data } = await api.post(`/orders/${selectedOrder.pasutijumsID}/cancel`)
+      setOrders((current) => current.map((order) => order.pasutijumsID === data.pasutijumsID ? data : order))
+      setSelectedOrder(null)
+    } catch (requestError) {
+      setCancelError(requestError.response?.data?.message || 'Neizdevās atcelt pasūtījumu. Mēģiniet vēlreiz.')
+    } finally {
+      setCancelBusy(false)
+    }
+  }
+
+  return <section className="page-width simple-page">
+    <p className="eyebrow">MANS KONTS / VĒSTURE</p>
+    <h1>Mani<br /><em>pasūtījumi.</em></h1>
+    {error && <p className="catalog-error" role="alert">{error}</p>}
+    {loading ? <div className="admin-empty">Ielādē pasūtījumus...</div> : orders.length === 0 ? <div className="empty-state">
+      <h2>Vēl nav pasūtījumu</h2>
+      <p>Atrodi rīku katalogā un sāc savu nākamo projektu.</p>
+      <Link className="button" to="/katalogs">Apskatīt katalogu ↗</Link>
+    </div> : <div className="orders-table-wrap user-orders-table-wrap">
+      <table className="orders-table user-orders-table">
+        <thead><tr><th>Nr.</th><th>Rīki</th><th>Nomas datumi</th><th>Kopsumma</th><th>Statuss</th><th aria-label="Darbības" /></tr></thead>
+        <tbody>{orders.map((order) => <tr key={order.pasutijumsID}>
+          <td>#{order.pasutijumsID}</td>
+          <td><div className="order-items">{(order.riki || []).map((tool) => <span key={tool.rikID}>{tool.nosaukums} <small>× {tool.pivot?.daudzums_pozicija || 1}</small></span>)}</div></td>
+          <td><div className="order-dates">{getOrderRentalPeriods(order).map((period, index) => <span key={`${period.start}-${period.end}-${index}`}>{period.label && <small>{period.label}</small>}{formatDate(period.start)}{period.end ? ` – ${formatDate(period.end)}` : ''}</span>)}</div></td>
+          <td>{formatMoney(order.kopsumma)}</td>
+          <td><span className={`order-status order-status-${order.statuss?.toLowerCase()}`}>{formatOrderStatus(order.statuss)}</span></td>
+          <td>{order.statuss === 'Jauns' && <button className="cancel-order-button" onClick={() => { setSelectedOrder(order); setCancelError('') }}>Atcelt</button>}</td>
+        </tr>)}</tbody>
+      </table>
+    </div>}
+    {selectedOrder && <CancelOrderModal order={selectedOrder} busy={cancelBusy} error={cancelError} onClose={() => setSelectedOrder(null)} onConfirm={cancelOrder} />}
+  </section>
+}
+
+function getOrderRentalPeriods(order) {
+  const periods = (order.riki || []).map((tool) => ({
+    label: tool.nosaukums,
+    start: tool.pivot?.nomassakums,
+    end: tool.pivot?.nomasbeigums,
+  })).filter((period) => period.start || period.end)
+
+  return periods.length ? periods : [{ label: 'Pasūtījuma datums', start: order.izveidesdatums }]
+}
+
+function formatOrderStatus(status) {
+  return ({ Apstiprinats: 'Apstiprināts', Izpildits: 'Izpildīts' })[status] || status || 'Nezināms'
+}
+
+function CancelOrderModal({ order, busy, error, onClose, onConfirm }) {
+  return <div className="modal-backdrop" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && !busy && onClose()}>
+    <div className="modal-panel confirm-panel" role="dialog" aria-modal="true" aria-labelledby="cancel-order-title">
+      <p className="eyebrow">PASŪTĪJUMA ATCELŠANA</p>
+      <h2 id="cancel-order-title">Atcelt pasūtījumu #{order.pasutijumsID}?</h2>
+      <p>Šo darbību nevarēs atsaukt.</p>
+      {error && <p className="form-error" role="alert">{error}</p>}
+      <div className="modal-actions">
+        <button className="clear-button" onClick={onClose} disabled={busy}>Paturēt pasūtījumu</button>
+        <button className="danger-button" onClick={onConfirm} disabled={busy}>{busy ? 'Atceļ...' : 'Apstiprināt atcelšanu'}</button>
+      </div>
+    </div>
+  </div>
+}
 const orderStatuses = ['Jauns', 'Apstiprinats', 'Izpildits', 'Atcelts']
 
 function formatDate(date) {
   if (!date) return '-'
+  const isoDate = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(date))
+  if (isoDate) return `${isoDate[3]}.${isoDate[2]}.${isoDate[1]}`
   const value = new Date(date)
   if (Number.isNaN(value.getTime())) return '-'
   return value.toLocaleDateString('lv-LV')
