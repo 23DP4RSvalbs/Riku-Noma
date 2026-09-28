@@ -181,8 +181,93 @@ function ToolDetail() {
   </section>
 }
 
-function AuthPage({ mode }) { const isLogin = mode === 'login'; const { login, register } = useAuth(); const navigate = useNavigate(); const [form, setForm] = useState({ vards: '', epasts: '', parole: '', parole_confirmation: '' }); const [error, setError] = useState(''); const [busy, setBusy] = useState(false); const submit = async (event) => { event.preventDefault(); setError(''); setBusy(true); try { await (isLogin ? login({ epasts: form.epasts, parole: form.parole }) : register(form)); navigate('/katalogs') } catch (requestError) { setError(requestError.response?.data?.message || 'Neizdevās pabeigt darbību. Pārbaudiet ievadītos datus.') } finally { setBusy(false) } }; return <section className="auth-page"><div className="auth-panel"><p className="eyebrow">RĪKU NOMA</p><h1>{isLogin ? 'Prieks redzēt.' : 'Sāc savu projektu.'}</h1><p>{isLogin ? 'Ieej, lai pārvaldītu rezervācijas.' : 'Izveido kontu un rezervē vajadzīgo rīku.'}</p><form onSubmit={submit}>{!isLogin && <Field label="Vārds" name="vards" value={form.vards} setForm={setForm} />}<Field label="E-pasts" name="epasts" type="email" value={form.epasts} setForm={setForm} /><Field label="Parole" name="parole" type="password" value={form.parole} setForm={setForm} />{!isLogin && <Field label="Atkārto paroli" name="parole_confirmation" type="password" value={form.parole_confirmation} setForm={setForm} />}{error && <p className="form-error">{error}</p>}<button className="button submit-button" disabled={busy}>{busy ? 'Apstrādā...' : isLogin ? 'Ieiet kontā ↗' : 'Izveidot kontu ↗'}</button></form><p className="auth-switch">{isLogin ? 'Vēl nav konta?' : 'Jau esi reģistrējies?'} <Link to={isLogin ? '/registracija' : '/ieiet'}>{isLogin ? 'Reģistrēties' : 'Ieiet'}</Link></p></div><div className="auth-note"><span>RN</span><p>Rīki, kas palīdz<br /><em>izdarīt vairāk.</em></p></div></section> }
-function Field({ label, name, type = 'text', value, setForm }) { return <label className="field"><span>{label}</span><input required name={name} type={type} value={value} onChange={(event) => setForm((current) => ({ ...current, [name]: event.target.value }))} /></label> }
+function validateAuthForm(form, isLogin) {
+  const errors = {}
+  const email = form.epasts.trim()
+
+  if (!isLogin && !form.vards.trim()) errors.vards = 'Ievadiet vārdu.'
+  else if (!isLogin && form.vards.trim().length > 100) errors.vards = 'Vārds nedrīkst pārsniegt 100 rakstzīmes.'
+
+  if (!email) errors.epasts = 'Ievadiet e-pasta adresi.'
+  else if (email.length > 100) errors.epasts = 'E-pasts nedrīkst pārsniegt 100 rakstzīmes.'
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) errors.epasts = 'Ievadiet derīgu e-pasta adresi.'
+
+  if (!form.parole) errors.parole = 'Ievadiet paroli.'
+  else if (!isLogin && form.parole.length < 8) errors.parole = 'Parolei jābūt vismaz 8 rakstzīmes garai.'
+  else if (!isLogin && (!/[A-Za-z]/.test(form.parole) || !/[0-9]/.test(form.parole))) errors.parole = 'Parolei jāsatur burti un cipari.'
+
+  if (!isLogin && !form.parole_confirmation) errors.parole_confirmation = 'Atkārtoti ievadiet paroli.'
+  else if (!isLogin && form.parole_confirmation !== form.parole) errors.parole_confirmation = 'Atkārtotā parole nesakrīt.'
+
+  return errors
+}
+
+function AuthPage({ mode }) {
+  const isLogin = mode === 'login'
+  const { login, register } = useAuth()
+  const navigate = useNavigate()
+  const [form, setForm] = useState({ vards: '', epasts: '', parole: '', parole_confirmation: '' })
+  const [fieldErrors, setFieldErrors] = useState({})
+  const [error, setError] = useState('')
+  const [busy, setBusy] = useState(false)
+
+  const updateField = (event) => {
+    const { name, value } = event.target
+    setForm((current) => ({ ...current, [name]: value }))
+    setFieldErrors((current) => ({ ...current, [name]: '' }))
+    setError('')
+  }
+
+  const submit = async (event) => {
+    event.preventDefault()
+    const validationErrors = validateAuthForm(form, isLogin)
+    setFieldErrors(validationErrors)
+    setError('')
+    if (Object.keys(validationErrors).length > 0) return
+
+    setBusy(true)
+    try {
+      const credentials = { epasts: form.epasts.trim(), parole: form.parole }
+      await (isLogin ? login(credentials) : register({ ...form, epasts: form.epasts.trim(), vards: form.vards.trim() }))
+      navigate('/katalogs')
+    } catch (requestError) {
+      const serverErrors = requestError.response?.data?.errors
+      if (serverErrors) {
+        setFieldErrors(Object.fromEntries(Object.entries(serverErrors).map(([name, messages]) => [name, Array.isArray(messages) ? messages[0] : messages])))
+      } else {
+        setError(requestError.response?.data?.message || 'Neizdevās pabeigt darbību. Mēģiniet vēlreiz.')
+      }
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  return <section className="auth-page">
+    <div className="auth-panel">
+      <p className="eyebrow">RĪKU NOMA</p>
+      <div className="auth-tabs" role="tablist" aria-label="Konta piekļuve">
+        <button type="button" role="tab" aria-selected={isLogin} className={isLogin ? 'active' : ''} onClick={() => navigate('/ieiet')}>Pieslēgties</button>
+        <button type="button" role="tab" aria-selected={!isLogin} className={!isLogin ? 'active' : ''} onClick={() => navigate('/registracija')}>Reģistrēties</button>
+      </div>
+      <h1>{isLogin ? 'Prieks redzēt.' : 'Sāc savu projektu.'}</h1>
+      <p>{isLogin ? 'Ieej, lai pārvaldītu rezervācijas.' : 'Izveido kontu un rezervē vajadzīgo rīku.'}</p>
+      <form onSubmit={submit} noValidate>
+        {!isLogin && <Field label="Vārds" name="vards" value={form.vards} error={fieldErrors.vards} onChange={updateField} autoComplete="name" />}
+        <Field label="E-pasts" name="epasts" type="email" value={form.epasts} error={fieldErrors.epasts} onChange={updateField} autoComplete="email" />
+        <Field label="Parole" name="parole" type="password" value={form.parole} error={fieldErrors.parole} onChange={updateField} autoComplete={isLogin ? 'current-password' : 'new-password'} />
+        {!isLogin && <Field label="Atkārto paroli" name="parole_confirmation" type="password" value={form.parole_confirmation} error={fieldErrors.parole_confirmation} onChange={updateField} autoComplete="new-password" />}
+        {error && <p className="form-error" role="alert">{error}</p>}
+        <button className="button submit-button" disabled={busy}>{busy ? 'Apstrādā...' : isLogin ? 'Pieslēgties ↗' : 'Izveidot kontu ↗'}</button>
+      </form>
+    </div>
+    <div className="auth-note"><span>RN</span><p>Rīki, kas palīdz<br /><em>izdarīt vairāk.</em></p></div>
+  </section>
+}
+
+function Field({ label, name, type = 'text', value, error, onChange, autoComplete }) {
+  const errorId = `${name}-error`
+  return <label className="field"><span>{label}</span><input name={name} type={type} value={value} onChange={onChange} autoComplete={autoComplete} aria-invalid={Boolean(error)} aria-describedby={error ? errorId : undefined} />{error && <span className="field-error" id={errorId} role="alert">{error}</span>}</label>
+}
 function Profile() { const { user } = useAuth(); return <section className="page-width simple-page"><p className="eyebrow">MANS KONTS</p><h1>Sveiks, <em>{user?.vards}</em>.</h1><div className="profile-box"><span className="large-avatar">{user?.vards?.slice(0, 1)}</span><div><p>Vārds</p><strong>{user?.vards}</strong><p>E-pasts</p><strong>{user?.epasts}</strong></div></div></section> }
 function Reservations() { return <section className="page-width simple-page"><p className="eyebrow">MANAS REZERVĀCIJAS</p><h1>Manas<br /><em>rezervācijas.</em></h1><div className="empty-state"><span>◌</span><h2>Vēl nav rezervāciju</h2><p>Atrodi rīku katalogā un sāc savu nākamo projektu.</p><Link className="button" to="/katalogs">Apskatīt katalogu ↗</Link></div></section> }
 const orderStatuses = ['Jauns', 'Apstiprinats', 'Izpildits', 'Atcelts']
