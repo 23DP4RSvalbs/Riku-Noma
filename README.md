@@ -35,14 +35,18 @@ cita dalībnieka.
 - Rīku katalogs ar meklēšanu un filtrēšanu (viesis/lietotājs/admin)
 - Rezervēšana ar datumu atlasi un pieejamības pārbaudi (lietotājs)
 - Pilna CRUD funkcionalitāte rīku pārvaldībai (administrators)
-- Reģistrācija, autentifikācija un profila pārvaldība
+- Reģistrācija, autentifikācija, profila informācijas un paroles maiņa
+- Obligāta lietošanas noteikumu piekrišana rezervējot; piekrišana tiek piesaistīta pasūtījumam
+- Instrumentu vērtējumi un atsauksmes pēc pabeigtas nomas
 - Apstiprinājuma un kļūdas paziņojumi, dzēšanas apstiprinājuma modāļi
-- Administratora panelis ar pārskatiem
+- Administratora panelis ar inventāra un pasūtījumu pārvaldību, lietotāju meklēšanu un lomu maiņu
 - Responsīvs dizains
 
 **Lomas:** Viesis – skata katalogu, meklē, filtrē. Lietotājs – + rezervē, apskata
-vēsturi, atceļ. Administrators – pilna piekļuve: CRUD, rezervāciju un lietotāju
-pārvaldība, statistika.
+vēsturi, atceļ. Klients pēc pabeigtas nomas var novērtēt iznomāto rīku.
+Administrators – pilna piekļuve: CRUD, rezervāciju un lietotāju pārvaldība
+(tostarp piekļuves līmeņi), statistika. Jauns rezervācijas pieprasījums gaida
+administratora apstiprinājumu; lietotājs redz tā statusu savā kontā.
 
 ## Tēmas izpēte un pamatojums
 
@@ -143,6 +147,8 @@ cp .env.example .env
 php artisan key:generate
 # .env iestatīt: DB_DATABASE=riki_noma, DB_USERNAME=..., DB_PASSWORD=...
 php artisan migrate          # izveido tabulas
+php artisan db:seed          # sākuma lomas, konti, kategorijas un inventārs
+php artisan storage:link     # publiska piekļuve augšupielādētajiem attēliem
 php artisan serve            # API: http://localhost:8000
 
 # Frontend (React)
@@ -150,3 +156,5 @@ cd frontend
 npm install
 npm run dev                  # Lietotne: http://localhost:5173
 ```
+
+Sēklas datus pievieno tikai jaunai, tikko migrētai datubāzei. Tie paredzēti lokālai izstrādei un demonstrācijai; pirms publiskas izvietošanas nomaini sākotnējo kontu paroles.

@@ -30,4 +30,9 @@ class Lietotajs extends Authenticatable
     {
         return $this->hasMany(Pasutijums::class, 'lietotajID');
     }
+
+    public function rikAtsauksmes()
+    {
+        return $this->hasMany(RikAtsauksme::class, 'lietotajID');
+    }
 }

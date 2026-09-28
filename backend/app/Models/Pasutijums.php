@@ -8,8 +8,8 @@ class Pasutijums extends Model
 {
     protected $table = 'pasutijums';
     protected $primaryKey = 'pasutijumsID';
-    protected $fillable = ['kopsumma', 'statuss', 'izveidesdatums', 'lietotajID'];
-    protected $casts = ['kopsumma' => 'decimal:2', 'izveidesdatums' => 'datetime'];
+    protected $fillable = ['kopsumma', 'statuss', 'izveidesdatums', 'lietotajID', 'noteikumu_versija', 'noteikumi_apstiprinati_at'];
+    protected $casts = ['kopsumma' => 'decimal:2', 'izveidesdatums' => 'datetime', 'noteikumi_apstiprinati_at' => 'datetime'];
 
     public function lietotajs() 
     { 
