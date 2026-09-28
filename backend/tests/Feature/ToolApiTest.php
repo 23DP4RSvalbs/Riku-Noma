@@ -87,6 +87,28 @@ class ToolApiTest extends TestCase
             ->assertJsonPath('available_quantity', 3);
     }
 
+    public function test_month_availability_returns_daily_remaining_quantities(): void
+    {
+        $category = Kategorija::create(['nosaukums' => 'Urbji']);
+        $tool = Riks::create($this->toolData($category, 'Pieejams urbis'));
+        $user = $this->userWithRole('Klients', 'calendar-renter@example.com');
+        $order = Pasutijums::create(['lietotajID' => $user->getKey(), 'statuss' => 'Jauns']);
+        $order->riki()->attach($tool->getKey(), [
+            'daudzums_pozicija' => 3,
+            'nomassakums' => '2026-10-02',
+            'nomasbeigums' => '2026-10-04',
+        ]);
+
+        $this->getJson('/api/tools/' . $tool->getKey() . '/availability?month=2026-10')
+            ->assertOk()
+            ->assertJsonPath('total_quantity', 5)
+            ->assertJsonPath('days.2026-10-01.available_quantity', 5)
+            ->assertJsonPath('days.2026-10-02.reserved_quantity', 3)
+            ->assertJsonPath('days.2026-10-03.available_quantity', 2)
+            ->assertJsonPath('days.2026-10-04.available_quantity', 2)
+            ->assertJsonPath('days.2026-10-05.available_quantity', 5);
+    }
+
     public function test_non_admin_cannot_create_tool(): void
     {
         $category = Kategorija::create(['nosaukums' => 'Darbnīca']);

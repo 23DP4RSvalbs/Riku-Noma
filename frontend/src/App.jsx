@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { BrowserRouter, Link, NavLink, Outlet, Route, Routes, useNavigate, useParams } from 'react-router-dom'
+import { BrowserRouter, Link, NavLink, Outlet, Route, Routes, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import { useAuth } from './context/useAuth'
 import api from './services/api'
@@ -287,6 +287,232 @@ function Profile() {
 }
 
 function Reservations() {
+  const [searchParams] = useSearchParams()
+  const toolId = searchParams.get('rikID')
+
+  return toolId ? <BookingForm key={toolId} toolId={toolId} searchParams={searchParams} /> : <OrderHistory />
+}
+
+function getLocalDateValue(date) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+function getMonthValue(dateValue) {
+  if (dateValue && /^\d{4}-\d{2}-\d{2}$/.test(dateValue)) return dateValue.slice(0, 7)
+  return getLocalDateValue(new Date()).slice(0, 7)
+}
+
+function getCalendarCells(monthValue) {
+  const [year, month] = monthValue.split('-').map(Number)
+  const firstDay = new Date(year, month - 1, 1)
+  const mondayOffset = (firstDay.getDay() + 6) % 7
+  const gridStart = new Date(year, month - 1, 1 - mondayOffset)
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(gridStart)
+    date.setDate(gridStart.getDate() + index)
+    return { value: getLocalDateValue(date), day: date.getDate(), inMonth: date.getMonth() === month - 1 }
+  })
+}
+
+function shiftMonth(monthValue, amount) {
+  const [year, month] = monthValue.split('-').map(Number)
+  return getLocalDateValue(new Date(year, month - 1 + amount, 1)).slice(0, 7)
+}
+
+function getDateRange(startValue, endValue) {
+  if (!startValue || !endValue || endValue < startValue) return []
+  const [year, month, day] = startValue.split('-').map(Number)
+  const date = new Date(year, month - 1, day)
+  const dates = []
+  while (getLocalDateValue(date) <= endValue) {
+    dates.push(getLocalDateValue(date))
+    date.setDate(date.getDate() + 1)
+  }
+  return dates
+}
+
+function getMonthsInRange(startValue, endValue) {
+  return [...new Set(getDateRange(startValue, endValue).map((date) => date.slice(0, 7)))]
+}
+
+function BookingForm({ toolId, searchParams }) {
+  const [dates, setDates] = useState(() => ({
+    from: searchParams.get('nomasSakums') || '',
+    to: searchParams.get('nomasBeigums') || '',
+  }))
+  const [month, setMonth] = useState(() => getMonthValue(searchParams.get('nomasSakums')))
+  const [tool, setTool] = useState(null)
+  const [toolLoading, setToolLoading] = useState(true)
+  const [toolError, setToolError] = useState('')
+  const [availabilityByMonth, setAvailabilityByMonth] = useState({})
+  const [calendarLoading, setCalendarLoading] = useState(true)
+  const [calendarError, setCalendarError] = useState('')
+  const [quantity, setQuantity] = useState(1)
+  const [formError, setFormError] = useState('')
+  const [submitting, setSubmitting] = useState(false)
+  const [createdOrder, setCreatedOrder] = useState(null)
+  const today = getLocalDateValue(new Date())
+
+  useEffect(() => {
+    let active = true
+    api.get(`/tools/${toolId}`).then(({ data }) => {
+      if (active) setTool(data)
+    }).catch((requestError) => {
+      if (active) setToolError(requestError.response?.data?.message || 'Neizdevās ielādēt rīka informāciju.')
+    }).finally(() => {
+      if (active) setToolLoading(false)
+    })
+    return () => { active = false }
+  }, [toolId])
+
+  useEffect(() => {
+    let active = true
+    const months = new Set([month, ...getMonthsInRange(dates.from, dates.to)])
+    Promise.all([...months].map((monthValue) => api.get(`/tools/${toolId}/availability`, { params: { month: monthValue } })))
+      .then((responses) => {
+        if (active) {
+          setAvailabilityByMonth((current) => ({
+            ...current,
+            ...Object.fromEntries(responses.map(({ data }) => [data.month, data])),
+          }))
+          setCalendarError('')
+        }
+      })
+      .catch((requestError) => {
+        if (active) setCalendarError(requestError.response?.data?.message || 'Neizdevās ielādēt kalendāra pieejamību.')
+      })
+      .finally(() => {
+        if (active) setCalendarLoading(false)
+      })
+    return () => { active = false }
+  }, [dates.from, dates.to, month, toolId])
+
+  const selectedDates = getDateRange(dates.from, dates.to)
+  const rangeAvailability = selectedDates.map((date) => availabilityByMonth[date.slice(0, 7)]?.days?.[date]?.available_quantity)
+  const rangeLoaded = selectedDates.length > 0 && rangeAvailability.every((value) => Number.isInteger(value))
+  const rangeCapacity = rangeLoaded ? Math.min(...rangeAvailability) : 0
+  const quantityLimit = selectedDates.length === 0
+    ? Number(tool?.daudzums || 0)
+    : rangeLoaded ? rangeCapacity : 0
+  const dayCount = selectedDates.length
+  const totalPrice = Number(tool?.cenadiena || 0) * dayCount * quantity
+  const calendarCells = getCalendarCells(month)
+  const monthTitle = new Intl.DateTimeFormat('lv-LV', { month: 'long', year: 'numeric' }).format(new Date(`${month}-01T00:00:00`))
+  const currentMonth = getMonthValue(today)
+
+  const selectDate = (date) => {
+    setFormError('')
+    if (!dates.from || dates.to || date < dates.from) {
+      setDates({ from: date, to: '' })
+      return
+    }
+    setDates((current) => ({ ...current, to: date }))
+  }
+
+  const submit = async (event) => {
+    event.preventDefault()
+    setFormError('')
+    if (!tool || !dates.from || !dates.to) {
+      setFormError('Izvēlieties nomas sākuma un beigu datumu.')
+      return
+    }
+    if (!rangeLoaded || quantity > rangeCapacity) {
+      setFormError('Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.')
+      return
+    }
+
+    setSubmitting(true)
+    try {
+      const { data } = await api.post('/orders', {
+        riki: [{
+          rikID: Number(toolId),
+          daudzums: Number(quantity),
+          nomasSakums: toApiDate(dates.from),
+          nomasBeigums: toApiDate(dates.to),
+        }],
+      })
+      setCreatedOrder(data)
+    } catch (requestError) {
+      const validationErrors = requestError.response?.data?.errors
+      setFormError(validationErrors ? Object.values(validationErrors).flat().join(' ') : requestError.response?.data?.message || 'Neizdevās apstiprināt rezervāciju.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  if (toolLoading) return <div className="loading">Ielādē rezervācijas formu...</div>
+  if (toolError || !tool) return <section className="page-width error-page"><h1>{toolError || 'Rīks nav atrasts.'}</h1><Link className="button" to="/katalogs">Atgriezties katalogā ↗</Link></section>
+
+  if (createdOrder) return <section className="page-width reservation-page">
+    <div className="reservation-success" role="status">
+      <span className="success-mark">✓</span>
+      <p className="eyebrow">REZERVĀCIJA PABEIGTA</p>
+      <h1>Rezervācija<br /><em>apstiprināta!</em></h1>
+      <p>Rezervācija apstiprināta! Pasūtījuma Nr. <strong>{createdOrder.pasutijumsID}</strong>.</p>
+      <div className="reservation-success-actions"><Link className="button" to="/rezervacijas">Mani pasūtījumi</Link><Link className="arrow-link" to="/katalogs">Atgriezties katalogā ↗</Link></div>
+    </div>
+  </section>
+
+  const imageUrl = getToolImage(tool)
+  const quantityOptions = Array.from({ length: Math.max(0, quantityLimit) }, (_, index) => index + 1)
+
+  return <section className="page-width reservation-page">
+    <Link className="back-link" to={`/katalogs/${toolId}`}>← Atpakaļ pie rīka</Link>
+    <div className="reservation-heading"><p className="eyebrow">REZERVĀCIJA / 01</p><h1>Izvēlies<br /><em>nomas laiku.</em></h1></div>
+    <div className="reservation-tool-summary">
+      <div className="reservation-tool-image">{imageUrl ? <img src={imageUrl} alt={tool.nosaukums} /> : <span>✦</span>}</div>
+      <div><p className="eyebrow">{getToolCategory(tool)}</p><h2>{tool.nosaukums}</h2><p>{tool.cenadiena} € / dienā</p></div>
+    </div>
+
+    <form className="booking-layout" onSubmit={submit}>
+      <div className="booking-calendar-section">
+        <div className="booking-section-heading"><div><p className="eyebrow">01 / DATUMI</p><h2>Izvēlies periodu</h2></div><p>Izvēlies sākuma un beigu dienu.</p></div>
+        <div className="calendar-toolbar">
+          <button type="button" className="calendar-nav" aria-label="Iepriekšējais mēnesis" disabled={month <= currentMonth} onClick={() => { setCalendarLoading(true); setMonth((current) => shiftMonth(current, -1)) }}>←</button>
+          <h3>{monthTitle}</h3>
+          <button type="button" className="calendar-nav" aria-label="Nākamais mēnesis" onClick={() => { setCalendarLoading(true); setMonth((current) => shiftMonth(current, 1)) }}>→</button>
+        </div>
+        <div className="booking-calendar" aria-label={`Pieejamība: ${monthTitle}`}>
+          {['P', 'O', 'T', 'C', 'Pk', 'S', 'Sv'].map((weekday, index) => <span className="calendar-weekday" key={`${weekday}-${index}`}>{weekday}</span>)}
+          {calendarCells.map((cell) => {
+            const available = availabilityByMonth[month]?.days?.[cell.value]?.available_quantity
+            const unavailable = !Number.isInteger(available) || available < quantity
+            const disabled = !cell.inMonth || cell.value < today || unavailable || tool.statuss !== 'pieejams'
+            const inRange = dates.from && dates.to && cell.value >= dates.from && cell.value <= dates.to
+            const isEndpoint = cell.value === dates.from || cell.value === dates.to
+            const className = ['calendar-day', !cell.inMonth && 'is-outside', unavailable && cell.inMonth && 'is-busy', inRange && 'is-in-range', isEndpoint && 'is-endpoint', cell.value === today && 'is-today'].filter(Boolean).join(' ')
+            return <button type="button" key={cell.value} className={className} disabled={disabled} aria-pressed={isEndpoint} aria-label={`${cell.value}${unavailable && cell.inMonth ? ', nav pieejams izvēlētais daudzums' : ''}`} onClick={() => selectDate(cell.value)}>
+              <span>{cell.day}</span>{cell.inMonth && Number.isInteger(available) && <small>{available}</small>}
+            </button>
+          })}
+        </div>
+        <div className="calendar-legend"><span><i className="legend-available" /> Pieejams</span><span><i className="legend-selected" /> Izvēlētais periods</span><span><i className="legend-unavailable" /> Nav pieejams</span></div>
+        {calendarLoading && <p className="availability-note">Ielādē kalendāra pieejamību...</p>}
+        {calendarError && <p className="catalog-error" role="alert">{calendarError}</p>}
+        {dates.from && <p className="booking-date-summary">Sākums: <strong>{formatDate(dates.from)}</strong>{dates.to && <> · Beigas: <strong>{formatDate(dates.to)}</strong></>}</p>}
+        {dates.to && rangeLoaded && quantity > rangeCapacity && <p className="form-error" role="alert">Izvēlētajā periodā pieejami tikai {rangeCapacity} rīki.</p>}
+      </div>
+
+      <aside className="booking-summary">
+        <div className="booking-section-heading"><div><p className="eyebrow">02 / REZERVĀCIJA</p><h2>Aprēķins</h2></div></div>
+        <label className="booking-quantity"><span>Instrumentu daudzums</span><select value={quantity} onChange={(event) => setQuantity(Number(event.target.value))} disabled={quantityLimit < 1}>
+          {quantityOptions.length ? quantityOptions.map((option) => <option key={option} value={option}>{option} {option === 1 ? 'instruments' : 'instrumenti'}</option>) : <option value={1}>Nav pieejams</option>}
+        </select></label>
+        <div className="booking-price-lines"><p><span>Nomas ilgums</span><strong>{dayCount || '—'} {dayCount === 1 ? 'diena' : 'dienas'}</strong></p><p><span>Cena dienā</span><strong>{formatMoney(tool.cenadiena)}</strong></p><p><span>Daudzums</span><strong>{quantity}</strong></p></div>
+        <div className="booking-total"><span>Kopā</span><strong>{formatMoney(totalPrice)}</strong></div>
+        {formError && <p className="form-error" role="alert">{formError}</p>}
+        <button className="button booking-submit" disabled={submitting || !dates.from || !dates.to || !rangeLoaded || quantity > rangeCapacity || calendarLoading || Boolean(calendarError)}>{submitting ? 'Apstiprina...' : 'Apstiprināt rezervāciju ↗'}</button>
+        <p className="booking-note">Summa aprēķināta par katru nomas dienu, ieskaitot sākuma un beigu datumu.</p>
+      </aside>
+    </form>
+  </section>
+}
+
+function OrderHistory() {
   const [orders, setOrders] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
