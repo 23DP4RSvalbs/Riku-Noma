@@ -1,3 +1,8 @@
+## TEST-4 labojumi un atkārtotā testēšana
+
+| Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
+|---|---|---|---|---|---|---|
+| TEST3-003 | Laravel noklusētais `AuthenticationException` JSON atbildes teksts ir angļu valodā. | Laravel izņēmumu apstrādē API ceļiem pievienota lokalizēta `401` JSON atbilde; Feature tests pārbauda esošo `GET /api/user` maršrutu. | `ddb1d17` (`[TEST-4] Novērst TEST3-003: API autentifikācijas kļūda`); PR nav izveidots. | 2026-10-02 | Automatizēta izpilde | Fokusa tests izgāja: `401` un latvisks kļūdas ziņojums (1 tests, 2 assertions). Pilnā kopa: 15 izgāja, 6 neizgāja; atlikušās kļūdas reģistrētas atsevišķi. |
 # TEST-2 kļūdu reģistrs
 
 | Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
