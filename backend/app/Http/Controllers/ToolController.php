@@ -179,6 +179,12 @@ class ToolController extends Controller
             'nomasilgumsmax' => ['sometimes', 'nullable', 'integer', 'min:1', 'gte:nomasilgumsmin'],
             'redzamsKatalogs' => ['sometimes', 'boolean'],
             'foto' => [$partial ? 'sometimes' : 'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
+        ], [
+            'cenadiena.min' => 'Dienas cenai jābūt vismaz 0.',
+            'daudzums.min' => 'Daudzumam jābūt vismaz 0.',
+        ], [
+            'cenadiena' => 'cena dienā',
+            'daudzums' => 'daudzums',
         ]);
     }
 
