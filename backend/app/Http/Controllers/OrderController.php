@@ -50,7 +50,7 @@ class OrderController extends Controller
 
                 if ($end->lt($start)) {
                     abort(response()->json([
-                        'message' => 'Nomas beigu datumam jābūt pēc sākuma datuma.',
+                        'message' => 'Nomas beigu datumam jābūt vienādam ar sākuma datumu vai vēlāk.',
                     ], 422));
                 }
 
