@@ -1,5 +1,11 @@
 # TEST-2 kļūdu reģistrs
 
+## TEST-4 labojumi un atkārtotā testēšana
+
+| Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
+|---|---|---|---|---|---|---|
+| TEST2-002 | `OrderApiTest::test_user_can_create_order_with_total_and_dates` veidoja pieprasījumu bez API obligātajiem noteikumu piekrišanas laukiem; pēc consent līguma ieviešanas testa ievade bija novecojusi. | Testa pieprasījumā pievienoti `noteikumi_apstiprinati=true` un `noteikumu_versija=1.0`; lietotnes kods nemainīts. | `54194c4` (`[TEST-4] Novērst TEST2-002: pievienot piekrišanu testam`); PR nav izveidots. | 2026-10-02 | Automatizēta izpilde | Fokusa tests izgāja: 1 tests, 4 assertions. Pilnā kopa: 15 izgāja, 5 neizgāja; palikušās kļūdas reģistrētas atsevišķi. |
+
 **Datums:** 2026-10-02
 
 **Vide:** `origin/main` (`815eb02`), zars `test/TEST-2-functional-ui`; PHPUnit ar `phpunit.xml` SQLite `:memory:` datubāzi; PHP 8.4.15. TEST-2/TEST-3 laikā lietotnes kods netika mainīts.
