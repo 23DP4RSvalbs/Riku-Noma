@@ -41,11 +41,11 @@ class ToolApiTest extends TestCase
         Riks::create($this->toolData($drills, 'Triecienurbjmašīna'));
         Riks::create($this->toolData($saws, 'Ripzāģis'));
 
-        $this->getJson('/api/tools?search=urbj&category_id=' . $drills->getKey() . '&per_page=1')
+        $this->getJson('/api/tools?search=urb&category_id=' . $drills->getKey() . '&per_page=1')
             ->assertOk()
             ->assertJsonCount(1, 'data')
-            ->assertJsonPath('meta.total', 2)
-            ->assertJsonPath('meta.per_page', 1);
+            ->assertJsonPath('total', 2)
+            ->assertJsonPath('per_page', 1);
     }
 
     public function test_public_details_and_availability_hide_non_public_tools(): void

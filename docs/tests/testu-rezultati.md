@@ -1,4 +1,11 @@
 # TEST-2 testa rezultāti
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST2-005 | 2026-10-02 | Automatizēta izpilde | Kataloga meklēšanas/lapošanas tests atgrieza vienu lapas ierakstu un pārbaudīja `total=2`, `per_page=1` Laravel paginatora augšējā līmenī. | Izgāja | `cd backend && php artisan test --filter=test_public_catalog_supports_search_category_and_pagination`; 1 tests, 4 assertions; commit `c0d8fd5`. |
+| Backend regresija pēc TEST2-005 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 5 neizgāja; redzami tikai pārējie reģistrētie TEST-2 defekti un GD vides bloķētājs. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `c0d8fd5`. |
+
 
 **Datums:** 2026-10-02
 
