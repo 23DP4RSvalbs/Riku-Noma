@@ -39,13 +39,12 @@ Komanda `cd backend && php artisan test`: **14 izgāja, 6 neizgāja, kopā 20**.
 
 ## UI un testa plāna statuss
 
-`docs/tests/testa-plans.md` repozitorijā nav atrasts (`find docs -maxdepth 4 -type f`). Tāpēc oficiālos `FT-xx` identifikatorus un UI scenāriju sarakstu nevar noteikt; tie nav izdomāti. Tālāk norādītās rindas ir esošo lietotnes maršrutu un lomu pārklājuma inventārs, nevis aizstājēji trūkstošajiem plāna ID.
+**Korekcija:** TEST-2 atskaitē kļūdaini norādīts, ka `docs/tests/testa-plans.md` nav atrasts. Plāns bija pieejams jau TEST-2 bāzes commitā `815eb02`; toreizējā `find` komanda tika palaista no `backend` mapes un skatīja nepareizo relatīvo ceļu. TEST-2 UI pārbaudes joprojām netika veiktas, jo pārlūka izpildvide nebija pieejama. TEST-3 scenāriji zemāk ņemti no faktiskā plāna.
 
 Visiem UI scenārijiem statuss ir **Bloķēts**: vidē nav Chromium, Chrome, Firefox, Playwright vai Puppeteer, tāpēc nebija iespējams veikt pārlūka klikšķu, vizuālo vai mobilo skatu testēšanu.
 
 | ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
 |---|---|---|---|---|---|
-| Trūkstošais FT/UI plāns | 2026-10-02 | Automatizēta izpilde | Faila `docs/tests/testa-plans.md` nav; oficiālie scenāriji un ID nav zināmi. | Bloķēts | `find docs -maxdepth 4 -type f`; nākamais solis: pievienot apstiprināto testa plānu un atkārtot katru tajā norādīto gadījumu. |
 | Viesis: `/` | 2026-10-02 | Automatizēta izpilde | Pārlūkā sākumlapa netika atvērta un pārbaudīta. | Bloķēts | Pārlūka izpildvide nav instalēta; nākamais solis: palaist šo maršrutu pārlūkā. |
 | Viesis: `/katalogs` | 2026-10-02 | Automatizēta izpilde | Meklēšana un kategoriju filtri pārlūkā netika izmēģināti. | Bloķēts | Pārlūka izpildvide nav instalēta; nākamais solis: izmēģināt viesim ar sēklas datiem. |
 | Viesis: `/katalogs/{id}` | 2026-10-02 | Automatizēta izpilde | Rīka detaļas, pieejamība un atsauksmes pārlūkā netika pārbaudītas. | Bloķēts | Pārlūka izpildvide nav instalēta; nākamais solis: atvērt sēklas rīka detaļas. |
@@ -56,6 +55,43 @@ Visiem UI scenārijiem statuss ir **Bloķēts**: vidē nav Chromium, Chrome, Fir
 | Noteikumi: `/noteikumi` | 2026-10-02 | Automatizēta izpilde | Noteikumu lapa un obligātās piekrišanas mijiedarbība pārlūkā netika pārbaudīta. | Bloķēts | Pārlūka izpildvide nav instalēta; nākamais solis: pārbaudīt noteikumu lapu un rezervācijas iesniegšanas validāciju. |
 | Mobilā navigācija un izkārtojumi | 2026-10-02 | Automatizēta izpilde | Mobilā izvēlne un izkārtojumi dažādos skatos netika pārbaudīti. | Bloķēts | Pārlūka izpildvide nav instalēta; nākamais solis: izpildīt apstiprinātajā UI testa plānā definētos mobilos skatus. |
 
+## TEST-3 robežvērtību un kļūdu scenāriji
+
+**Vide:** latest `origin/main` `84ab129`, zars `test/TEST-3-boundary-errors`; API `127.0.0.1:8013`; izolēta SQLite datubāze `/tmp/riku-noma-test3-20261002.sqlite`, migrēta un piepildīta ar esošajiem sēklas datiem. Katrā nederīgajā ievadē salīdzināts mērķa ierakstu skaits pirms un pēc pieprasījuma. Derīgie pārbaudes ieraksti palika tikai izolētajā testa datubāzē; rezervācijas, kas aizņēma krājumu turpmākam testam, pēc mērījuma tika atceltas caur API.
+
+| ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| BV-01 (7 rakstzīmes) | 2026-10-02 | API | `POST /api/register` atgrieza `422`, ziņojums: “Parolei jābūt vismaz 8 rakstzīmes garai.” Lietotāja ieraksts `0->0`. | Izgāja | API atbilde un SQLite `lietotajs` skaits e-pastam `bv01-7@example.test`, pirms/pēc. |
+| BV-01 (8 rakstzīmes) | 2026-10-02 | API | `Riki1234` tika pieņemta; `201`, “Lietotājs veiksmīgi reģistrēts.” Lietotāja ieraksts `0->1`. | Izgāja | API atbilde un SQLite `lietotajs` skaits e-pastam `bv01-8@example.test`, pirms/pēc. |
+| BV-02 (bez burtiem) | 2026-10-02 | API | `12345678` noraidīta ar `422`, “Parolei jāsatur burti un cipari.” Ieraksts `0->0`. | Izgāja | API atbilde un SQLite `lietotajs` skaits e-pastam `bv02-digits@example.test`, pirms/pēc. |
+| BV-02 (bez cipariem) | 2026-10-02 | API | `Rikikiki` noraidīta ar `422`, “Parolei jāsatur burti un cipari.” Ieraksts `0->0`. | Izgāja | API atbilde un SQLite `lietotajs` skaits e-pastam `bv02-letters@example.test`, pirms/pēc. |
+| BV-03 (cena 0) | 2026-10-02 | API | Administratora `POST /api/tools` ar cenu `0.00` atgrieza `201`; rīka ieraksts `0->1`. | Izgāja | API atbilde un SQLite `riks` skaits nosaukumam `TEST3-BV03-zero-price`, pirms/pēc. |
+| BV-03 (negatīva cena) | 2026-10-02 | API | Cena `-0.01` noraidīta ar `422`; ieraksts `0->0`. Ziņojums angliski: “The cenadiena field must be at least 0.” | Neizgāja | API atbilde un SQLite `riks` skaits nosaukumam `TEST3-BV03-negative-price`, pirms/pēc; kļūda `TEST3-002`. |
+| BV-04 (daudzums 0) | 2026-10-02 | API | Daudzums `0` pieņemts ar `201`; rīka ieraksts `0->1`. | Izgāja | API atbilde un SQLite `riks` skaits nosaukumam `TEST3-BV04-zero-quantity`, pirms/pēc. |
+| BV-04 (negatīvs daudzums) | 2026-10-02 | API | Daudzums `-1` noraidīts ar `422`; ieraksts `0->0`. Ziņojums angliski: “The daudzums field must be at least 0.” | Neizgāja | API atbilde un SQLite `riks` skaits nosaukumam `TEST3-BV04-negative-quantity`, pirms/pēc; kļūda `TEST3-002`. |
+| BV-05 (sākums pagātnē) | 2026-10-02 | API | Sākuma datums `01.10.2026` (iepriekšējā diena) pieņemts ar `201`; pasūtījumu/rindu skaits `0->1`. Izveidoto pasūtījumu pēc rezultāta fiksēšanas atcēla caur atcelšanas API. | Neizgāja | `POST /api/orders` atbilde un SQLite `pasutijums`/`pasutijuma_riks` skaiti pirms/pēc; kļūda `TEST3-001`. |
+| BV-06 (vienādi datumi) | 2026-10-02 | API | Sākums un beigas `10.10.2026` pieņemti ar `201`; pasūtījumu/rindu skaits `1->2`. Pārbaudes rezervācija pēc mērījuma atcelta caur API. | Izgāja | `POST /api/orders` atbilde un SQLite `pasutijums`/`pasutijuma_riks` skaiti pirms/pēc. |
+| BV-06 (beigas pirms sākuma) | 2026-10-02 | API | `11.10.2026` līdz `10.10.2026` noraidīts ar `422`, “Nomas beigu datumam jābūt pēc sākuma datuma.” Pasūtījumu/rindu skaits palika `2->2`. | Neizgāja | `POST /api/orders` atbilde un SQLite `pasutijums`/`pasutijuma_riks` skaiti pirms/pēc; kļūda `TEST3-004` par pretrunīgo formulējumu. |
+| ER-01 (dublēts e-pasts) | 2026-10-02 | API | Esošais `marija@test.lv` noraidīts ar `422`, “Šis e-pasts jau ir reģistrēts.” Lietotāja skaits palika `1->1`. | Izgāja | API atbilde un SQLite `lietotajs` skaits e-pastam `marija@test.lv`, pirms/pēc. |
+| ER-02 (klients admin maršrutā) | 2026-10-02 | API | Autentificētam klientam `GET /api/orders` atgrieza `403`, “Jums nav nepieciešamo tiesību.” Pasūtījumu skaits nemainījās. | Izgāja | API atbilde un SQLite `pasutijums` skaits pirms/pēc. |
+| ER-03 (nepieejams rīks) | 2026-10-02 | API | Otrs klients mēģināja rezervēt jau pilnībā rezervētu rīku; `422`, “Šis instruments jau ir aizņemts šajos datumos”. Pasūtījumu un rindu skaits palika attiecīgi `3->3` un `3->3`. | Izgāja | API atbilde un SQLite `pasutijums`/`pasutijuma_riks` skaiti pirms/pēc. |
+| ER-04 (bez autentifikācijas) | 2026-10-02 | API | `GET /api/orders` bez tokena atgrieza `401`, “Unauthenticated.” Pasūtījumu skaits nemainījās. | Neizgāja | API atbilde un SQLite `pasutijums` skaits pirms/pēc; angļu ziņojums reģistrēts kā `TEST3-003`. |
+
+Visas BV/ER scenāriju **pārlūka** pārbaudes ir **Bloķētas**: vidē nav Chromium/Chrome/Firefox un nav Playwright/Puppeteer. Tāpēc nav apgalvots, ka UI kļūdas redzamība vai klienta formas uzvedība ir pārbaudīta.
+
+| ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| BV-01 UI | 2026-10-02 | Pārlūks | 7/8 rakstzīmju reģistrācijas robeža lietotāja saskarnē nav pārbaudīta. | Bloķēts | Pārlūka izpildvide nav pieejama; nākamais solis: izpildīt ar Chromium `docs/tests/testa-plans.md` BV-01. |
+| BV-02 UI | 2026-10-02 | Pārlūks | Paroles sastāva kļūdas lietotāja saskarnē nav pārbaudītas. | Bloķēts | Pārlūka izpildvide nav pieejama; nākamais solis: izpildīt ar Chromium BV-02. |
+| BV-03 UI | 2026-10-02 | Pārlūks | Cenas `0`/negatīvas cenas forma un kļūdas paziņojums nav pārbaudīti. | Bloķēts | Pārlūka izpildvide nav pieejama; nākamais solis: izpildīt ar Chromium BV-03. |
+| BV-04 UI | 2026-10-02 | Pārlūks | Daudzuma `0`/negatīva daudzuma forma un kļūdas paziņojums nav pārbaudīti. | Bloķēts | Pārlūka izpildvide nav pieejama; nākamais solis: izpildīt ar Chromium BV-04. |
+| BV-05 UI | 2026-10-02 | Pārlūks | Pagātnes datuma izvēles un lietotājam redzamās validācijas uzvedība nav pārbaudīta. | Bloķēts | Pārlūka izpildvide nav pieejama; nākamais solis: izpildīt ar Chromium BV-05. |
+| BV-06 UI | 2026-10-02 | Pārlūks | Vienādu/apgrieztu datumu formas uzvedība un kļūdas teksts nav pārbaudīts. | Bloķēts | Pārlūka izpildvide nav pieejama; nākamais solis: izpildīt ar Chromium BV-06. |
+| ER-01 UI | 2026-10-02 | Pārlūks | Dublēta e-pasta formas kļūdas paziņojums nav pārbaudīts. | Bloķēts | Pārlūka izpildvide nav pieejama; nākamais solis: izpildīt ar Chromium ER-01. |
+| ER-02 UI | 2026-10-02 | Pārlūks | Klienta atteikums admina lapai un navigācija pēc atteikuma nav pārbaudīta. | Bloķēts | Pārlūka izpildvide nav pieejama; nākamais solis: izpildīt ar Chromium ER-02. |
+| ER-03 UI | 2026-10-02 | Pārlūks | Aizņemta rīka pieteikuma kļūdas paziņojums nav pārbaudīts. | Bloķēts | Pārlūka izpildvide nav pieejama; nākamais solis: izpildīt ar Chromium ER-03. |
+| ER-04 UI | 2026-10-02 | Pārlūks | Neautentificētas piekļuves UI un pieslēgšanās piedāvājums nav pārbaudīts. | Bloķēts | Pārlūka izpildvide nav pieejama; nākamais solis: izpildīt ar Chromium ER-04. |
+
 ## Frontend pārbaudes
 
 | Komanda | Rezultāts |
@@ -63,4 +99,4 @@ Visiem UI scenārijiem statuss ir **Bloķēts**: vidē nav Chromium, Chrome, Fir
 | `cd frontend && npm run lint` | Izgāja |
 | `cd frontend && npm run build` | Izgāja; Vite izveidoja produkcijas būvējumu |
 
-Pieteiktais MySQL 8 un pārlūka tests paliek bloķēts. Uzvedības testu kļūdas ir uzskaitītas `docs/tests/kludu-registrs.md`. Lietotnes kods TEST-2/TEST-3 laikā netika mainīts.
+MySQL 8 un pārlūka testi paliek bloķēti. TEST-2 un TEST-3 kļūdas ir uzskaitītas `docs/tests/kludu-registrs.md`. Lietotnes kods TEST-2/TEST-3 laikā netika mainīts.
