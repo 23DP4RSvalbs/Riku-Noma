@@ -43,6 +43,13 @@ export function AuthProvider({ children }) {
     return data.user
   }
 
+  const updateProfile = async (details) => {
+    const { data } = await api.patch('/user/profile', details)
+    localStorage.setItem(USER_KEY, JSON.stringify(data))
+    setUser(data)
+    return data
+  }
+
   const logout = async () => {
     try { await api.post('/logout') } catch { /* expired token is already logged out */ }
     localStorage.removeItem(TOKEN_KEY)
@@ -51,6 +58,6 @@ export function AuthProvider({ children }) {
   }
 
   const isAdmin = user?.lomas?.some((role) => role.nosaukums?.toLowerCase().includes('admin'))
-  return <AuthContext.Provider value={{ user, loading, isAdmin, login, register, logout }}>{children}</AuthContext.Provider>
+  return <AuthContext.Provider value={{ user, loading, isAdmin, login, register, updateProfile, logout }}>{children}</AuthContext.Provider>
 }
 

@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class AuthController extends Controller
 {
@@ -99,5 +100,44 @@ class AuthController extends Controller
     public function user(Request $request): JsonResponse
     {
         return response()->json($request->user()->load('lomas'));
+    }
+
+    public function updateProfile(Request $request): JsonResponse
+    {
+        $user = $request->user();
+        $validated = $request->validate([
+            'vards' => ['required', 'string', 'max:100'],
+            'epasts' => ['required', 'email', 'max:100', Rule::unique('lietotajs', 'epasts')->ignore($user->getKey(), 'lietotajsID')],
+            'telefons' => ['nullable', 'string', 'max:20'],
+            'parole' => ['nullable', 'string', 'min:8', 'regex:/[A-Za-z]/', 'regex:/[0-9]/'],
+            'parole_veca' => ['required_with:parole', 'string'],
+            'parole_confirmation' => ['required_with:parole', 'same:parole'],
+        ], [
+            'epasts.unique' => 'Šis e-pasts jau ir reģistrēts.',
+            'parole.min' => 'Parolei jābūt vismaz 8 rakstzīmes garai.',
+            'parole.regex' => 'Parolei jāsatur burti un cipari.',
+            'parole_veca.required_with' => 'Lai mainītu paroli, ievadiet pašreizējo paroli.',
+            'parole_confirmation.required_with' => 'Atkārtoti ievadiet jauno paroli.',
+            'parole_confirmation.same' => 'Atkārtotā parole nesakrīt.',
+        ]);
+
+        if (! empty($validated['parole']) && ! Hash::check($validated['parole_veca'], $user->parole)) {
+            return response()->json([
+                'message' => 'Pašreizējā parole nav pareiza.',
+                'errors' => ['parole_veca' => ['Pašreizējā parole nav pareiza.']],
+            ], 422);
+        }
+
+        $newPassword = $validated['parole'] ?? null;
+        unset($validated['parole'], $validated['parole_veca'], $validated['parole_confirmation']);
+        $user->fill($validated);
+
+        if ($newPassword) {
+            $user->parole = Hash::make($newPassword);
+        }
+
+        $user->save();
+
+        return response()->json($user->fresh()->load('lomas'));
     }
 }
