@@ -1,4 +1,18 @@
 # TEST-2 testa rezultāti
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST2-003, TEST2-004 | 2026-10-02 | Automatizēta izpilde | Vairākiem klientiem atkārtoti izmantota unikālā `Klients` loma; pārklājošā rezervācija saņem paredzēto `422`, un lietotājs var skatīt/atcelt tikai savu pasūtījumu. | Izgāja | `cd backend && php artisan test --filter='test_overlapping_order_is_rejected_when_quantity_is_unavailable|test_user_can_only_see_and_cancel_own_new_orders'`; 2 testi, 7 assertions; commit `3c7fc1d`. |
+| Backend regresija pēc TEST2-003/004 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 17 izgāja, 3 neizgāja. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `3c7fc1d`. |
+
+
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST2-002 | 2026-10-02 | Automatizēta izpilde | Ordera izveides tests tagad iesniedz obligāto noteikumu piekrišanu; atbilde `201`, pasūtījuma un rindu pārbaudes izgāja. | Izgāja | `cd backend && php artisan test --filter=test_user_can_create_order_with_total_and_dates`; 1 tests, 4 assertions; commit `54194c4`. |
+| Backend regresija pēc TEST2-002 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 5 neizgāja; overlap un ownership testus vēl aptur dublētas lomas testa palīgmetode. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `54194c4`. |
 
 ## TEST-4 atkārtotā pārbaude
 

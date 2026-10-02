@@ -146,7 +146,7 @@ class OrderApiTest extends TestCase
             'epasts' => $email,
             'parole' => Hash::make('drosha123'),
         ]);
-        $user->lomas()->attach(Loma::create(['nosaukums' => $role])->getKey());
+        $user->lomas()->attach(Loma::firstOrCreate(['nosaukums' => $role])->getKey());
 
         return $user;
     }
