@@ -42,9 +42,15 @@ class OrderController extends Controller
                 $start = Carbon::createFromFormat('d.m.Y', $item['nomasSakums'])->startOfDay();
                 $end = Carbon::createFromFormat('d.m.Y', $item['nomasBeigums'])->startOfDay();
 
+                if ($start->lt(Carbon::today())) {
+                    abort(response()->json([
+                        'message' => 'Nomas sākuma datumam jābūt šodien vai vēlāk.',
+                    ], 422));
+                }
+
                 if ($end->lt($start)) {
                     abort(response()->json([
-                        'message' => 'Nomas beigu datumam jābūt pēc sākuma datuma.',
+                        'message' => 'Nomas beigu datumam jābūt vienādam ar sākuma datumu vai vēlāk.',
                     ], 422));
                 }
 

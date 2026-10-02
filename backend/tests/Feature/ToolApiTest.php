@@ -41,11 +41,11 @@ class ToolApiTest extends TestCase
         Riks::create($this->toolData($drills, 'Triecienurbjmašīna'));
         Riks::create($this->toolData($saws, 'Ripzāģis'));
 
-        $this->getJson('/api/tools?search=urbj&category_id=' . $drills->getKey() . '&per_page=1')
+        $this->getJson('/api/tools?search=urb&category_id=' . $drills->getKey() . '&per_page=1')
             ->assertOk()
             ->assertJsonCount(1, 'data')
-            ->assertJsonPath('meta.total', 2)
-            ->assertJsonPath('meta.per_page', 1);
+            ->assertJsonPath('total', 2)
+            ->assertJsonPath('per_page', 1);
     }
 
     public function test_public_details_and_availability_hide_non_public_tools(): void
@@ -127,7 +127,13 @@ class ToolApiTest extends TestCase
 
         $response = $this->actingAs($admin, 'sanctum')->post('/api/tools', [
             ...$this->toolData($category),
-            'foto' => UploadedFile::fake()->image('urbis.png'),
+            'foto' => new UploadedFile(
+                base_path('../docs/skices/Rika detallapa.png'),
+                'urbis.png',
+                'image/png',
+                null,
+                true,
+            ),
         ]);
 
         $response->assertCreated()->assertJsonPath('statuss', 'pieejams');
@@ -163,6 +169,28 @@ class ToolApiTest extends TestCase
             ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['nosaukums', 'cenadiena', 'daudzums', 'kategorijaID', 'statuss']);
+    }
+
+    public function test_negative_tool_price_and_quantity_have_latvian_errors_without_saving(): void
+    {
+        $category = Kategorija::create(['nosaukums' => 'Validācijas robežas']);
+        $admin = $this->userWithRole('Administrators', 'negative-values@example.com');
+        $invalidTools = [
+            ['TEST3-negative-price', 'cenadiena', '-0.01', 'Dienas cenai jābūt vismaz 0.'],
+            ['TEST3-negative-quantity', 'daudzums', -1, 'Daudzumam jābūt vismaz 0.'],
+        ];
+
+        foreach ($invalidTools as [$name, $field, $value, $message]) {
+            $payload = $this->toolData($category, $name);
+            $payload[$field] = $value;
+
+            $this->actingAs($admin, 'sanctum')
+                ->postJson('/api/tools', $payload)
+                ->assertUnprocessable()
+                ->assertJsonPath("errors.{$field}.0", $message);
+
+            $this->assertDatabaseMissing('riks', ['nosaukums' => $name]);
+        }
     }
 
     private function userWithRole(string $role, string $email): Lietotajs

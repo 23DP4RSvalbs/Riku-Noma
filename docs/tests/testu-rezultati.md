@@ -1,5 +1,36 @@
 # TEST-2 testa rezultāti
 
+## TEST-4 integrētā pārbaude
+
+**Bāze:** latest `origin/main` (`84ab129`), integrācijas zars `test/TEST-4-integrated-fixes`.
+
+| Pārbaude | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| Pilnā backend testu kopa pēc visu reģistrēto labojumu integrēšanas | 2026-10-02 | Automatizēta izpilde | 24 testi izgāja, 101 assertions; pilnajā izvadē nav neveiksmīgu testu. | Izgāja | `cd backend && php artisan test`; pilna izpilde uz `test/TEST-4-integrated-fixes`. |
+| Order datumu regresiju komplekts | 2026-10-02 | Automatizēta izpilde | Derīga rezervācija, pagātnes sākuma noraidīšana bez ierakstiem, nepieejama krājuma konflikts un apgrieztu datumu noraidīšana bez ierakstiem izgāja. | Izgāja | `php artisan test --filter='test_user_can_create_order_with_total_and_dates|test_order_with_past_start_date_is_rejected_without_saving_records|test_overlapping_order_is_rejected_when_quantity_is_unavailable|test_reversed_rental_dates_return_accurate_message_without_saving_records'`; 4 testi, 19 assertions. |
+| UI un MySQL 8 vides pārbaudes | 2026-10-02 | Manuāla/vides pārbaude | Pārlūka rīku nav; nav `pdo_mysql` vai MySQL klienta, tāpēc UI un MySQL 8 pārbaudes netika veiktas. | Bloķēts | Nākamais solis: palaist UI plānu atbalstītā Chromium vidē un izpildīt DB/MySQL pārbaudi vidē ar MySQL 8 un `pdo_mysql`. |
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST2-003, TEST2-004 | 2026-10-02 | Automatizēta izpilde | Vairākiem klientiem atkārtoti izmantota unikālā `Klients` loma; pārklājošā rezervācija saņem paredzēto `422`, un lietotājs var skatīt/atcelt tikai savu pasūtījumu. | Izgāja | `cd backend && php artisan test --filter='test_overlapping_order_is_rejected_when_quantity_is_unavailable|test_user_can_only_see_and_cancel_own_new_orders'`; 2 testi, 7 assertions; commit `3c7fc1d`. |
+| Backend regresija pēc TEST2-003/004 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 17 izgāja, 3 neizgāja. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `3c7fc1d`. |
+
+
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST2-002 | 2026-10-02 | Automatizēta izpilde | Ordera izveides tests tagad iesniedz obligāto noteikumu piekrišanu; atbilde `201`, pasūtījuma un rindu pārbaudes izgāja. | Izgāja | `cd backend && php artisan test --filter=test_user_can_create_order_with_total_and_dates`; 1 tests, 4 assertions; commit `54194c4`. |
+| Backend regresija pēc TEST2-002 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 5 neizgāja; overlap un ownership testus vēl aptur dublētas lomas testa palīgmetode. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `54194c4`. |
+
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST2-002 | 2026-10-02 | Automatizēta izpilde | Ordera izveides tests tagad iesniedz obligāto noteikumu piekrišanu; atbilde `201`, pasūtījuma un rindu pārbaudes izgāja. | Izgāja | `cd backend && php artisan test --filter=test_user_can_create_order_with_total_and_dates`; 1 tests, 4 assertions; commit `54194c4`. |
+| Backend regresija pēc TEST2-002 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 5 neizgāja; overlap un ownership testus vēl aptur dublētas lomas testa palīgmetode. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `54194c4`. |
+
 **Datums:** 2026-10-02
 
 **Vide:** `origin/main` (`815eb02`), zars `test/TEST-2-functional-ui`; PHP 8.4.15; Composer 2.10.3; Node.js 24.20.0; npm 11.19.0; Laravel 11.56.1. `backend/vendor` un `frontend/node_modules` bija pieejami. Papildu pakotnes netika instalētas.
@@ -100,3 +131,12 @@ Visas BV/ER scenāriju **pārlūka** pārbaudes ir **Bloķētas**: vidē nav Chr
 | `cd frontend && npm run build` | Izgāja; Vite izveidoja produkcijas būvējumu |
 
 MySQL 8 un pārlūka testi paliek bloķēti. TEST-2 un TEST-3 kļūdas ir uzskaitītas `docs/tests/kludu-registrs.md`. Lietotnes kods TEST-2/TEST-3 laikā netika mainīts.
+
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST3-001 / BV-05 | 2026-10-02 | Automatizēta izpilde | Pagātnes nomas sākums atgriež `422` ar “Nomas sākuma datumam jābūt šodien vai vēlāk.”; pasūtījumu un rindu skaits paliek `0`. Vienādas šodienas sākuma/beigu dienas pieņem `201` un izveido vienu pasūtījumu un vienu rindu. | Izgāja | `cd backend && php artisan test --filter=test_order_with_past_start_date_is_rejected_without_saving_records`; 1 tests, 8 assertions; commit `e104167`. |
+| TEST3-001 focused branch full suite | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 6 neizgāja. Iepriekšējās kļūdas: logout PHPUnit guard, missing order consent fixture, duplicate roles, paginator assertion un missing GD. | Daļēji izgāja | Full-suite output after `e104167` branch. |
+| TEST3-002 / BV-03, BV-04 | 2026-10-02 | Automatizēta izpilde | Negatīvai cenai un daudzumam atgriezts `422` ar attiecīgi “Dienas cenai jābūt vismaz 0.” un “Daudzumam jābūt vismaz 0.”; abos gadījumos rīka ieraksts nav saglabāts. | Izgāja | `cd backend && php artisan test --filter=test_negative_tool_price_and_quantity_have_latvian_errors_without_saving`; 1 tests, 6 assertions; commit `d0e4fe5`. |
+| TEST3-002 focused branch full suite | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 6 neizgāja; fokusa tests izgāja. | Daļēji izgāja | Full-suite output after `d0e4fe5` branch. |

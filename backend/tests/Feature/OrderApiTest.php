@@ -19,14 +19,18 @@ class OrderApiTest extends TestCase
     {
         $user = $this->userWithRole('Klients', 'user@example.com');
         $tool = $this->tool(3, '10.50');
+        $startDate = now()->addDay();
+        $endDate = $startDate->copy()->addDays(2);
 
         $response = $this->actingAs($user, 'sanctum')->postJson('/api/orders', [
             'riki' => [[
                 'rikID' => $tool->getKey(),
                 'daudzums' => 2,
-                'nomasSakums' => '25.09.2026',
-                'nomasBeigums' => '27.09.2026',
+                'nomasSakums' => $startDate->format('d.m.Y'),
+                'nomasBeigums' => $endDate->format('d.m.Y'),
             ]],
+            'noteikumi_apstiprinati' => true,
+            'noteikumu_versija' => '1.0',
         ]);
 
         $response->assertCreated()->assertJsonPath('statuss', 'Jauns');
@@ -34,9 +38,49 @@ class OrderApiTest extends TestCase
         $this->assertDatabaseHas('pasutijuma_riks', [
             'rikID' => $tool->getKey(),
             'daudzums_pozicija' => 2,
-            'nomassakums' => '2026-09-25',
-            'nomasbeigums' => '2026-09-27',
+            'nomassakums' => $startDate->toDateString(),
+            'nomasbeigums' => $endDate->toDateString(),
         ]);
+    }
+
+    public function test_order_with_past_start_date_is_rejected_without_saving_records(): void
+    {
+        $user = $this->userWithRole('Klients', 'past-date@example.com');
+        $tool = $this->tool(2, '10.00');
+        $pastDate = now()->subDay()->format('d.m.Y');
+        $today = now()->format('d.m.Y');
+
+        $this->actingAs($user, 'sanctum')->postJson('/api/orders', [
+            ...$this->orderPayload($tool),
+            'riki' => [[
+                'rikID' => $tool->getKey(),
+                'daudzums' => 1,
+                'nomasSakums' => $pastDate,
+                'nomasBeigums' => $today,
+            ]],
+            'noteikumi_apstiprinati' => true,
+            'noteikumu_versija' => '1.0',
+        ])->assertUnprocessable()
+            ->assertJsonPath('message', 'Nomas sākuma datumam jābūt šodien vai vēlāk.');
+
+        $this->assertDatabaseCount('pasutijums', 0);
+        $this->assertDatabaseCount('pasutijuma_riks', 0);
+
+        $sameDay = now()->format('d.m.Y');
+        $this->actingAs($user, 'sanctum')->postJson('/api/orders', [
+            ...$this->orderPayload($tool),
+            'riki' => [[
+                'rikID' => $tool->getKey(),
+                'daudzums' => 1,
+                'nomasSakums' => $sameDay,
+                'nomasBeigums' => $sameDay,
+            ]],
+            'noteikumi_apstiprinati' => true,
+            'noteikumu_versija' => '1.0',
+        ])->assertCreated()->assertJsonPath('statuss', 'Jauns');
+
+        $this->assertDatabaseCount('pasutijums', 1);
+        $this->assertDatabaseCount('pasutijuma_riks', 1);
     }
 
     public function test_overlapping_order_is_rejected_when_quantity_is_unavailable(): void
@@ -51,6 +95,26 @@ class OrderApiTest extends TestCase
             ->postJson('/api/orders', $payload)
             ->assertUnprocessable()
             ->assertJsonPath('message', 'Šis instruments jau ir aizņemts šajos datumos');
+    }
+
+    public function test_reversed_rental_dates_return_accurate_message_without_saving_records(): void
+    {
+        $user = $this->userWithRole('Klients', 'reversed-date@example.com');
+        $tool = $this->tool(2, '10.00');
+
+        $this->actingAs($user, 'sanctum')->postJson('/api/orders', [
+            ...$this->orderPayload($tool),
+            'riki' => [[
+                'rikID' => $tool->getKey(),
+                'daudzums' => 1,
+                'nomasSakums' => now()->addDays(2)->format('d.m.Y'),
+                'nomasBeigums' => now()->addDay()->format('d.m.Y'),
+            ]],
+        ])->assertUnprocessable()
+            ->assertJsonPath('message', 'Nomas beigu datumam jābūt vienādam ar sākuma datumu vai vēlāk.');
+
+        $this->assertDatabaseCount('pasutijums', 0);
+        $this->assertDatabaseCount('pasutijuma_riks', 0);
     }
 
     public function test_user_can_only_see_and_cancel_own_new_orders(): void
@@ -104,7 +168,7 @@ class OrderApiTest extends TestCase
             'epasts' => $email,
             'parole' => Hash::make('drosha123'),
         ]);
-        $user->lomas()->attach(Loma::create(['nosaukums' => $role])->getKey());
+        $user->lomas()->attach(Loma::firstOrCreate(['nosaukums' => $role])->getKey());
 
         return $user;
     }
@@ -124,13 +188,18 @@ class OrderApiTest extends TestCase
 
     private function orderPayload(Riks $tool): array
     {
+        $startDate = now()->addDay();
+        $endDate = $startDate->copy()->addDays(2);
+
         return [
             'riki' => [[
                 'rikID' => $tool->getKey(),
                 'daudzums' => 1,
-                'nomasSakums' => '25.09.2026',
-                'nomasBeigums' => '27.09.2026',
+                'nomasSakums' => $startDate->format('d.m.Y'),
+                'nomasBeigums' => $endDate->format('d.m.Y'),
             ]],
+            'noteikumi_apstiprinati' => true,
+            'noteikumu_versija' => '1.0',
         ];
     }
 }

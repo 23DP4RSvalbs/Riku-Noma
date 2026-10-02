@@ -96,10 +96,20 @@ class AuthTest extends TestCase
             'epasts' => 'anna@example.com',
             'parole' => Hash::make('drosha123'),
         ]);
-        $token = $user->createToken('test-token')->plainTextToken;
+        $createdToken = $user->createToken('test-token');
+        $token = $createdToken->plainTextToken;
 
         $this->withToken($token)->postJson('/api/logout')->assertOk();
+        $this->assertDatabaseMissing('personal_access_tokens', ['id' => $createdToken->accessToken->getKey()]);
+        $this->app['auth']->forgetGuards();
         $this->withToken($token)->getJson('/api/user')->assertUnauthorized();
+    }
+
+    public function test_unauthenticated_api_request_returns_latvian_message(): void
+    {
+        $this->getJson('/api/user')
+            ->assertUnauthorized()
+            ->assertJsonPath('message', 'Lai turpinātu, piesakieties savā kontā.');
     }
 
     public function test_role_admin_middleware_accepts_administrator_role(): void
