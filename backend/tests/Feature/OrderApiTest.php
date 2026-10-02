@@ -27,6 +27,8 @@ class OrderApiTest extends TestCase
                 'nomasSakums' => '25.09.2026',
                 'nomasBeigums' => '27.09.2026',
             ]],
+            'noteikumi_apstiprinati' => true,
+            'noteikumu_versija' => '1.0',
         ]);
 
         $response->assertCreated()->assertJsonPath('statuss', 'Jauns');
@@ -131,6 +133,8 @@ class OrderApiTest extends TestCase
                 'nomasSakums' => '25.09.2026',
                 'nomasBeigums' => '27.09.2026',
             ]],
+            'noteikumi_apstiprinati' => true,
+            'noteikumu_versija' => '1.0',
         ];
     }
 }
