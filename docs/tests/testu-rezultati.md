@@ -100,3 +100,10 @@ Visas BV/ER scenāriju **pārlūka** pārbaudes ir **Bloķētas**: vidē nav Chr
 | `cd frontend && npm run build` | Izgāja; Vite izveidoja produkcijas būvējumu |
 
 MySQL 8 un pārlūka testi paliek bloķēti. TEST-2 un TEST-3 kļūdas ir uzskaitītas `docs/tests/kludu-registrs.md`. Lietotnes kods TEST-2/TEST-3 laikā netika mainīts.
+
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST2-001 | 2026-10-02 | Automatizēta izpilde | Reālā HTTP secībā login `200`, logout `200`, tokena ieraksts datubāzē dzēsts, nākamais `GET /api/user` `401`. PHPUnit testā pēc guard atiestatīšanas sagaidītais `401`; tokena ieraksta dzēšana pārbaudīta atsevišķi. | Izgāja | `cd backend && php artisan test --filter=test_user_can_logout_and_token_is_revoked`; 1 tests, 3 assertions; atsevišķs API request cikls; commit `f116253`. |
+| Backend regresija pēc TEST2-001 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 5 neizgāja; TEST2-001 vairs nav starp kļūdām. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `f116253`. |

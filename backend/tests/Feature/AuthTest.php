@@ -96,9 +96,12 @@ class AuthTest extends TestCase
             'epasts' => 'anna@example.com',
             'parole' => Hash::make('drosha123'),
         ]);
-        $token = $user->createToken('test-token')->plainTextToken;
+        $createdToken = $user->createToken('test-token');
+        $token = $createdToken->plainTextToken;
 
         $this->withToken($token)->postJson('/api/logout')->assertOk();
+        $this->assertDatabaseMissing('personal_access_tokens', ['id' => $createdToken->accessToken->getKey()]);
+        $this->app['auth']->forgetGuards();
         $this->withToken($token)->getJson('/api/user')->assertUnauthorized();
     }
 
