@@ -1,4 +1,11 @@
 # TEST-2 testa rezultāti
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST2-006 | 2026-10-02 | Automatizēta izpilde | Rīks ar PNG tika izveidots, foto saglabājās, izmaiņa saglabājās un rīks tika arhivēts; nav vajadzīgs GD paplašinājums. | Izgāja | `cd backend && php artisan test --filter=test_admin_can_create_update_and_archive_tool_with_photo`; 1 tests, 7 assertions; commit `62599fc`. |
+| Backend regresija pēc TEST2-006 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 5 neizgāja; foto tests vairs nav starp kļūdām. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `62599fc`. |
+
 
 **Datums:** 2026-10-02
 
