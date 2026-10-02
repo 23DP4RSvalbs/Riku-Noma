@@ -19,13 +19,15 @@ class OrderApiTest extends TestCase
     {
         $user = $this->userWithRole('Klients', 'user@example.com');
         $tool = $this->tool(3, '10.50');
+        $startDate = now()->addDay();
+        $endDate = $startDate->copy()->addDays(2);
 
         $response = $this->actingAs($user, 'sanctum')->postJson('/api/orders', [
             'riki' => [[
                 'rikID' => $tool->getKey(),
                 'daudzums' => 2,
-                'nomasSakums' => '25.09.2026',
-                'nomasBeigums' => '27.09.2026',
+                'nomasSakums' => $startDate->format('d.m.Y'),
+                'nomasBeigums' => $endDate->format('d.m.Y'),
             ]],
             'noteikumi_apstiprinati' => true,
             'noteikumu_versija' => '1.0',
@@ -36,8 +38,8 @@ class OrderApiTest extends TestCase
         $this->assertDatabaseHas('pasutijuma_riks', [
             'rikID' => $tool->getKey(),
             'daudzums_pozicija' => 2,
-            'nomassakums' => '2026-09-25',
-            'nomasbeigums' => '2026-09-27',
+            'nomassakums' => $startDate->toDateString(),
+            'nomasbeigums' => $endDate->toDateString(),
         ]);
     }
 
@@ -93,6 +95,26 @@ class OrderApiTest extends TestCase
             ->postJson('/api/orders', $payload)
             ->assertUnprocessable()
             ->assertJsonPath('message', 'Šis instruments jau ir aizņemts šajos datumos');
+    }
+
+    public function test_reversed_rental_dates_return_accurate_message_without_saving_records(): void
+    {
+        $user = $this->userWithRole('Klients', 'reversed-date@example.com');
+        $tool = $this->tool(2, '10.00');
+
+        $this->actingAs($user, 'sanctum')->postJson('/api/orders', [
+            ...$this->orderPayload($tool),
+            'riki' => [[
+                'rikID' => $tool->getKey(),
+                'daudzums' => 1,
+                'nomasSakums' => now()->addDays(2)->format('d.m.Y'),
+                'nomasBeigums' => now()->addDay()->format('d.m.Y'),
+            ]],
+        ])->assertUnprocessable()
+            ->assertJsonPath('message', 'Nomas beigu datumam jābūt vienādam ar sākuma datumu vai vēlāk.');
+
+        $this->assertDatabaseCount('pasutijums', 0);
+        $this->assertDatabaseCount('pasutijuma_riks', 0);
     }
 
     public function test_user_can_only_see_and_cancel_own_new_orders(): void
@@ -166,12 +188,15 @@ class OrderApiTest extends TestCase
 
     private function orderPayload(Riks $tool): array
     {
+        $startDate = now()->addDay();
+        $endDate = $startDate->copy()->addDays(2);
+
         return [
             'riki' => [[
                 'rikID' => $tool->getKey(),
                 'daudzums' => 1,
-                'nomasSakums' => '25.09.2026',
-                'nomasBeigums' => '27.09.2026',
+                'nomasSakums' => $startDate->format('d.m.Y'),
+                'nomasBeigums' => $endDate->format('d.m.Y'),
             ]],
             'noteikumi_apstiprinati' => true,
             'noteikumu_versija' => '1.0',

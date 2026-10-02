@@ -1,4 +1,14 @@
 # TEST-2 testa rezultāti
+
+## TEST-4 integrētā pārbaude
+
+**Bāze:** latest `origin/main` (`84ab129`), integrācijas zars `test/TEST-4-integrated-fixes`.
+
+| Pārbaude | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| Pilnā backend testu kopa pēc visu reģistrēto labojumu integrēšanas | 2026-10-02 | Automatizēta izpilde | 24 testi izgāja, 101 assertions; pilnajā izvadē nav neveiksmīgu testu. | Izgāja | `cd backend && php artisan test`; pilna izpilde uz `test/TEST-4-integrated-fixes`. |
+| Order datumu regresiju komplekts | 2026-10-02 | Automatizēta izpilde | Derīga rezervācija, pagātnes sākuma noraidīšana bez ierakstiem, nepieejama krājuma konflikts un apgrieztu datumu noraidīšana bez ierakstiem izgāja. | Izgāja | `php artisan test --filter='test_user_can_create_order_with_total_and_dates|test_order_with_past_start_date_is_rejected_without_saving_records|test_overlapping_order_is_rejected_when_quantity_is_unavailable|test_reversed_rental_dates_return_accurate_message_without_saving_records'`; 4 testi, 19 assertions. |
+| UI un MySQL 8 vides pārbaudes | 2026-10-02 | Manuāla/vides pārbaude | Pārlūka rīku nav; nav `pdo_mysql` vai MySQL klienta, tāpēc UI un MySQL 8 pārbaudes netika veiktas. | Bloķēts | Nākamais solis: palaist UI plānu atbalstītā Chromium vidē un izpildīt DB/MySQL pārbaudi vidē ar MySQL 8 un `pdo_mysql`. |
 ## TEST-4 atkārtotā pārbaude
 
 | Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |

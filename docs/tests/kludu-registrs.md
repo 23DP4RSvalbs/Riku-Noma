@@ -1,9 +1,19 @@
-## TEST-4 labojumi un atkārtotā testēšana
+# TEST-2 kļūdu reģistrs
+
+## TEST-4 labojums: TEST3-003
 
 | Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
 |---|---|---|---|---|---|---|
 | TEST3-003 | Laravel noklusētais `AuthenticationException` JSON atbildes teksts ir angļu valodā. | Laravel izņēmumu apstrādē API ceļiem pievienota lokalizēta `401` JSON atbilde; Feature tests pārbauda esošo `GET /api/user` maršrutu. | `ddb1d17` (`[TEST-4] Novērst TEST3-003: API autentifikācijas kļūda`); PR nav izveidots. | 2026-10-02 | Automatizēta izpilde | Fokusa tests izgāja: `401` un latvisks kļūdas ziņojums (1 tests, 2 assertions). Pilnā kopa: 15 izgāja, 6 neizgāja; atlikušās kļūdas reģistrētas atsevišķi. |
-# TEST-2 kļūdu reģistrs
+## Sākotnējie TEST-2 un TEST-3 atradumi
+
+Sākotnējās faktisko rezultātu un pierādījumu vērtības zemāk saglabātas kā testēšanas vēsture. To gala stāvoklis pēc TEST-4 labojumiem apkopots sadaļā “TEST-4 integrētā atrasto kļūdu atrisināšana”.
+
+## TEST-4 integrācijas atradums
+
+| Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
+|---|---|---|---|---|---|---|
+| TEST4-INT-001 | Apvienojot pagātnes datumu noraidošo validāciju ar esošajiem order testiem, divi derīgas rezervācijas scenāriji izmantoja statiskus 2026. gada septembra datumus, kas testa dienā jau bija pagātnē. | Fixtures pārslēgti uz `now()->addDay()` un turpmāku intervālu; integrētajā `OrderApiTest` atjaunots arī apgriezto datumu scenārijs. | Iekļauts šajā `[TEST-4]` integrācijas commitā; PR nav izveidots. | 2026-10-02 | Automatizēta izpilde | Integrētais `php artisan test` izgāja: 24 testi, 101 assertions; order fokusa komplekts izgāja: 4 testi, 19 assertions. |
 ## TEST-4 labojumi un atkārtotā testēšana
 
 | Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
@@ -42,3 +52,20 @@
 | Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
 |---|---|---|---|---|---|---|
 | TEST3-001 | `OrderController::store` pārbaudīja datuma formātu un secību, bet nepārbaudīja, vai nomas sākums ir šodien vai nākotnē. | Pirms rīka rezervācijas pievienota pagātnes sākuma datuma noraidīšana ar HTTP `422` un latvisku ziņojumu. Regression testā pārbaudīts, ka netiek izveidots pasūtījums/rinda un vienas dienas noma joprojām ir derīga. | `e104167` (`[TEST-4] Novērst TEST3-001: pagātnes nomas sākums`); PR nav izveidots. | 2026-10-02 | Automatizēta izpilde | Fokusa tests izgāja: 1 tests, 8 assertions. Pilnā kopa: 15 izgāja, 6 neizgāja; sešas iepriekš reģistrētās, ar šo labojumu nesaistītās kļūdas paliek. Pēc merge atkārtota pārbaude vēl nav veikta. |
+
+## TEST-4 integrētā atrasto kļūdu atrisināšana
+
+Iepriekšējās TEST-4 tabulas atspoguļo katra atsevišķā zara retestu. Galīgā integrētā izpilde uz `test/TEST-4-integrated-fixes` pēc visu labojumu apvienošanas: **24 testi izgāja, 101 assertions**.
+
+| Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
+|---|---|---|---|---|---|---|
+| TEST3-001 | Rezervāciju API nepieprasīja, lai sākuma datums būtu šodien vai vēlāk. | Pievienota pagātnes datuma validācija; negatīvajā gadījumā netiek izveidots pasūtījums/rinda. | `a1923af`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja; vienas dienas rezervācija paliek derīga. |
+| TEST3-002 | `min` validācijas atgrieza Laravel noklusētos angļu ziņojumus. | Pievienoti latviski cenas un daudzuma kļūdu ziņojumi. | `0b294e5`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss izgāja ar HTTP `422` un bez rīka ieraksta; integrētā pilnā kopa izgāja. |
+| TEST3-003 | Laravel API autentifikācijas izņēmuma noklusētais ziņojums bija angļu valodā. | API ceļiem atgriežama lokalizēta `401` JSON atbilde. | `1d0edb1`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja ar HTTP `401` un latvisku ziņojumu. |
+| TEST3-004 | Apgrieztu datumu kļūdas teksts bija pretrunā ar atļautu vienas dienas periodu. | Ziņojums precizēts; tests pārbauda `422` un to, ka pasūtījums/rinda netiek saglabāta. | `eb2c191`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja. |
+| TEST2-001 | PHPUnit vienā lietotnes instancē atkārtoti izmantoja kešotu guard stāvokli; atsevišķos HTTP pieprasījumos tokena atcelšana jau darbojās. | Tests pārbauda tokena dzēšanu DB un atiestata guard pirms nākamā pieprasījuma. | `d8963b4`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja; neatkarīgs HTTP cikls dod `200/200/401`. |
+| TEST2-002 | Order Feature testa ievadē trūka obligātās noteikumu piekrišanas. | Pievienoti `noteikumi_apstiprinati` un `noteikumu_versija` testa pieprasījumam. | `f7c70be`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja. |
+| TEST2-003, TEST2-004 | Testa palīgmetode mēģināja izveidot unikālo `Klients` lomu katram lietotājam. | Palīgmetode lomu atrod vai izveido ar `firstOrCreate()`. | `6d3d2ef`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Abi fokusa testi un integrētā pilnā kopa izgāja. |
+| TEST2-005 | Tests gaidīja neesošu `meta.*` wrapperi un meklēja tekstu, kas nesakrita ar abiem fixture nosaukumiem. | Pārbaudīti Laravel paginatora augšējā līmeņa lauki un kopīgs `urb` meklēšanas fragments. | `7ca0f01`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja. |
+| TEST2-006 | Attēla fake ģenerēšanai vajadzēja vidē neinstalētu GD paplašinājumu. | Izmantots repozitorijā esošs derīgs PNG tests, nemainot pakotnes vai lietotnes kodu. | `769c707`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Foto izveides/redigēšanas/arhivēšanas fokuss un integrētā pilnā kopa izgāja bez GD. |
+| TEST4-INT-001 | Integrējot pagātnes datuma validāciju, divi order testi joprojām izmantoja statiskus septembra datumus, kas bija pagātnē. | Fixtures pārvietoti uz relatīviem nākotnes datumiem; atjaunots apgriezto datumu tests. | Iekļauts šajā TEST-4 integrācijas commitā. | 2026-10-02 | Automatizēta izpilde | Order regresiju komplekts: 4 testi, 19 assertions izgāja; integrētā pilnā kopa: 24 testi, 101 assertions izgāja. |
