@@ -39,6 +39,28 @@ class OrderApiTest extends TestCase
         ]);
     }
 
+    public function test_reversed_rental_dates_return_accurate_message_without_saving_records(): void
+    {
+        $user = $this->userWithRole('Klients', 'reversed-date@example.com');
+        $tool = $this->tool(2, '10.00');
+
+        $this->actingAs($user, 'sanctum')->postJson('/api/orders', [
+            ...$this->orderPayload($tool),
+            'riki' => [[
+                'rikID' => $tool->getKey(),
+                'daudzums' => 1,
+                'nomasSakums' => '11.10.2026',
+                'nomasBeigums' => '10.10.2026',
+            ]],
+            'noteikumi_apstiprinati' => true,
+            'noteikumu_versija' => '1.0',
+        ])->assertUnprocessable()
+            ->assertJsonPath('message', 'Nomas beigu datumam jābūt vienādam ar sākuma datumu vai vēlāk.');
+
+        $this->assertDatabaseCount('pasutijums', 0);
+        $this->assertDatabaseCount('pasutijuma_riks', 0);
+    }
+
     public function test_overlapping_order_is_rejected_when_quantity_is_unavailable(): void
     {
         $firstUser = $this->userWithRole('Klients', 'first@example.com');

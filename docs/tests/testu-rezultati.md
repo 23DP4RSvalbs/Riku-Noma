@@ -100,3 +100,10 @@ Visas BV/ER scenāriju **pārlūka** pārbaudes ir **Bloķētas**: vidē nav Chr
 | `cd frontend && npm run build` | Izgāja; Vite izveidoja produkcijas būvējumu |
 
 MySQL 8 un pārlūka testi paliek bloķēti. TEST-2 un TEST-3 kļūdas ir uzskaitītas `docs/tests/kludu-registrs.md`. Lietotnes kods TEST-2/TEST-3 laikā netika mainīts.
+
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST3-004 / BV-06 | 2026-10-02 | Automatizēta izpilde | Apgriezti nomas datumi atgriež `422` ar “Nomas beigu datumam jābūt vienādam ar sākuma datumu vai vēlāk.”; pasūtījumu un rindu skaits paliek `0`. | Izgāja | `cd backend && php artisan test --filter=test_reversed_rental_dates_return_accurate_message_without_saving_records`; 1 tests, 4 assertions; commit `6a0c468`. |
+| Backend regresija pēc TEST3-004 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 6 neizgāja; fokusa tests izgāja. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `6a0c468`. |
