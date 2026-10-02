@@ -102,6 +102,13 @@ class AuthTest extends TestCase
         $this->withToken($token)->getJson('/api/user')->assertUnauthorized();
     }
 
+    public function test_unauthenticated_api_request_returns_latvian_message(): void
+    {
+        $this->getJson('/api/user')
+            ->assertUnauthorized()
+            ->assertJsonPath('message', 'Lai turpinātu, piesakieties savā kontā.');
+    }
+
     public function test_role_admin_middleware_accepts_administrator_role(): void
     {
         Route::middleware(['auth:sanctum', 'role:admin'])

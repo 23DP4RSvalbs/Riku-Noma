@@ -100,3 +100,10 @@ Visas BV/ER scenāriju **pārlūka** pārbaudes ir **Bloķētas**: vidē nav Chr
 | `cd frontend && npm run build` | Izgāja; Vite izveidoja produkcijas būvējumu |
 
 MySQL 8 un pārlūka testi paliek bloķēti. TEST-2 un TEST-3 kļūdas ir uzskaitītas `docs/tests/kludu-registrs.md`. Lietotnes kods TEST-2/TEST-3 laikā netika mainīts.
+
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST3-003 / ER-04 | 2026-10-02 | Automatizēta izpilde | Bez autentifikācijas `GET /api/user` atgriež `401` un “Lai turpinātu, piesakieties savā kontā.” | Izgāja | `cd backend && php artisan test --filter=test_unauthenticated_api_request_returns_latvian_message`; 1 tests, 2 assertions; commit `ddb1d17`. |
+| Backend regresija pēc TEST3-003 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 6 neizgāja; jaunais fokusa tests izgāja. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `ddb1d17`. |
