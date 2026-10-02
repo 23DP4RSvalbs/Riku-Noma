@@ -1,5 +1,12 @@
 # TEST-2 testa rezultāti
 
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST2-002 | 2026-10-02 | Automatizēta izpilde | Ordera izveides tests tagad iesniedz obligāto noteikumu piekrišanu; atbilde `201`, pasūtījuma un rindu pārbaudes izgāja. | Izgāja | `cd backend && php artisan test --filter=test_user_can_create_order_with_total_and_dates`; 1 tests, 4 assertions; commit `54194c4`. |
+| Backend regresija pēc TEST2-002 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 5 neizgāja; overlap un ownership testus vēl aptur dublētas lomas testa palīgmetode. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `54194c4`. |
+
 **Datums:** 2026-10-02
 
 **Vide:** `origin/main` (`815eb02`), zars `test/TEST-2-functional-ui`; PHP 8.4.15; Composer 2.10.3; Node.js 24.20.0; npm 11.19.0; Laravel 11.56.1. `backend/vendor` un `frontend/node_modules` bija pieejami. Papildu pakotnes netika instalētas.
