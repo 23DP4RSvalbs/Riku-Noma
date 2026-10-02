@@ -100,3 +100,10 @@ Visas BV/ER scenāriju **pārlūka** pārbaudes ir **Bloķētas**: vidē nav Chr
 | `cd frontend && npm run build` | Izgāja; Vite izveidoja produkcijas būvējumu |
 
 MySQL 8 un pārlūka testi paliek bloķēti. TEST-2 un TEST-3 kļūdas ir uzskaitītas `docs/tests/kludu-registrs.md`. Lietotnes kods TEST-2/TEST-3 laikā netika mainīts.
+
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST3-002 / BV-03, BV-04 | 2026-10-02 | Automatizēta izpilde | Negatīvai cenai un daudzumam atgriezts `422` ar attiecīgi “Dienas cenai jābūt vismaz 0.” un “Daudzumam jābūt vismaz 0.”; abos gadījumos rīka ieraksts nav saglabāts. | Izgāja | `cd backend && php artisan test --filter=test_negative_tool_price_and_quantity_have_latvian_errors_without_saving`; 1 tests, 6 assertions; commit `d0e4fe5`. |
+| Backend regresija pēc TEST3-002 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 6 neizgāja; fokusētais tests izgāja. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `d0e4fe5`. |

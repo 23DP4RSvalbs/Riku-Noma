@@ -165,6 +165,28 @@ class ToolApiTest extends TestCase
             ->assertJsonValidationErrors(['nosaukums', 'cenadiena', 'daudzums', 'kategorijaID', 'statuss']);
     }
 
+    public function test_negative_tool_price_and_quantity_have_latvian_errors_without_saving(): void
+    {
+        $category = Kategorija::create(['nosaukums' => 'Validācijas robežas']);
+        $admin = $this->userWithRole('Administrators', 'negative-values@example.com');
+        $invalidTools = [
+            ['TEST3-negative-price', 'cenadiena', '-0.01', 'Dienas cenai jābūt vismaz 0.'],
+            ['TEST3-negative-quantity', 'daudzums', -1, 'Daudzumam jābūt vismaz 0.'],
+        ];
+
+        foreach ($invalidTools as [$name, $field, $value, $message]) {
+            $payload = $this->toolData($category, $name);
+            $payload[$field] = $value;
+
+            $this->actingAs($admin, 'sanctum')
+                ->postJson('/api/tools', $payload)
+                ->assertUnprocessable()
+                ->assertJsonPath("errors.{$field}.0", $message);
+
+            $this->assertDatabaseMissing('riks', ['nosaukums' => $name]);
+        }
+    }
+
     private function userWithRole(string $role, string $email): Lietotajs
     {
         $user = Lietotajs::create([
