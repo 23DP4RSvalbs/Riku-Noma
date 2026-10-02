@@ -100,3 +100,10 @@ Visas BV/ER scenāriju **pārlūka** pārbaudes ir **Bloķētas**: vidē nav Chr
 | `cd frontend && npm run build` | Izgāja; Vite izveidoja produkcijas būvējumu |
 
 MySQL 8 un pārlūka testi paliek bloķēti. TEST-2 un TEST-3 kļūdas ir uzskaitītas `docs/tests/kludu-registrs.md`. Lietotnes kods TEST-2/TEST-3 laikā netika mainīts.
+
+## TEST-4 atkārtotā pārbaude
+
+| Testa ID | Datums | Testeris | Faktiskais rezultāts | Statuss | Pierādījums |
+|---|---|---|---|---|---|
+| TEST3-001 / BV-05 | 2026-10-02 | Automatizēta izpilde | Pagātnes nomas sākums atgriež `422` ar “Nomas sākuma datumam jābūt šodien vai vēlāk.”; pasūtījumu un rindu skaits paliek `0`. Vienādas šodienas sākuma/beigu dienas pieņem `201` un izveido vienu pasūtījumu un vienu rindu. | Izgāja | `cd backend && php artisan test --filter=test_order_with_past_start_date_is_rejected_without_saving_records`; 1 tests, 8 assertions; commit `e104167`. |
+| Backend regresija pēc TEST3-001 | 2026-10-02 | Automatizēta izpilde | Pilnā `php artisan test` kopa: 15 izgāja, 6 neizgāja. Iepriekšējās kļūdas ir tokena anulēšanas PHPUnit scenārijs, trūkstoša noteikumu piekrišana vecā pasūtījuma testa datos, divi dublētas lomas testa sagatavošanas gadījumi, kataloga meta assertion un trūkstošais GD paplašinājums. | Daļēji izgāja | `cd backend && php artisan test`; pilnā izvade pēc `e104167`. |
