@@ -127,7 +127,13 @@ class ToolApiTest extends TestCase
 
         $response = $this->actingAs($admin, 'sanctum')->post('/api/tools', [
             ...$this->toolData($category),
-            'foto' => UploadedFile::fake()->image('urbis.png'),
+            'foto' => new UploadedFile(
+                base_path('../docs/skices/Rika detallapa.png'),
+                'urbis.png',
+                'image/png',
+                null,
+                true,
+            ),
         ]);
 
         $response->assertCreated()->assertJsonPath('statuss', 'pieejams');
