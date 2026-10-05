@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Kategorija;
 use App\Models\Riks;
+use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
@@ -55,9 +56,50 @@ class ToolController extends Controller
         }
 
         $validated = $request->validate([
-            'from' => ['required', 'date_format:Y-m-d'],
-            'to' => ['required', 'date_format:Y-m-d', 'after_or_equal:from'],
+            'month' => ['sometimes', 'required', 'date_format:Y-m'],
+            'from' => ['required_without:month', 'date_format:Y-m-d'],
+            'to' => ['required_without:month', 'date_format:Y-m-d', 'after_or_equal:from'],
         ]);
+
+        if (isset($validated['month'])) {
+            $monthStart = Carbon::createFromFormat('Y-m', $validated['month'])->startOfMonth();
+            $monthEnd = $monthStart->copy()->endOfMonth();
+            $reservations = $rik->pasutijumi()
+                ->whereRaw("LOWER(pasutijums.statuss) NOT IN ('atcelts', 'izpildits', 'izpildīts')")
+                ->wherePivot('nomassakums', '<=', $monthEnd->toDateString())
+                ->wherePivot('nomasbeigums', '>=', $monthStart->toDateString())
+                ->get();
+            $reservedByDate = [];
+
+            foreach ($reservations as $reservation) {
+                $start = Carbon::parse($reservation->pivot->nomassakums);
+                $end = Carbon::parse($reservation->pivot->nomasbeigums);
+                if ($start->lt($monthStart)) $start = $monthStart->copy();
+                if ($end->gt($monthEnd)) $end = $monthEnd->copy();
+
+                for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+                    $day = $date->toDateString();
+                    $reservedByDate[$day] = ($reservedByDate[$day] ?? 0) + (int) $reservation->pivot->daudzums_pozicija;
+                }
+            }
+
+            $days = [];
+            for ($date = $monthStart->copy(); $date->lte($monthEnd); $date->addDay()) {
+                $day = $date->toDateString();
+                $reserved = $reservedByDate[$day] ?? 0;
+                $days[$day] = [
+                    'reserved_quantity' => $reserved,
+                    'available_quantity' => max(0, $rik->daudzums - $reserved),
+                ];
+            }
+
+            return response()->json([
+                'tool_id' => $rik->getKey(),
+                'month' => $validated['month'],
+                'total_quantity' => $rik->daudzums,
+                'days' => $days,
+            ]);
+        }
 
         $reservedQuantity = $rik->pasutijumi()
             ->whereRaw("LOWER(pasutijums.statuss) NOT IN ('atcelts', 'izpildits', 'izpildīts')")
@@ -137,6 +179,12 @@ class ToolController extends Controller
             'nomasilgumsmax' => ['sometimes', 'nullable', 'integer', 'min:1', 'gte:nomasilgumsmin'],
             'redzamsKatalogs' => ['sometimes', 'boolean'],
             'foto' => [$partial ? 'sometimes' : 'nullable', 'image', 'mimes:jpg,jpeg,png', 'max:5120'],
+        ], [
+            'cenadiena.min' => 'Dienas cenai jābūt vismaz 0.',
+            'daudzums.min' => 'Daudzumam jābūt vismaz 0.',
+        ], [
+            'cenadiena' => 'cena dienā',
+            'daudzums' => 'daudzums',
         ]);
     }
 

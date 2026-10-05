@@ -23,12 +23,15 @@ class OrderController extends Controller
             'riki.*.daudzums' => ['required', 'integer', 'min:1'],
             'riki.*.nomasSakums' => ['required', 'date_format:d.m.Y'],
             'riki.*.nomasBeigums' => ['required', 'date_format:d.m.Y'],
+            'noteikumi_apstiprinati' => ['required', 'accepted'],
+            'noteikumu_versija' => ['required', Rule::in(['1.0'])],
         ], [
             'riki.required' => 'Jānorāda vismaz viens rīks.',
             'riki.min' => 'Jānorāda vismaz viens rīks.',
             'riki.*.daudzums.min' => 'Daudzumam jābūt lielākam par 0.',
             'riki.*.nomasSakums.date_format' => 'Datumam jābūt DD.MM.YYYY formātā.',
             'riki.*.nomasBeigums.date_format' => 'Datumam jābūt DD.MM.YYYY formātā.',
+            'noteikumi_apstiprinati.accepted' => 'Lai nosūtītu rezervāciju, jāpiekrīt nomas noteikumiem.',
         ]);
 
         $order = DB::transaction(function () use ($validated, $request): Pasutijums {
@@ -39,16 +42,23 @@ class OrderController extends Controller
                 $start = Carbon::createFromFormat('d.m.Y', $item['nomasSakums'])->startOfDay();
                 $end = Carbon::createFromFormat('d.m.Y', $item['nomasBeigums'])->startOfDay();
 
+                if ($start->lt(Carbon::today())) {
+                    abort(response()->json([
+                        'message' => 'Nomas sākuma datumam jābūt šodien vai vēlāk.',
+                    ], 422));
+                }
+
                 if ($end->lt($start)) {
                     abort(response()->json([
-                        'message' => 'Nomas beigu datumam jābūt pēc sākuma datuma.',
+                        'message' => 'Nomas beigu datumam jābūt vienādam ar sākuma datumu vai vēlāk.',
                     ], 422));
                 }
 
                 $tool = Riks::query()->lockForUpdate()->findOrFail($item['rikID']);
                 $reserved = PasutijumaRiks::query()
                     ->where('rikID', $tool->getKey())
-                    ->whereHas('pasutijums', fn ($query) => $query->where('statuss', '!=', 'Atcelts'))
+                    ->whereHas('pasutijums', fn ($query) => $query
+                        ->whereRaw("LOWER(statuss) NOT IN ('atcelts', 'izpildits', 'izpildīts')"))
                     ->where('nomassakums', '<=', $end->toDateString())
                     ->where('nomasbeigums', '>=', $start->toDateString())
                     ->sum('daudzums_pozicija');
@@ -72,6 +82,8 @@ class OrderController extends Controller
             $order = Pasutijums::create([
                 'kopsumma' => number_format($total, 2, '.', ''),
                 'statuss' => 'Jauns',
+                'noteikumu_versija' => $validated['noteikumu_versija'],
+                'noteikumi_apstiprinati_at' => now(),
                 'lietotajID' => $request->user()->getKey(),
             ]);
 
