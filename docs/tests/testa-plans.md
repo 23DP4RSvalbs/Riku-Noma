@@ -1,97 +1,64 @@
-# Rīku noma: testēšanas plāns
+# Testēšanas plāns
 
-## 1. Testēšanas mērķi
+## Mērķis
 
-Testēšanas mērķis ir pārbaudīt, ka Rīku noma sistēma atbilst prasībām un darbojas paredzami visām trim lomām:
+Pārbaudīt, vai rīku nomas sistēma strādā viesim, klientam un administratoram.
 
-- **Viesis** var apskatīt katalogu, meklēt rīkus un filtrēt tos pēc kategorijas.
-- **Lietotājs** var reģistrēties, pieslēgties, apskatīt profilu un pasūtījumu vēsturi, kā arī izveidot un atcelt savas rezervācijas.
-- **Administrators** var pārvaldīt rīkus, apskatīt rezervācijas un mainīt to statusus.
+## Ko pārbaudām
 
-Testēšanas laikā pārbauda:
+- Reģistrāciju un pieslēgšanos.
+- Katalogu un meklēšanu.
+- Kategoriju filtrus.
+- Rīka detaļas un pieejamību.
+- Rezervācijas un atcelšanu.
+- Klienta profilu.
+- Administratora paneli.
+- Datu pārbaudes un kļūdu ziņojumus.
+- Datu saglabāšanu datubāzē.
 
-- Laravel 11 API validāciju, autentifikāciju, autorizāciju un datu saglabāšanu;
-- React 18 lietotāja saskarni, navigāciju, formas, paziņojumus un responsīvu attēlojumu;
-- kataloga, rezervāciju un administratora funkciju darbību;
-- datu integritāti un validācijas robežas;
-- kļūdu reģistrēšanu, labošanu un atkārtotu pārbaudi;
-- testa rezultātu un pierādījumu dokumentēšanu, lai tos varētu izmantot gala atskaitē un prezentācijā.
+## Testēšanas veidi
 
-Testēšana notiek divos ciklos. Izstrādes laikā pēc nozīmīgām izmaiņām izpilda īsu dūmu/regresijas pārbaudi. Vērtēšanai veic pilnu plānoto testu ciklu, kad galvenās funkcijas ir pieejamas, arī tad, ja sākumā tiek atrastas kļūdas. Atrastas kļūdas vispirms dokumentē, pēc tam labo un atkārtoti pārbauda.
+- Funkcionālie testi.
+- Robežvērtību testi.
+- Kļūdu testi.
+- Atkārtoti testi pēc labojumiem.
+- Manuāla UI pārbaude pārlūkā.
 
-## 2. Testējamie moduļi
+## Testa dati
 
-| Modulis | Pārbaudāmā funkcionalitāte |
-|---|---|
-| **Autentifikācija** | Reģistrācija, e-pasta unikalitāte, paroles noteikumi, pieslēgšanās, atteikšanās, tokena izmantošana un lietotāja lomas piešķiršana. |
-| **Katalogs** | Publisks rīku un kategoriju saraksts, meklēšana, filtrēšana, rīka detaļas, redzamība un pieejamības informācija. |
-| **Rezervācijas** | Rezervācijas izveide, daudzums, nomas datumi, pieejamības pārbaude, aizņemta rīka noraidīšana, lietotāja vēsture un atcelšana. |
-| **Administrēšana** | Administratora piekļuve, rīku CRUD, rezervāciju apskate un statusa maiņa. |
-| **Datu pārvaldība** | API un datubāzes validācija, obligātie un unikālie lauki, datu tipi, ārējās atslēgas, pieejamības aprēķins un transakciju rezultāti. |
+Administrators: `admin@riki-noma.lv` / `admin123`
 
-## 3. Testēšanas veidi
+Klients: `marija@test.lv` / `test123`
 
-### 3.1. Funkcionālā testēšana
+## Testa gadījumi
 
-Pārbauda, vai galvenās lietotāja darbības un API maršruti izpilda prasīto rezultātu viesim, lietotājam un administratoram.
+| ID | Ko dara | Ko sagaida | Rezultāts |
+|---|---|---|---|
+| FT-01 | Reģistrē jaunu klientu. | Konts tiek izveidots un saņem tokenu. | Izgāja ar PHPUnit |
+| FT-02 | Pieslēdzas administrators. | Saņem tokenu un lomu Administrators. | Izgāja ar PHPUnit. UI nav pārbaudīts. |
+| FT-03 | Meklē rīku katalogā. | Redz atbilstošu rīku. | API izgāja. UI nav pārbaudīts. |
+| FT-04 | Izvēlas kategoriju. | Redz tikai šīs kategorijas rīkus. | API izgāja. UI nav pārbaudīts. |
+| FT-05 | Izveido rezervāciju. | Rezervācija tiek saglabāta. | Izgāja ar PHPUnit. UI nav pārbaudīts. |
+| FT-06 | Atceļ savu rezervāciju. | Rezervācija kļūst par Atcelts. | Izgāja ar PHPUnit. UI nav pārbaudīts. |
+| FT-07 | Administrators pievieno un maina rīku. | Izmaiņas tiek saglabātas. | Izgāja ar PHPUnit. UI nav pārbaudīts. |
+| FT-08 | Administrators maina pasūtījuma statusu. | Jaunais statuss tiek saglabāts. | Izgāja ar PHPUnit. UI nav pārbaudīts. |
+| FT-09 | Apskata rīka detaļas un pieejamību. | Redz pareizu informāciju. | API izgāja. UI nav pārbaudīts. |
+| BV-01 | Izmēģina 7 un 8 rakstzīmju paroli. | 7 noraida, 8 pieņem. | API izgāja. UI nav pārbaudīts. |
+| BV-02 | Izmēģina paroli bez burtiem vai cipariem. | Paroli noraida. | API izgāja. UI nav pārbaudīts. |
+| BV-03 | Ievada cenu 0 un negatīvu cenu. | 0 pieņem, negatīvu noraida. | Izgāja ar PHPUnit. UI nav pārbaudīts. |
+| BV-04 | Ievada daudzumu 0 un negatīvu daudzumu. | 0 pieņem, negatīvu noraida. | Izgāja ar PHPUnit. UI nav pārbaudīts. |
+| BV-05 | Ievada vakardienas datumu. | Rezervāciju noraida. | Izgāja ar PHPUnit. UI nav pārbaudīts. |
+| BV-06 | Ievada vienādus un apgrieztus datumus. | Vienādus pieņem, apgrieztus noraida. | Izgāja ar PHPUnit. UI nav pārbaudīts. |
+| ER-01 | Reģistrē jau izmantotu e-pastu. | Otro kontu neizveido. | API izgāja. UI nav pārbaudīts. |
+| ER-02 | Klients atver admina daļu. | Piekļuvi noraida. | API izgāja. UI nav pārbaudīts. |
+| ER-03 | Mēģina rezervēt aizņemtu rīku. | Rezervāciju noraida. | API izgāja. UI nav pārbaudīts. |
+| ER-04 | Neielogots lietotājs atver aizsargātu daļu. | Saņem 401 vai login iespēju. | API izgāja. UI nav pārbaudīts. |
 
-### 3.2. Robežvērtību testēšana
+## Kas vēl jāizdara manuāli
 
-Pārbauda vērtības tieši pie robežas un abās tās pusēs: parole ar 7 un 8 rakstzīmēm, cena `0` un negatīva cena, daudzums `0` un negatīvs daudzums, kā arī vienādi un apgriezti nomas datumi.
-
-### 3.3. Kļūdu testēšana
-
-Pārbauda nederīgu ievadi, neatļautu piekļuvi, nederīgus tokenus un rezervācijas konfliktus. Kļūdas gadījumā sistēmai jāatgriež atbilstošs statuss un saprotams paziņojums, kā arī nedrīkst izveidot nederīgu ierakstu.
-
-### 3.4. Regresijas testēšana
-
-Pēc katra labojuma atkārtoti pārbauda atklāto testa gadījumu un vienu vai divus saistītus gadījumus. Pilnā cikla beigās atkārtoti izpilda kritiskos autentifikācijas, kataloga, rezervāciju un administratora scenārijus.
-
-### 3.5. UI testēšana
-
-Pārbauda navigāciju, formas, datumu izvēli, lauku validācijas paziņojumus, ielādes un API kļūdas stāvokļus, rezervācijas apstiprinājumu, lomu skatus un responsīvu darbību darbvirsmā un mobilajā platumā.
-
-## 4. Testēšanas vide un dati
-
-- **Backend:** PHP 8.2+, Laravel 11, Laravel Sanctum, PHPUnit.
-- **Frontend:** Node.js 18+, React 18, Vite, Chrome vai Chromium.
-- **Datubāze:** MySQL 8 testēšanas datubāze; pirms pilna cikla drīkst izmantot `php artisan migrate:fresh --seed` tikai testēšanas vidē.
-- **Instalēšana:** `cd backend && composer install`; `cd frontend && npm install`. Ja `vendor` vai `node_modules` jau ir pieejami, instalēšanu atkārtoti neveic.
-- **Pārbaudes:** `cd backend && php artisan test`; `cd frontend && npm run lint && npm run build`.
-- **Testa lietotāji:** viesis, parasts lietotājs ar lomu `Klients` un administrators ar lomu `Administrators`.
-- **Testa rīki:** rīks ar cenu `0`, rīks ar daudzumu `0`, rīks ar pietiekamu daudzumu un rīks, kuram pārbaudāmajā periodā viss daudzums jau ir rezervēts.
-- **Pierādījumi:** katram neveiksmīgam testam saglabā ekrānuzņēmumu vai API atbildi ar datumu un testa ID.
-
-## 5. Testa gadījumi
-
-Rezultātu kolonnu aizpilda testētājs pēc izpildes. Plāns pats par sevi nesatur izdomātus faktiskos rezultātus.
-
-| ID | Modulis | Sākuma stāvoklis | Soļi/ievade | Sagaidāmais rezultāts | Rezultāts |
-|---|---|---|---|---|---|
-| FT-01 | Autentifikācija | E-pasts `jauns@example.com` nav reģistrēts. | Reģistrēties ar derīgu vārdu, e-pastu un paroli `Riki1234`. | Lietotājs tiek izveidots ar `Klients` lomu un tiek atgriezts derīgs tokens. | Izgāja — API/PHPUnit |
-| FT-02 | Autentifikācija | Ir izveidots administrators ar lomu `Administrators`. | Pieslēgties ar administratora e-pastu un pareizu paroli. | Pieslēgšanās izdodas un administratoram ir pieejamas admina darbības. | Izgāja — PHPUnit+Playwright |
-| FT-03 | Katalogs | Sistēma ir pieejama; lietotājs nav pieslēdzies. | Atvērt katalogu un meklēt rīku pēc nosaukuma. | Tiek parādīti publiski rīki, un rezultāti atbilst meklēšanas tekstam. | Izgāja — API+Playwright |
-| FT-04 | Katalogs | Katalogā ir rīki vairākās kategorijās. | Izvēlēties vienu kategoriju filtrā. | Sarakstā paliek tikai izvēlētajai kategorijai atbilstošie rīki. | Izgāja — API+Playwright |
-| FT-05 | Rezervācijas | Lietotājs ir pieslēdzies; rīkam ir pietiekams brīvs daudzums. | Ievadīt daudzumu `1`, sākuma datumu šodien un beigu datumu pēc 2 dienām; iesniegt rezervāciju. | Rezervācija tiek izveidota, parādās apstiprinājums un ieraksts ir redzams vēsturē. | Izgāja — PHPUnit |
-| FT-06 | Rezervācijas | Lietotājam ir vismaz viena sava rezervācija. | Atvērt pasūtījumu vēsturi un atcelt rezervāciju ar statusu `Jauns`. | Lietotājs redz tikai savus pasūtījumus, un atcelšana maina statusu uz `Atcelts`. | Izgāja — PHPUnit |
-| FT-07 | Administrēšana | Administrators ir pieslēdzies; ir pieejama kategorija. | Izveidot rīku ar derīgu nosaukumu, cenu un daudzumu, pēc tam rediģēt aprakstu. | Rīks tiek izveidots, izmaiņas saglabājas un rīks ir redzams katalogā, ja tas ir publisks. | Izgāja — PHPUnit |
-| FT-08 | Administrēšana | Administrators ir pieslēdzies; sistēmā ir rezervācija. | Atvērt rezervāciju sarakstu un mainīt rezervācijas statusu uz `Apstiprinats`. | Rezervācija ir redzama administratoram un jaunais statuss tiek saglabāts. | Izgāja — PHPUnit |
-| FT-09 | Katalogs | Sistēma ir pieejama; katalogā ir vismaz viens rīks. | Atvērt rīka detaļas un pieejamību izvēlētam periodam. | Tiek parādīti rīka dati un brīvais daudzums konkrētajā periodā. | Izgāja — API+Playwright |
-| BV-01 | Autentifikācija | E-pasts nav reģistrēts. | Reģistrēties ar paroli `Riki123` (7 rakstzīmes), pēc tam ar `Riki1234` (8 rakstzīmes). | 7 rakstzīmes tiek noraidītas; 8 rakstzīmes tiek pieņemtas, ja parole satur burtus un ciparus. | Izgāja — API+Playwright |
-| BV-02 | Autentifikācija | E-pasts nav reģistrēts. | Reģistrēties ar `12345678` un ar `Rikikiki`. | Abas paroles tiek noraidītas, jo vienā nav burtu, bet otrā nav ciparu. | Izgāja — API+Playwright |
-| BV-03 | Katalogs / Datu pārvaldība | Administrators ir rīka izveides formā. | Ievadīt cenu `0.00`, pēc tam `-0.01`. | Cena `0.00` tiek pieņemta; negatīva cena tiek noraidīta un ieraksts netiek saglabāts. | Izgāja — PHPUnit+Playwright |
-| BV-04 | Katalogs / Datu pārvaldība | Administrators ir rīka izveides formā. | Ievadīt daudzumu `0`, pēc tam `-1`. | Daudzums `0` tiek pieņemts; negatīvs daudzums tiek noraidīts un ieraksts netiek saglabāts. | Izgāja — PHPUnit+Playwright |
-| BV-05 | Rezervācijas | Lietotājs ir pieslēdzies; rīks ir pieejams. | Iesniegt rezervāciju ar sākuma datumu vakar. | Rezervācija tiek noraidīta, jo nomas sākuma datums nedrīkst būt pagātnē. | Izgāja — PHPUnit+Playwright |
-| BV-06 | Rezervācijas | Lietotājs ir pieslēdzies; rīks ir pieejams. | Iesniegt rezervāciju ar vienādu sākuma un beigu datumu, pēc tam ar beigu datumu pirms sākuma datuma. | Vienādi datumi tiek pieņemti; beigu datums pirms sākuma datuma tiek noraidīts. | Izgāja — PHPUnit+Playwright |
-| ER-01 | Autentifikācija / Datu pārvaldība | E-pasts `lietotajs@example.com` jau eksistē. | Reģistrēt citu lietotāju ar to pašu e-pastu. | Tiek atgriezta e-pasta unikalitātes kļūda un otrais ieraksts netiek izveidots. | Izgāja — API+Playwright |
-| ER-02 | Administrēšana / Autorizācija | Parasts lietotājs ir pieslēdzies ar derīgu tokenu. | Atvērt admina paneli vai nosūtīt pieprasījumu admina API maršrutam. | Piekļuve tiek liegta ar `403`; admina dati lietotājam nav pieejami. | Izgāja — API+Playwright |
-| ER-03 | Rezervācijas | Rīka viss pieejamais daudzums ir rezervēts pārklājošā periodā. | Mēģināt rezervēt šo rīku tajā pašā periodā. | Rezervācija netiek izveidota un tiek parādīts kļūdas paziņojums par rīka nepieejamību. | Izgāja — API+Playwright |
-| ER-04 | Autentifikācija | Lietotājs nav autentificēts vai tokens ir anulēts. | Nosūtīt aizsargātam API maršrutam pieprasījumu bez derīga Bearer tokena. | API atgriež `401`, aizsargātie dati netiek atgriezti un UI piedāvā pieslēgties. | Izgāja — API+Playwright |
-
-## 6. Izpildes kritēriji
-
-- Izpildīti visi testa gadījumi un katram ir faktiskais rezultāts, statuss, testeris un datums.
-- Funkcionālā, robežvērtību, kļūdu un UI testēšana ir dokumentēta ar pārbaudāmiem pierādījumiem.
-- Katra atrastā kļūda ir reģistrēta ar atkārtošanas soļiem, cēloni, labojumu un atkārtotās testēšanas rezultātu.
-- Pēc labojumiem sekmīgi izpildīta kritisko scenāriju regresijas pārbaude.
-- Izveidota testa atskaite ar statistiku, rezultātiem, kļūdu kopsavilkumu un secinājumiem.
+1. Palaist backend un frontend.
+2. Atvērt katru lapu pārlūkā.
+3. Izpildīt FT, BV un ER soļus.
+4. Pierakstīt redzamo ziņojumu.
+5. Saglabāt tikai īstus manuālus screenshotus.
+6. Atkārtot testu, ja tiek atrasta kļūda.
