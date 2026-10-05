@@ -1,71 +1,21 @@
-# TEST-2 kļūdu reģistrs
+# Kļūdu reģistrs
 
-## TEST-4 labojums: TEST3-003
+Datums: 2026-10-05
 
-| Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
-|---|---|---|---|---|---|---|
-| TEST3-003 | Laravel noklusētais `AuthenticationException` JSON atbildes teksts ir angļu valodā. | Laravel izņēmumu apstrādē API ceļiem pievienota lokalizēta `401` JSON atbilde; Feature tests pārbauda esošo `GET /api/user` maršrutu. | `ddb1d17` (`[TEST-4] Novērst TEST3-003: API autentifikācijas kļūda`); PR nav izveidots. | 2026-10-02 | Automatizēta izpilde | Fokusa tests izgāja: `401` un latvisks kļūdas ziņojums (1 tests, 2 assertions). Pilnā kopa: 15 izgāja, 6 neizgāja; atlikušās kļūdas reģistrētas atsevišķi. |
-## Sākotnējie TEST-2 un TEST-3 atradumi
+| ID | Kas bija nepareizi | Kas tika izdarīts | Rezultāts |
+|---|---|---|---|
+| TEST2-001 | Pēc logout PHPUnit testā tokena stāvoklis tika saglabāts. | Tests tika sakārtots un tokens tiek pārbaudīts datubāzē. | Izgāja |
+| TEST2-002 | Rezervācijas testā trūka noteikumu piekrišanas datu. | Testam pievienoti vajadzīgie dati. | Izgāja |
+| TEST2-003 | Tests izveidoja dublētu Klients lomu. | Izmantota esoša loma. | Izgāja |
+| TEST2-004 | Tas pats lomas dublikāta trūkums bija citā testā. | Izmantota esoša loma. | Izgāja |
+| TEST2-005 | Kataloga tests gaidīja nepareizu atbildes formu. | Tests salāgots ar API atbildi. | Izgāja |
+| TEST2-006 | Foto testam trūka GD. | Izmantots esošs PNG fails un GD ieslēgts PHP. | Izgāja |
+| TEST3-001 | Pagātnes datums tika pieņemts rezervācijā. | Pievienota datuma pārbaude. | Izgāja |
+| TEST3-002 | Negatīvas cenas un daudzuma kļūdas bija angļu valodā. | Pievienoti latviešu ziņojumi. | Izgāja |
+| TEST3-003 | Neielogotam lietotājam bija angļu kļūdas ziņojums. | Pievienots latviešu ziņojums. | Izgāja |
+| TEST3-004 | Apgrieztu datumu ziņojums nebija skaidrs. | Ziņojums precizēts. | Izgāja |
+| TEST4-INT-001 | Testā bija veci datumi, kas kļuva par pagātni. | Datumi padarīti mainīgi. | Izgāja |
 
-Sākotnējās faktisko rezultātu un pierādījumu vērtības zemāk saglabātas kā testēšanas vēsture. To gala stāvoklis pēc TEST-4 labojumiem apkopots sadaļā “TEST-4 integrētā atrasto kļūdu atrisināšana”.
+Šajā reizē jauna lietotnes kļūda netika reģistrēta.
 
-## TEST-4 integrācijas atradums
-
-| Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
-|---|---|---|---|---|---|---|
-| TEST4-INT-001 | Apvienojot pagātnes datumu noraidošo validāciju ar esošajiem order testiem, divi derīgas rezervācijas scenāriji izmantoja statiskus 2026. gada septembra datumus, kas testa dienā jau bija pagātnē. | Fixtures pārslēgti uz `now()->addDay()` un turpmāku intervālu; integrētajā `OrderApiTest` atjaunots arī apgriezto datumu scenārijs. | Iekļauts šajā `[TEST-4]` integrācijas commitā; PR nav izveidots. | 2026-10-02 | Automatizēta izpilde | Integrētais `php artisan test` izgāja: 24 testi, 101 assertions; order fokusa komplekts izgāja: 4 testi, 19 assertions. |
-## TEST-4 labojumi un atkārtotā testēšana
-
-| Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
-|---|---|---|---|---|---|---|
-| TEST2-003, TEST2-004 | `OrderApiTest::userWithRole()` katram lietotājam veidoja jaunu `Loma`, lai gan `loma.nosaukums` ir unikāls; vairāku klientu testi apstājās sagatavošanā. | Testa palīgmetode izmanto `Loma::firstOrCreate()` un piesaista esošo lomu. Lietotnes kods nemainīts. | `3c7fc1d` (`[TEST-4] Novērst TEST2-003: koplietot testa lomu`); PR nav izveidots. | 2026-10-02 | Automatizēta izpilde | Abi fokusa testi izgāja: 2 testi, 7 assertions. Pilnā kopa: 17 izgāja, 3 neizgāja; atlikušie testi reģistrēti atsevišķi. |
-
-
-## TEST-4 labojumi un atkārtotā testēšana
-
-| Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
-|---|---|---|---|---|---|---|
-| TEST2-002 | `OrderApiTest::test_user_can_create_order_with_total_and_dates` veidoja pieprasījumu bez API obligātajiem noteikumu piekrišanas laukiem; pēc consent līguma ieviešanas testa ievade bija novecojusi. | Testa pieprasījumā pievienoti `noteikumi_apstiprinati=true` un `noteikumu_versija=1.0`; lietotnes kods nemainīts. | `54194c4` (`[TEST-4] Novērst TEST2-002: pievienot piekrišanu testam`); PR nav izveidots. | 2026-10-02 | Automatizēta izpilde | Fokusa tests izgāja: 1 tests, 4 assertions. Pilnā kopa: 15 izgāja, 5 neizgāja; palikušās kļūdas reģistrētas atsevišķi. |
-
-| Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
-|---|---|---|---|---|---|---|
-| TEST3-002 | Rīka validācijas noteikumiem `min` nebija norādīti lokalizēti ziņojumi un lauku nosaukumi, tāpēc Laravel atgrieza noklusēto angļu tekstu. | Pievienoti latviešu kļūdu ziņojumi cenas un daudzuma `min` robežām; pievienots Feature tests, kas pārbauda abus tekstus un neesamību datubāzē pēc kļūdas. | `d0e4fe5` (`[TEST-4] Novērst TEST3-002: rīku validācijas ziņojumi`); PR nav izveidots. | 2026-10-02 | Automatizēta izpilde | Fokusa tests izgāja: 1 tests, 6 assertions. Pilnā kopa: 15 izgāja, 6 neizgāja; palikušās kļūdas ir reģistrētas atsevišķi. |
-**Datums:** 2026-10-02
-
-**Vide:** `origin/main` (`815eb02`), zars `test/TEST-2-functional-ui`; PHPUnit ar `phpunit.xml` SQLite `:memory:` datubāzi; PHP 8.4.15. TEST-2/TEST-3 laikā lietotnes kods netika mainīts.
-
-| Kļūdas ID | Testa ID | Datums | Atklājējs | Modulis | Vide | Atkārtošanas soļi | Sagaidāmais | Faktiskais | Pierādījums | Prioritāte | Statuss |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| TEST2-001 | `AuthTest::test_user_can_logout_and_token_is_revoked` | 2026-10-02 | Automatizēta izpilde | Autentifikācija / Sanctum testa izolācija | PHPUnit Feature tests, SQLite `:memory:` | Izveidot tokenu; `POST /api/logout`; ar to pašu tokenu izsaukt `GET /api/user`. | Pēc atteikšanās tokens vairs nav derīgs; atbilde `401`. | Sākotnējā PHPUnit izpildē otrais pieprasījums atgrieza `200`; neatkarīgu HTTP pieprasījumu pārbaudē tokens tika dzēsts un nākamais pieprasījums atgrieza `401`. | Sākotnējais `php artisan test`; atsevišķs API HTTP cikls; atkārtotais fokusētais PHPUnit tests `AuthTest.php`. | Zema | Nav reproducējama kā API kļūda; PHPUnit testa guard kešatmiņas izolācija koriģēta ar commit `f116253` |
-| TEST2-002 | `OrderApiTest::test_user_can_create_order_with_total_and_dates` | 2026-10-02 | Automatizēta izpilde | Rezervācijas API / noteikumu piekrišana | Laravel Feature tests, SQLite `:memory:` | Izsaukt `POST /api/orders` ar rīku un datumiem, kā esošajā testā. | Atbilde `201` un izveidots pasūtījums. | Atbilde `422`; testa pieprasījumam trūkst obligāto `noteikumi_apstiprinati` un `noteikumu_versija` lauku. | `cd backend && php artisan test`; `backend/tests/Feature/OrderApiTest.php`; PHPUnit izvade. | Vidēja | Atvērta; saskaņot testa scenāriju ar noteikumu piekrišanas līgumu TEST-4 |
-| TEST2-003 | `OrderApiTest::test_overlapping_order_is_rejected_when_quantity_is_unavailable` | 2026-10-02 | Automatizēta izpilde | Pasūtījumu testa sagatavošana | Laravel Feature tests, SQLite `:memory:` | Izpildīt testu; `userWithRole()` divreiz izveido lomu ar nosaukumu `Klients`. | Dati tiek sagatavoti un pārklājošais pasūtījums tiek noraidīts ar `422`. | Sākotnēji testa sagatavošana beidzās ar SQLite `UNIQUE constraint failed: loma.nosaukums` pirms pārklāšanās pārbaudes. | Sākotnējais `php artisan test`; atkārtoti abi order Feature tests pēc lomas palīgmetodes labošanas. | Vidēja | Novērsts TEST-4 kopā ar TEST2-004; 2 fokusa testi izgāja. |
-| TEST2-004 | `OrderApiTest::test_user_can_only_see_and_cancel_own_new_orders` | 2026-10-02 | Automatizēta izpilde | Pasūtījumu testa sagatavošana | Laravel Feature tests, SQLite `:memory:` | Izpildīt testu; diviem klientiem testa palīgmetode izveido vienādu `Klients` lomu. | Pārbaudīt, ka lietotājs redz un atceļ tikai savu jauno pasūtījumu. | Sākotnēji testa sagatavošana beidzās ar SQLite `UNIQUE constraint failed: loma.nosaukums`. | Sākotnējais `php artisan test`; atkārtoti abi order Feature tests pēc lomas palīgmetodes labošanas. | Vidēja | Novērsts TEST-4 kopā ar TEST2-003; 2 fokusa testi izgāja. |
-| TEST2-005 | `ToolApiTest::test_public_catalog_supports_search_category_and_pagination` | 2026-10-02 | Automatizēta izpilde | Kataloga API / lapošana | Laravel Feature tests, SQLite `:memory:` | Izveidot divus atbilstošus rīkus un izsaukt `GET /api/tools?search=urbj&category_id=...&per_page=1`. | JSON ceļi `meta.total=2` un `meta.per_page=1`. | `meta.total` ir `null`; assertions neatbilst faktiskajai atbildes struktūrai. | `cd backend && php artisan test`; `backend/tests/Feature/ToolApiTest.php:47`; PHPUnit izvade. | Zema | Atvērta; salīdzināt API līgumu un testu TEST-4 |
-| TEST2-006 | `ToolApiTest::test_admin_can_create_update_and_archive_tool_with_photo` | 2026-10-02 | Automatizēta izpilde | Rīku API / testa vide | PHP 8.4.15 CLI, Laravel Feature tests, GD paplašinājums nav instalēts | Izpildīt fotoattēla testu, kur `UploadedFile::fake()->image()` sagatavo attēlu. | Tests pabeidzas un pārbauda izveidi, rediģēšanu, arhivēšanu un foto glabāšanu. | Tests apstājas ar `LogicException: GD extension is not installed` pirms API pieprasījuma. | `cd backend && php artisan test`; `backend/tests/Feature/ToolApiTest.php:130`; PHPUnit izvade. | Vide | Bloķēta; nodrošināt GD paplašinājumu PHP CLI vidē un atkārtot testu |
-| TEST3-001 | BV-05 | 2026-10-02 | Automatizēta izpilde | Rezervāciju datumu validācija | Laravel API `127.0.0.1:8013`, izolēta SQLite `/tmp/riku-noma-test3-20261002.sqlite` | Autentificēties kā klientam un `POST /api/orders` ar pieejamu rīku, noteikumu piekrišanu, `nomasSakums=01.10.2026`, `nomasBeigums=03.10.2026` (testa datums 2026-10-02). | Pagātnes sākuma datums tiek noraidīts; nav izveidots pasūtījums vai pasūtījuma rinda. | Sākotnēji API atgrieza `201`; pasūtījums/rinda `0->1`. Pēc labojuma testa pasūtījums tika atcelts, lai atbrīvotu krājumu. | Sākotnējā API atbilde un DB skaiti; fokusētais Feature tests `OrderApiTest::test_order_with_past_start_date_is_rejected_without_saving_records`. | Augsta | Novērsts TEST-4; fokusa tests izgāja ar pagātnes noraidījumu, bez daļēja ieraksta, un vienas dienas rezervācija joprojām ir derīga. |
-| TEST3-002 | BV-03, BV-04 | 2026-10-02 | Automatizēta izpilde | Rīka validācija / kļūdu lokalizācija | Laravel API `127.0.0.1:8013`, izolēta SQLite | Ar admin tokenu nosūtīt `POST /api/tools` ar `cenadiena=-0.01`, pēc tam ar `daudzums=-1`. | Nederīgi dati tiek noraidīti ar saprotamu, prasībām atbilstošu latviešu kļūdas paziņojumu; ieraksti netiek saglabāti. | Sākotnēji abas atbildes bija `422`, ieraksti `0->0`, bet ziņojumi bija angliski. | Sākotnējās API atbildes; fokusa Feature tests pārbauda latviskos `422` tekstus un `riks` ieraksta neesamību. | Vidēja | Novērsts TEST-4; fokusa tests izgāja ar abiem latviskajiem ziņojumiem, bez saglabātiem ierakstiem. |
-| TEST3-003 | ER-04 | 2026-10-02 | Automatizēta izpilde | Autentifikācija / kļūdas lokalizācija | Laravel API `127.0.0.1:8013`, izolēta SQLite | Bez Bearer tokena izsaukt `GET /api/orders`. | Atbilde `401`, aizsargātie dati nav atgriezti, kļūdas teksts saprotams latviešu valodā. | Atbilde bija `401` un datu ieraksti nemainījās, bet ziņojums bija angliski: “Unauthenticated.” | `docs/tests/testu-rezultati.md`, ER-04; API atbilde un SQLite pasūtījumu skaits pirms/pēc. | Zema | Atvērta; izvērtēt autentifikācijas kļūdas lokalizāciju TEST-4 |
-| TEST3-004 | BV-06 | 2026-10-02 | Automatizēta izpilde | Rezervāciju datumu validācija / kļūdas teksts | Laravel API `127.0.0.1:8013`, izolēta SQLite | Salīdzināt vienādu periodu (`10.10.2026`–`10.10.2026`) un apgrieztu periodu (`11.10.2026`–`10.10.2026`). | Vienas dienas periods ir derīgs, apgriezts periods tiek noraidīts; paziņojumam jāatbilst faktiskajam noteikumam. | Vienāds datums tika pieņemts (`201`), bet apgrieztais noraidīts (`422`) ar tekstu “Nomas beigu datumam jābūt pēc sākuma datuma.” Teksts burtiski norāda, ka beigu datumam jābūt vēlākam un ir pretrunā ar pieņemto vienādu datumu robežgadījumu; noraidītā pasūtījuma/rindu skaits nemainījās (`2->2`). | `docs/tests/testu-rezultati.md`, BV-06; abas API atbildes un SQLite skaiti pirms/pēc. | Zema | Atvērta; precizēt kļūdas formulējumu TEST-4 |
-
-## TEST-4 labojumi un atkārtotā testēšana
-
-| Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
-|---|---|---|---|---|---|---|
-| TEST3-001 | `OrderController::store` pārbaudīja datuma formātu un secību, bet nepārbaudīja, vai nomas sākums ir šodien vai nākotnē. | Pirms rīka rezervācijas pievienota pagātnes sākuma datuma noraidīšana ar HTTP `422` un latvisku ziņojumu. Regression testā pārbaudīts, ka netiek izveidots pasūtījums/rinda un vienas dienas noma joprojām ir derīga. | `e104167` (`[TEST-4] Novērst TEST3-001: pagātnes nomas sākums`); PR nav izveidots. | 2026-10-02 | Automatizēta izpilde | Fokusa tests izgāja: 1 tests, 8 assertions. Pilnā kopa: 15 izgāja, 6 neizgāja; sešas iepriekš reģistrētās, ar šo labojumu nesaistītās kļūdas paliek. Pēc merge atkārtota pārbaude vēl nav veikta. |
-
-## TEST-4 integrētā atrasto kļūdu atrisināšana
-
-Iepriekšējās TEST-4 tabulas atspoguļo katra atsevišķā zara retestu. Galīgā integrētā izpilde uz `test/TEST-4-integrated-fixes` pēc visu labojumu apvienošanas: **24 testi izgāja, 101 assertions**.
-
-| Kļūdas ID | Cēlonis | Novēršana | Labojuma commit/PR | Atkārtotās testēšanas datums | Testeris | Rezultāts |
-|---|---|---|---|---|---|---|
-| TEST3-001 | Rezervāciju API nepieprasīja, lai sākuma datums būtu šodien vai vēlāk. | Pievienota pagātnes datuma validācija; negatīvajā gadījumā netiek izveidots pasūtījums/rinda. | `a1923af`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja; vienas dienas rezervācija paliek derīga. |
-| TEST3-002 | `min` validācijas atgrieza Laravel noklusētos angļu ziņojumus. | Pievienoti latviski cenas un daudzuma kļūdu ziņojumi. | `0b294e5`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss izgāja ar HTTP `422` un bez rīka ieraksta; integrētā pilnā kopa izgāja. |
-| TEST3-003 | Laravel API autentifikācijas izņēmuma noklusētais ziņojums bija angļu valodā. | API ceļiem atgriežama lokalizēta `401` JSON atbilde. | `1d0edb1`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja ar HTTP `401` un latvisku ziņojumu. |
-| TEST3-004 | Apgrieztu datumu kļūdas teksts bija pretrunā ar atļautu vienas dienas periodu. | Ziņojums precizēts; tests pārbauda `422` un to, ka pasūtījums/rinda netiek saglabāta. | `eb2c191`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja. |
-| TEST2-001 | PHPUnit vienā lietotnes instancē atkārtoti izmantoja kešotu guard stāvokli; atsevišķos HTTP pieprasījumos tokena atcelšana jau darbojās. | Tests pārbauda tokena dzēšanu DB un atiestata guard pirms nākamā pieprasījuma. | `d8963b4`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja; neatkarīgs HTTP cikls dod `200/200/401`. |
-| TEST2-002 | Order Feature testa ievadē trūka obligātās noteikumu piekrišanas. | Pievienoti `noteikumi_apstiprinati` un `noteikumu_versija` testa pieprasījumam. | `f7c70be`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja. |
-| TEST2-003, TEST2-004 | Testa palīgmetode mēģināja izveidot unikālo `Klients` lomu katram lietotājam. | Palīgmetode lomu atrod vai izveido ar `firstOrCreate()`. | `6d3d2ef`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Abi fokusa testi un integrētā pilnā kopa izgāja. |
-| TEST2-005 | Tests gaidīja neesošu `meta.*` wrapperi un meklēja tekstu, kas nesakrita ar abiem fixture nosaukumiem. | Pārbaudīti Laravel paginatora augšējā līmeņa lauki un kopīgs `urb` meklēšanas fragments. | `7ca0f01`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Fokuss un integrētā pilnā kopa izgāja. |
-| TEST2-006 | Attēla fake ģenerēšanai vajadzēja vidē neinstalētu GD paplašinājumu. | Izmantots repozitorijā esošs derīgs PNG tests, nemainot pakotnes vai lietotnes kodu. | `769c707`; iekļauts šajā TEST-4 integrācijas zarā. | 2026-10-02 | Automatizēta izpilde | Foto izveides/redigēšanas/arhivēšanas fokuss un integrētā pilnā kopa izgāja bez GD. |
-| TEST4-INT-001 | Integrējot pagātnes datuma validāciju, divi order testi joprojām izmantoja statiskus septembra datumus, kas bija pagātnē. | Fixtures pārvietoti uz relatīviem nākotnes datumiem; atjaunots apgriezto datumu tests. | Iekļauts šajā TEST-4 integrācijas commitā. | 2026-10-02 | Automatizēta izpilde | Order regresiju komplekts: 4 testi, 19 assertions izgāja; integrētā pilnā kopa: 24 testi, 101 assertions izgāja. |
+MySQL instalācijas kļūda 1602 ir vides problēma. Tā nav lietotnes kļūda.
