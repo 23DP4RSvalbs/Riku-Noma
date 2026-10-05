@@ -129,4 +129,21 @@ class AuthTest extends TestCase
             ->getJson('/api/admin-test')
             ->assertOk();
     }
+
+    public function test_seeded_administrator_can_login_with_admin_role_and_token(): void
+    {
+        $this->seed();
+
+        $response = $this->postJson('/api/login', [
+            'epasts' => 'admin@riki-noma.lv',
+            'parole' => 'admin123',
+        ]);
+
+        $response->assertOk()
+            ->assertJsonStructure(['token', 'user'])
+            ->assertJsonPath('user.epasts', 'admin@riki-noma.lv')
+            ->assertJsonPath('user.lomas.0.nosaukums', 'Administrators');
+
+        $this->assertNotEmpty($response->json('token'));
+    }
 }
