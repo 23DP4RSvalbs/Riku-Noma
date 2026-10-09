@@ -54,7 +54,7 @@ Pārbauda navigāciju, formas, datumu izvēli, lauku validācijas paziņojumus, 
 ## 4. Testēšanas vide un dati
 
 - **Backend:** PHP 8.2+, Laravel 11, Laravel Sanctum, PHPUnit.
-- **Frontend:** Node.js 18+, React 18, Vite, Chrome vai Chromium.
+- **Frontend:** Node.js 18+, React 18, Vite, Chrome.
 - **Datubāze:** testu ciklam izolēta SQLite testa datubāze; sistēmas mērķa datubāze ir MySQL 8. Pirms cikla izpildīts migrate:fresh --seed tikai testēšanas vidē.
 - **Instalēšana:** `cd backend && composer install`; `cd frontend && npm install`. Ja `vendor` vai `node_modules` jau ir pieejami, instalēšanu atkārtoti neveic.
 - **Pārbaudes:** `cd backend && php artisan test`; `cd frontend && npm run lint && npm run build`.
@@ -88,10 +88,3 @@ Rezultātu kolonnu aizpilda testētājs pēc izpildes. Plāns pats par sevi nesa
 | ER-03 | Rezervācijas | Rīka viss pieejamais daudzums ir rezervēts pārklājošā periodā. | Mēģināt rezervēt šo rīku tajā pašā periodā. | Rezervācija netiek izveidota un tiek parādīts kļūdas paziņojums par rīka nepieejamību. | Izgāja — API, UI forma verificēta |
 | ER-04 | Autentifikācija | Lietotājs nav autentificēts vai tokens ir anulēts. | Nosūtīt aizsargātam API maršrutam pieprasījumu bez derīga Bearer tokena. | API atgriež `401`, aizsargātie dati netiek atgriezti un UI piedāvā pieslēgties. | Izgāja — API, UI forma verificēta |
 
-## 6. Izpildes kritēriji
-
-- Izpildīti visi testa gadījumi un katram ir faktiskais rezultāts, statuss, testeris un datums.
-- Funkcionālā, robežvērtību, kļūdu un UI testēšana ir dokumentēta ar pārbaudāmiem pierādījumiem.
-- Katra atrastā kļūda ir reģistrēta ar atkārtošanas soļiem, cēloni, labojumu un atkārtotās testēšanas rezultātu.
-- Pēc labojumiem sekmīgi izpildīta kritisko scenāriju regresijas pārbaude.
-- Izveidota testa atskaite ar statistiku, rezultātiem, kļūdu kopsavilkumu un secinājumiem.

@@ -25,8 +25,8 @@ cita dalībnieka.
 ## Izstrādes plāns
 
 - [x] Fāze 1 – grupas organizēšana, tēmas izpēte, tehnoloģiju izvēle, GitHub + Trello bāze
-- [ ] Fāze 2 – Use Case diagramma, arhitektūra, ER diagramma, 8 saskarnes skices, uzdevumu plānošana Trello
-- [ ] Fāze 3 – realizācija (Sprinti 1–5: DB + autentifikācija → rīku CRUD → rezervēšana → admin panelis → UI/UX)
+- [x] Fāze 2 – Use Case diagramma, arhitektūra, ER diagramma, 8 saskarnes skices, uzdevumu plānošana Trello
+- [x] Fāze 3 – realizācija (Sprinti 1–5: DB + autentifikācija → rīku CRUD → rezervēšana → admin panelis → UI/UX)
 - [ ] Fāze 4 – testēšana (plāns, izpilde, kļūdu novēršana, atskaite)
 - [ ] Fāze 5 – prezentācija (lietotāja instrukcija, demonstrācija)
 
@@ -158,3 +158,31 @@ npm run dev                  # Lietotne: http://localhost:5173
 ```
 
 Sēklas datus pievieno tikai jaunai, tikko migrētai datubāzei. Tie paredzēti lokālai izstrādei un demonstrācijai; pirms publiskas izvietošanas nomaini sākotnējo kontu paroles.
+
+## Testēšanas pierādījumi
+
+Klikšķini uz attēla, lai to atvērtu lielākā izmērā.
+
+| Pārbaude | Attēls |
+|---|---|
+| UI-01 sākumlapa | [![UI-01](docs/tests/screen/UI-01.png)](docs/tests/screen/UI-01.png) |
+| UI-02 katalogs | [![UI-02](docs/tests/screen/UI-02.png)](docs/tests/screen/UI-02.png) |
+| UI-03 rīka detaļas | [![UI-03](docs/tests/screen/UI-03.png)](docs/tests/screen/UI-03.png) |
+| UI-04 formas | [![UI-04](docs/tests/screen/UI-04.png)](docs/tests/screen/UI-04.png) |
+| UI-05 pasūtījumi | [![UI-05](docs/tests/screen/UI-05.png)](docs/tests/screen/UI-05.png) |
+| UI-06 profils | [![UI-06](docs/tests/screen/UI-06.png)](docs/tests/screen/UI-06.png) |
+| FT-02 admina panelis | [![FT-02](docs/tests/screen/FT-02.png)](docs/tests/screen/FT-02.png) |
+| UI-08 noteikumi | [![UI-08](docs/tests/screen/UI-08.png)](docs/tests/screen/UI-08.png) |
+| UI-09 mobilais skats | [![UI-09-MOB](docs/tests/screen/UI-09-MOB.png)](docs/tests/screen/UI-09-MOB.png) |
+| BV-01 parole | [![BV-01](docs/tests/screen/BV-01.png)](docs/tests/screen/BV-01.png) |
+| BV-02 parole | [![BV-02](docs/tests/screen/BV-02.png)](docs/tests/screen/BV-02.png) |
+| BV-03 cena | [![BV-03](docs/tests/screen/BV-03.png)](docs/tests/screen/BV-03.png) |
+| BV-04 daudzums | [![BV-04](docs/tests/screen/BV-04.png)](docs/tests/screen/BV-04.png) |
+| BV-05 pagātnes datums | [![BV-05](docs/tests/screen/BV-05.png)](docs/tests/screen/BV-05.png) |
+| BV-06 datumi | [![BV-06](docs/tests/screen/BV-06.png)](docs/tests/screen/BV-06.png) |
+| ER-01 dublēts e-pasts | [![ER-01](docs/tests/screen/ER-01.png)](docs/tests/screen/ER-01.png) |
+| ER-02 klienta piekļuve | [![ER-02](docs/tests/screen/ER-02.png)](docs/tests/screen/ER-02.png) |
+| ER-03 aizņemts rīks | [![ER-03](docs/tests/screen/ER-03.png)](docs/tests/screen/ER-03.png) |
+| ER-04 aizsargāta lapa | [![ER-04](docs/tests/screen/ER-04.png)](docs/tests/screen/ER-04.png) |
+
+Pilna tabula ar tekstiem, testētājiem un datumiem ir [UI rezultātos](docs/tests/screen/ui-results.md).

@@ -24,3 +24,7 @@ Ja rīku attēli tiek glabāti citā publiskā adresē, papildus norādi `VITE_S
 - `npm run dev` — izstrādes serveris
 - `npm run build` — produkcijas būvējums mapē `dist`
 - `npm run lint` — ESLint pārbaude
+
+## Testu attēli
+
+[Atvērt klikšķināmo testu attēlu galeriju](../README.md#testēšanas-pierādījumi)

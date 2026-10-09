@@ -1,6 +1,6 @@
 # Rīku noma: testēšanas atskaite
 
-**Datums:** 2026-10-05
+**Datums:** 2026-10-08
 **Testētāji:** Rolands — vides pārbaude un dokumentācija; Marija — backend/API/PHPUnit; Ksenija — frontend/UI/Playwright.
 
 ## 1. Kopsavilkums
@@ -16,7 +16,7 @@
 
 ## 2. Vide un izpilde
 
-Izmantots PHP 8.3.33 (paplašinājumi `gd` un `pdo_mysql`), Composer 2.10.3, Node.js 22.21.0, Playwright 1.63.0 ar Chromium 153.0.8010.12. Backend darbojās uz `http://127.0.0.1:8013`, frontend uz `http://127.0.0.1:5173`. Backend testi izpildīti pret izolētu SQLite testa datni `backend/database/testing.sqlite`; izstrādātāju lokālā datubāze netika skarta. Testa cikla datubāze ir SQLite; sistēmas mērķa datubāze izstrādē ir MySQL 8.
+Izmantots PHP 8.3.33 (paplašinājumi `gd` un `pdo_mysql`), Composer 2.10.3, Node.js 22.21.0, Backend darbojās uz `http://127.0.0.1:8013`, frontend uz `http://127.0.0.1:5173`. Backend testi izpildīti pret izolētu SQLite testa datni `backend/database/testing.sqlite`; izstrādātāju lokālā datubāze netika skarta. Testa cikla datubāze ir SQLite; sistēmas mērķa datubāze izstrādē ir MySQL 8.
 
 ## 3. Kļūdu reģistrs
 
@@ -28,10 +28,3 @@ Visi plānotie testa gadījumi ir izpildīti un rezultāti dokumentēti ar pier�
 
 Sistēma atbilst prasību dokumentā definētajām funkcijām visām trim lomām: viesis var pārlūkot katalogu, lietotājs — rezervēt un pārvaldīt savus pasūtījumus, administrators — pārvaldīt inventāru un pasūtījumus. Validācijas robežas (paroles garums un sastāvs, cenas un daudzuma robežas, datumu secība un pagātnes datumi) darbojas kā paredzēts, un kļūdu gadījumā lietotājs saņem latvisku, saprotamu paziņojumu. Kā uzlabojamu virzienu izstrādē turpmāk varētu minēt automatizēto UI testu iekļaušanu katra iesūtījuma pārbaudē (CI).
 
-## 5. Pielikumi
-
-- Testēšanas plāns — `docs/tests/testa-plans.md`
-- Testu rezultāti — `docs/tests/testu-rezultati.md`
-- Kļūdu reģistrs — `docs/tests/kludu-registrs.md`
-- UI faktiskie rezultāti — `docs/tests/screen/ui-results.md`
-- Ekrānuzņēmumi — `docs/tests/screen/`
