@@ -1,63 +1,93 @@
 # Testēšanas plāns
 
-## Mērķis
+## 1. Mērķis
 
-Pārbaudīt, vai rīku nomas sistēma strādā viesim, klientam un administratoram.
+Pārbaudīt, vai rīku nomas sistēma darbojas viesim, klientam un administratoram.
 
-## Ko pārbaudām
+Viesis var apskatīt katalogu, meklēt rīkus un izmantot kategoriju filtrus.
 
-- Reģistrāciju un pieslēgšanos.
-- Katalogu un meklēšanu.
-- Kategoriju filtrus.
-- Rīka detaļas un pieejamību.
-- Rezervācijas un atcelšanu.
-- Klienta profilu.
-- Administratora paneli.
-- Datu pārbaudes un kļūdu ziņojumus.
-- Datu saglabāšanu datubāzē.
+Klients var reģistrēties, pieslēgties, apskatīt profilu, izveidot rezervāciju un atcelt savu rezervāciju.
 
-## Testēšanas veidi
+Administrators var pārvaldīt rīkus, lietotājus un pasūtījumus.
 
-- Funkcionālie testi.
-- Robežvērtību testi.
-- Kļūdu testi.
-- Atkārtoti testi pēc labojumiem.
+## 2. Pārbaudāmie moduļi
+
+| Modulis | Ko pārbauda |
+|---|---|
+| Autentifikācija | Reģistrācija, pieslēgšanās, paroles, e-pasta unikālitāte, tokens un lomas. |
+| Katalogs | Rīku saraksts, meklēšana, kategorijas, detaļas un pieejamība. |
+| Rezervācijas | Datumi, daudzums, cena, noteikumu piekrišana, saglabāšana un atcelšana. |
+| Administrēšana | Rīku izveide, labošana, arhivēšana, lietotāji un pasūtījumu statusi. |
+| Datu pārbaude | Obligātie lauki, robežvērtības, unikāli lauki un datu saglabāšana. |
+| Lietotāja saskarne | Formas, kļūdu paziņojumi, navigācija un UI attēlojums. |
+
+## 3. Testēšanas veidi
+
+- Funkcionālā testēšana.
+- API testēšana.
+- PHPUnit testēšana.
+- Robežvērtību testēšana.
+- Kļūdu testēšana.
+- Atkārtota pārbaude pēc labošanas.
 - Manuāla UI pārbaude pārlūkā.
 
-## Testa dati
+## 4. Testa vide un dati
 
-Administrators: `admin@riki-noma.lv` / `admin123`
+| Vienība | Vērtība |
+|---|---|
+| PHP | 8.3.33 |
+| Node.js | 22.21.0 |
+| MySQL | 8.4.3 |
+| MySQL datubāze | `riki_noma_test` |
+| PHP paplašinājumi | `gd`, `pdo_mysql`, `pdo_sqlite` |
+| Administrators | `admin@riki-noma.lv` / `admin123` |
+| Klients | `marija@test.lv` / `test123` |
 
-Klients: `marija@test.lv` / `test123`
+Testi tika veikti ar MySQL 8.4.3 un atsevišķu SQLite testa datni. Dev datubāze netika izmantota.
 
-## Testa datubāze
+## 5. Testa gadījumi
 
-Testiem izmantota MySQL `8.4.3` datubāze `riki_noma_test`. Papildu pārbaudei izmantota atsevišķa SQLite testa datne.
+| ID | Modulis | Sākuma stāvoklis | Soļi | Sagaidāmais rezultāts | Faktiskais rezultāts | Testeris | Datums |
+|---|---|---|---|---|---|---|---|
+| FT-01 | Autentifikācija | E-pasts nav reģistrēts. | Reģistrē jaunu klientu ar derīgu paroli. | Konts tiek izveidots ar klienta lomu un tokenu. | Konts un tokens izveidoti. | Marija (PHPUnit) | 2026-10-09 |
+| FT-02 | Autentifikācija | Ir administratora sēklas konts. | Pieslēdzas ar admina e-pastu un paroli. | Saņem tokenu un lomu `Administrators`. | Tokens un loma saņemti. | Marija (PHPUnit) | 2026-10-09 |
+| FT-03 | Katalogs | Publiskie rīki ir iesēkloti. | Meklē rīku pēc nosaukuma. | Atgriež atbilstošus rīkus. | Meklēšana izgāja. | Marija (API pieprasījumi) | 2026-10-09 |
+| FT-04 | Katalogs | Rīki ir vairākās kategorijās. | Izmanto kategorijas filtru. | Redz tikai izvēlētās kategorijas rīkus. | Filtrs izgāja. | Marija (API pieprasījumi) | 2026-10-09 |
+| FT-05 | Rezervācijas | Klients ir pieslēdzies un rīks ir pieejams. | Nosūta derīgu rezervāciju ar datumiem un piekrišanu. | Rezervācija tiek saglabāta ar pareizu summu. | Rezervācija saglabāta. | Marija (PHPUnit) | 2026-10-09 |
+| FT-06 | Rezervācijas | Klientam ir jauns pasūtījums. | Atver vēsturi un atceļ savu pasūtījumu. | Redz tikai savu pasūtījumu, statuss kļūst `Atcelts`. | Pārbaude izgāja. | Marija (PHPUnit) | 2026-10-09 |
+| FT-07 | Administrēšana | Administrators ir pieslēdzies. | Izveido, maina un arhivē rīku ar attēlu. | Izmaiņas tiek saglabātas. | Pārbaude izgāja. | Marija (PHPUnit) | 2026-10-09 |
+| FT-08 | Administrēšana | Sistēmā ir pasūtījums. | Administrators maina pasūtījuma statusu. | Jaunais statuss tiek saglabāts. | Pārbaude izgāja. | Marija (PHPUnit) | 2026-10-09 |
+| FT-09 | Katalogs | Katalogā ir pieejams rīks. | Apskata detaļas un pieejamību periodā. | Redz rīka datus un brīvo daudzumu. | Pārbaude izgāja. | Marija (API pieprasījumi) | 2026-10-09 |
+| BV-01 | Autentifikācija | E-pasts nav reģistrēts. | Izmēģina 7 un 8 rakstzīmju paroli. | 7 rakstzīmes noraida, 8 pieņem. | Pārbaude izgāja. | Marija (PHPUnit) | 2026-10-09 |
+| BV-02 | Autentifikācija | E-pasts nav reģistrēts. | Izmēģina paroli bez burtiem un bez cipariem. | Nederīgās paroles noraida. | Pārbaude izgāja. | Marija (PHPUnit) | 2026-10-09 |
+| BV-03 | Administrēšana / UI | Administrators ir rīka formā. | Ievada cenu `-0.01` un iesniedz formu. | Negatīvu cenu noraida ar latviešu tekstu. | `Dienas cenai jābūt vismaz 0.` | Marija (PHPUnit), Ksenija (UI) | 2026-10-09 |
+| BV-04 | Administrēšana / UI | Administrators ir rīka formā. | Ievada daudzumu `-1` un iesniedz formu. | Negatīvu daudzumu noraida ar latviešu tekstu. | `Daudzumam jābūt vismaz 0.` | Marija (PHPUnit), Ksenija (UI) | 2026-10-09 |
+| BV-05 | Rezervācijas | Klients ir pieslēdzies. | Iesniedz rezervāciju ar vakardienas sākuma datumu. | Rezervāciju noraida un neko nesaglabā. | Pārbaude izgāja. | Marija (PHPUnit) | 2026-10-09 |
+| BV-06 | Rezervācijas | Klients ir pieslēdzies. | Izmēģina vienādus un apgrieztus datumus. | Vienādus pieņem, apgrieztus noraida. | Pārbaude izgāja. | Marija (PHPUnit) | 2026-10-09 |
+| ER-01 | Autentifikācija / UI | `marija@test.lv` jau pastāv. | Reģistrē ar šo pašu e-pastu. | Otro kontu neizveido un parāda kļūdu. | `Šis e-pasts jau ir reģistrēts.` | Marija (PHPUnit), Ksenija (UI) | 2026-10-09 |
+| ER-02 | Autorizācija | Klients ir pieslēdzies. | Klients mēģina atvērt admina API. | Saņem `403`, admina dati nav pieejami. | Pārbaude izgāja. | Marija (API pieprasījumi) | 2026-10-09 |
+| ER-03 | Rezervācijas / UI | Rīka daudzums periodā ir aizņemts. | Klients iesniedz rezervāciju tajā pašā periodā. | Rezervāciju noraida ar saprotamu kļūdu. | `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.` | Marija (PHPUnit), Ksenija (UI) | 2026-10-09 |
+| ER-04 | Autentifikācija | Lietotājs nav pieslēdzies. | Sūta pieprasījumu aizsargātam API. | Saņem `401` un dati netiek atgriezti. | Pārbaude izgāja. | Marija (API pieprasījumi) | 2026-10-09 |
 
-## Testa gadījumi
+## 6. Testu kopsavilkums
 
-| ID | Ko dara | Ko sagaida | Rezultāts | Testeris |
-|---|---|---|---|---|
-| FT-01 | Reģistrē jaunu klientu. | Konts tiek izveidots un saņem tokenu. | Izgāja ar PHPUnit | Marija (PHPUnit) |
-| FT-02 | Pieslēdzas administrators. | Saņem tokenu un lomu Administrators. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
-| FT-03 | Meklē rīku katalogā. | Redz atbilstošu rīku. | Izgāja ar PHPUnit un API. | Marija (API pieprasījumi) |
-| FT-04 | Izvēlas kategoriju. | Redz tikai šīs kategorijas rīkus. | Izgāja ar PHPUnit un API. | Marija (API pieprasījumi) |
-| FT-05 | Izveido rezervāciju. | Rezervācija tiek saglabāta. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
-| FT-06 | Atceļ savu rezervāciju. | Rezervācija kļūst par Atcelts. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
-| FT-07 | Administrators pievieno un maina rīku. | Izmaiņas tiek saglabātas. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
-| FT-08 | Administrators maina pasūtījuma statusu. | Jaunais statuss tiek saglabāts. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
-| FT-09 | Apskata rīka detaļas un pieejamību. | Redz pareizu informāciju. | Izgāja ar PHPUnit un API. | Marija (API pieprasījumi) |
-| BV-01 | Izmēģina 7 un 8 rakstzīmju paroli. | 7 noraida, 8 pieņem. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
-| BV-02 | Izmēģina paroli bez burtiem vai cipariem. | Paroli noraida. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
-| BV-03 | Ievada cenu 0 un negatīvu cenu. | 0 pieņem, negatīvu noraida. | API un UI izgāja. UI rādīja `Dienas cenai jābūt vismaz 0.` | Marija (PHPUnit), Ksenija (UI) |
-| BV-04 | Ievada daudzumu 0 un negatīvu daudzumu. | 0 pieņem, negatīvu noraida. | API un UI izgāja. UI rādīja `Daudzumam jābūt vismaz 0.` | Marija (PHPUnit), Ksenija (UI) |
-| BV-05 | Ievada vakardienas datumu. | Rezervāciju noraida. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
-| BV-06 | Ievada vienādus un apgrieztus datumus. | Vienādus pieņem, apgrieztus noraida. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
-| ER-01 | Reģistrē jau izmantotu e-pastu. | Otro kontu neizveido. | API un UI izgāja. UI teksts: `Šis e-pasts jau ir reģistrēts.` | Marija (PHPUnit), Ksenija (UI) |
-| ER-02 | Klients atver admina daļu. | Piekļuvi noraida. | Izgāja ar PHPUnit un API. | Marija (API pieprasījumi) |
-| ER-03 | Mēģina rezervēt aizņemtu rīku. | Rezervāciju noraida. | API un UI izgāja. UI rādīja `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.` | Marija (PHPUnit), Ksenija (UI) |
-| ER-04 | Neielogots lietotājs atver aizsargātu daļu. | Saņem 401 vai login iespēju. | Izgāja ar PHPUnit un API. | Marija (API pieprasījumi) |
+- 19 no 19 plānotajiem testa gadījumiem izgāja API vai PHPUnit līmenī.
+- 25 PHPUnit testi un 107 pārbaudes izgāja ar SQLite.
+- 25 PHPUnit testi un 107 pārbaudes izgāja ar MySQL 8.4.3.
+- 4 UI scenāriji izgāja pārlūkā ar reālu formas iesniegšanu.
+- Frontend lint un build izgāja.
 
-## Pierādījumi
+## 7. Pierādījumi
 
-19 testa gadījumu rezultāti ir [testu rezultātos](./testu-rezultati.md). Četru UI scenāriju teksti un ekrānuzņēmumi ir [ui-results.md](./screen/ui-results.md).
+Backend rezultāti ir [testu rezultātos](./testu-rezultati.md).
+
+UI rezultāti un četri attēli ir [ui-results.md](./screen/ui-results.md).
+
+Atrasto kļūdu labojumi un atkārtotie testi ir [kļūdu reģistrā](./kludu-registrs.md).
+
+## 8. Izpildes kritēriji
+
+- Katram testam ir ID, modulis, soļi, sagaidāmais rezultāts, faktiskais rezultāts, testētājs un datums.
+- Ir pārbaudīti funkcionālie, robežvērtību un kļūdu gadījumi.
+- Atrastās kļūdas ir aprakstītas, izlabotas un pārbaudītas atkārtoti.
+- Rezultātiem ir PHPUnit, API un UI pierādījumi.
