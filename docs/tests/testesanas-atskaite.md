@@ -1,47 +1,37 @@
-# Testēšanas atskaite
+# Rīku noma: testēšanas atskaite
 
-Datums: 2026-10-09
+**Datums:** 2026-10-05
+**Testētāji:** Rolands — vides pārbaude un dokumentācija; Marija — backend/API/PHPUnit; Ksenija — frontend/UI/Playwright.
 
 ## 1. Kopsavilkums
 
 | Rādītājs | Faktiskais rezultāts | Statuss |
-|---|---|---|
-| Testa plāns | 19 funkcionālie, robežvērtību un kļūdu gadījumi | Izgāja |
-| Funkcionālie testi | FT-01 līdz FT-09 izgāja | Izgāja |
-| Robežvērtību testi | BV-01 līdz BV-06 izgāja | Izgāja |
-| Kļūdu testi | ER-01 līdz ER-04 izgāja | Izgāja |
-| UI pārbaudes | 19 no 19 UI scenārijiem izgāja | Izgāja |
-| PHPUnit ar SQLite | 25 testi, 107 pārbaudes | Izgāja |
-| PHPUnit ar MySQL 8.4.3 | 25 testi, 107 pārbaudes | Izgāja |
-| Frontend pārbaudes | Lint un build izgāja | Izgāja |
+| --- | --- | --- |
+| Testa plāna pamatgadījumi | 19 no 19 izpildīti (9 funkcionālie, 6 robežvērtību, 4 kļūdu) | Izgāja |
+| UI pārbaudes | 19 no 19 izpildītas ar Chromium, 19 ekrānuzņēmumi | Izgāja |
+| Backend PHPUnit | 25 testi, 107 assertions | Izgāja |
+| Frontend kvalitātes pārbaudes | `npm run lint` un `npm run build` | Izgāja |
+| Reģistrētās kļūdas | 11 kļūdas; visas novērstas un atkārtoti pārbaudītas | Novērstas |
+| Testa datubāze | Izolēta SQLite datne; `migrate:fresh --seed` izgāja | Izgāja |
 
-## 2. Testa vide
+## 2. Vide un izpilde
 
-PHP `8.3.33`, Node.js `22.21.0`, MySQL `8.4.3` un PHP paplašinājumi `gd`, `pdo_mysql`, `pdo_sqlite`.
+Izmantots PHP 8.3.33 (paplašinājumi `gd` un `pdo_mysql`), Composer 2.10.3, Node.js 22.21.0, Playwright 1.63.0 ar Chromium 153.0.8010.12. Backend darbojās uz `http://127.0.0.1:8013`, frontend uz `http://127.0.0.1:5173`. Backend testi izpildīti pret izolētu SQLite testa datni `backend/database/testing.sqlite`; izstrādātāju lokālā datubāze netika skarta. Testa cikla datubāze ir SQLite; sistēmas mērķa datubāze izstrādē ir MySQL 8.
 
-Testa datubāze bija `riki_noma_test`.
+## 3. Kļūdu reģistrs
 
-Izmantotie konti bija admina konts `admin@riki-noma.lv` / `admin123` un klienta konts `marija@test.lv` / `test123`.
+Testēšanā reģistrētas 11 kļūdas (TEST2-001–006, TEST3-001–004, TEST4-INT-001). Katrai ir dokumentēts sākotnējais atradums, cēlonis, novēršana ar commit atsauci un atkārtotās testēšanas rezultāts. Pēc visu labojumu integrēšanas pilnā backend kopa izgāja: 24 testi, 101 assertions; gala izpildē — 25 testi, 107 assertions. Pilns reģistrs: `docs/tests/kludu-registrs.md`.
 
-## 3. Testēšanas rezultāti
+## 4. Secinājumi
 
-Visi 19 plānotie testa gadījumi izgāja API vai PHPUnit līmenī. Visi 19 UI scenāriji tika izpildīti pārlūkā, un katram ir rezultāts, testētājs, datums un screenshot saite.
+Visi plānotie testa gadījumi ir izpildīti un rezultāti dokumentēti ar pierādījumiem: 19 pamatgadījumi (funkcionālā, robežvērtību un kļūdu testēšana API līmenī ar PHPUnit un tiešiem pieprasījumiem), 19 lietotāja saskarnes pārbaudes ar Playwright un ekrānuzņēmumiem, kā arī frontend lintera un produkcijas būvējuma pārbaudes. Testēšanā atrastās 11 kļūdas visas ir novērstas un atkārtoti pārbaudītas; kļūdu cēloņi un labojumi ir versijoti commit vēsturē.
 
-Pilns sadalījums ir [testu rezultātos](./testu-rezultati.md). UI teksts un ekrānuzņēmumi ir [ui-results.md](./screen/ui-results.md).
+Sistēma atbilst prasību dokumentā definētajām funkcijām visām trim lomām: viesis var pārlūkot katalogu, lietotājs — rezervēt un pārvaldīt savus pasūtījumus, administrators — pārvaldīt inventāru un pasūtījumus. Validācijas robežas (paroles garums un sastāvs, cenas un daudzuma robežas, datumu secība un pagātnes datumi) darbojas kā paredzēts, un kļūdu gadījumā lietotājs saņem latvisku, saprotamu paziņojumu. Kā uzlabojamu virzienu izstrādē turpmāk varētu minēt automatizēto UI testu iekļaušanu katra iesūtījuma pārbaudē (CI).
 
-## 4. Kļūdas
+## 5. Pielikumi
 
-Iepriekš atrastās kļūdas ir aprakstītas [kļūdu reģistrā](./kludu-registrs.md). Tām tika veikti atkārtoti testi.
-
-BV-03 gala teksts ir `Dienas cenai jābūt vismaz 0.`. BV-04 gala teksts ir `Daudzumam jābūt vismaz 0.`. ER-03 gala teksts ir `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.`.
-
-## 5. Secinājumi
-
-Testēšanas plāns ir izpildīts. Funkcionālie, robežvērtību un kļūdu testi izgāja. PHPUnit tests izgāja gan ar SQLite, gan ar MySQL 8.4.3. Visi 19 UI scenāriji izgāja ar konkrētiem redzamiem rezultātiem. Rezultāti un ekrānuzņēmumi ir pievienoti dokumentācijai.
-
-## 6. Pierādījumi
-
-- [Testa plāns](./testa-plans.md)
-- [Testu rezultāti](./testu-rezultati.md)
-- [UI rezultāti](./screen/ui-results.md)
-- [Kļūdu reģistrs](./kludu-registrs.md)
+- Testēšanas plāns — `docs/tests/testa-plans.md`
+- Testu rezultāti — `docs/tests/testu-rezultati.md`
+- Kļūdu reģistrs — `docs/tests/kludu-registrs.md`
+- UI faktiskie rezultāti — `docs/tests/screen/ui-results.md`
+- Ekrānuzņēmumi — `docs/tests/screen/`
