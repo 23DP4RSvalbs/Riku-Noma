@@ -36,27 +36,27 @@ Testiem izmantota MySQL `8.4.3` datubāze `riki_noma_test`. Papildu pārbaudei i
 
 ## Testa gadījumi
 
-| ID | Ko dara | Ko sagaida | Rezultāts |
-|---|---|---|---|
-| FT-01 | Reģistrē jaunu klientu. | Konts tiek izveidots un saņem tokenu. | Izgāja ar PHPUnit |
-| FT-02 | Pieslēdzas administrators. | Saņem tokenu un lomu Administrators. | Izgāja ar PHPUnit un API. |
-| FT-03 | Meklē rīku katalogā. | Redz atbilstošu rīku. | Izgāja ar PHPUnit un API. |
-| FT-04 | Izvēlas kategoriju. | Redz tikai šīs kategorijas rīkus. | Izgāja ar PHPUnit un API. |
-| FT-05 | Izveido rezervāciju. | Rezervācija tiek saglabāta. | Izgāja ar PHPUnit un API. |
-| FT-06 | Atceļ savu rezervāciju. | Rezervācija kļūst par Atcelts. | Izgāja ar PHPUnit un API. |
-| FT-07 | Administrators pievieno un maina rīku. | Izmaiņas tiek saglabātas. | Izgāja ar PHPUnit un API. |
-| FT-08 | Administrators maina pasūtījuma statusu. | Jaunais statuss tiek saglabāts. | Izgāja ar PHPUnit un API. |
-| FT-09 | Apskata rīka detaļas un pieejamību. | Redz pareizu informāciju. | Izgāja ar PHPUnit un API. |
-| BV-01 | Izmēģina 7 un 8 rakstzīmju paroli. | 7 noraida, 8 pieņem. | Izgāja ar PHPUnit un API. |
-| BV-02 | Izmēģina paroli bez burtiem vai cipariem. | Paroli noraida. | Izgāja ar PHPUnit un API. |
-| BV-03 | Ievada cenu 0 un negatīvu cenu. | 0 pieņem, negatīvu noraida. | API un UI izgāja. UI rādīja `Dienas cenai jābūt vismaz 0.` |
-| BV-04 | Ievada daudzumu 0 un negatīvu daudzumu. | 0 pieņem, negatīvu noraida. | API un UI izgāja. UI rādīja `Daudzumam jābūt vismaz 0.` |
-| BV-05 | Ievada vakardienas datumu. | Rezervāciju noraida. | Izgāja ar PHPUnit un API. |
-| BV-06 | Ievada vienādus un apgrieztus datumus. | Vienādus pieņem, apgrieztus noraida. | Izgāja ar PHPUnit un API. |
-| ER-01 | Reģistrē jau izmantotu e-pastu. | Otro kontu neizveido. | API un UI izgāja. UI teksts: `Šis e-pasts jau ir reģistrēts.` |
-| ER-02 | Klients atver admina daļu. | Piekļuvi noraida. | Izgāja ar PHPUnit un API. |
-| ER-03 | Mēģina rezervēt aizņemtu rīku. | Rezervāciju noraida. | API un UI izgāja. UI rādīja `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.` |
-| ER-04 | Neielogots lietotājs atver aizsargātu daļu. | Saņem 401 vai login iespēju. | Izgāja ar PHPUnit un API. |
+| ID | Ko dara | Ko sagaida | Rezultāts | Testeris |
+|---|---|---|---|---|
+| FT-01 | Reģistrē jaunu klientu. | Konts tiek izveidots un saņem tokenu. | Izgāja ar PHPUnit | Marija (PHPUnit) |
+| FT-02 | Pieslēdzas administrators. | Saņem tokenu un lomu Administrators. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
+| FT-03 | Meklē rīku katalogā. | Redz atbilstošu rīku. | Izgāja ar PHPUnit un API. | Marija (API pieprasījumi) |
+| FT-04 | Izvēlas kategoriju. | Redz tikai šīs kategorijas rīkus. | Izgāja ar PHPUnit un API. | Marija (API pieprasījumi) |
+| FT-05 | Izveido rezervāciju. | Rezervācija tiek saglabāta. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
+| FT-06 | Atceļ savu rezervāciju. | Rezervācija kļūst par Atcelts. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
+| FT-07 | Administrators pievieno un maina rīku. | Izmaiņas tiek saglabātas. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
+| FT-08 | Administrators maina pasūtījuma statusu. | Jaunais statuss tiek saglabāts. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
+| FT-09 | Apskata rīka detaļas un pieejamību. | Redz pareizu informāciju. | Izgāja ar PHPUnit un API. | Marija (API pieprasījumi) |
+| BV-01 | Izmēģina 7 un 8 rakstzīmju paroli. | 7 noraida, 8 pieņem. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
+| BV-02 | Izmēģina paroli bez burtiem vai cipariem. | Paroli noraida. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
+| BV-03 | Ievada cenu 0 un negatīvu cenu. | 0 pieņem, negatīvu noraida. | API un UI izgāja. UI rādīja `Dienas cenai jābūt vismaz 0.` | Marija (PHPUnit), Ksenija (UI) |
+| BV-04 | Ievada daudzumu 0 un negatīvu daudzumu. | 0 pieņem, negatīvu noraida. | API un UI izgāja. UI rādīja `Daudzumam jābūt vismaz 0.` | Marija (PHPUnit), Ksenija (UI) |
+| BV-05 | Ievada vakardienas datumu. | Rezervāciju noraida. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
+| BV-06 | Ievada vienādus un apgrieztus datumus. | Vienādus pieņem, apgrieztus noraida. | Izgāja ar PHPUnit un API. | Marija (PHPUnit) |
+| ER-01 | Reģistrē jau izmantotu e-pastu. | Otro kontu neizveido. | API un UI izgāja. UI teksts: `Šis e-pasts jau ir reģistrēts.` | Marija (PHPUnit), Ksenija (UI) |
+| ER-02 | Klients atver admina daļu. | Piekļuvi noraida. | Izgāja ar PHPUnit un API. | Marija (API pieprasījumi) |
+| ER-03 | Mēģina rezervēt aizņemtu rīku. | Rezervāciju noraida. | API un UI izgāja. UI rādīja `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.` | Marija (PHPUnit), Ksenija (UI) |
+| ER-04 | Neielogots lietotājs atver aizsargātu daļu. | Saņem 401 vai login iespēju. | Izgāja ar PHPUnit un API. | Marija (API pieprasījumi) |
 
 ## Pierādījumi
 

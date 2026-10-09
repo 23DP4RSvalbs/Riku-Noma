@@ -15,27 +15,27 @@ Datums: 2026-10-09
 
 ## 19 testa gadījumi
 
-| ID | Pārbaudes rezultāts | Metode | Statuss |
-|---|---|---|---|
-| FT-01 | Derīga reģistrācija izveido klienta kontu un atgriež tokenu. | PHPUnit / API | Izgāja |
-| FT-02 | Admina konts saņem tokenu un lomu `Administrators`. | PHPUnit / API | Izgāja |
-| FT-03 | Kataloga meklēšana atgriež atbilstošus publiskos rīkus. | PHPUnit / API | Izgāja |
-| FT-04 | Kategorijas filtrs atgriež izvēlētās kategorijas rīkus. | PHPUnit / API | Izgāja |
-| FT-05 | Derīga rezervācija tiek saglabāta ar pareizu summu un datumiem. | PHPUnit / API | Izgāja |
-| FT-06 | Klients redz un atceļ tikai savu jauno rezervāciju. | PHPUnit / API | Izgāja |
-| FT-07 | Administrators var izveidot, mainīt un arhivēt rīku ar attēlu. | PHPUnit / API | Izgāja |
-| FT-08 | Administrators var filtrēt pasūtījumus un mainīt statusu. | PHPUnit / API | Izgāja |
-| FT-09 | Rīka detaļas un pieejamības aprēķins atgriež pareizus datus. | PHPUnit / API | Izgāja |
-| BV-01 | 7 rakstzīmju parole tiek noraidīta, 8 rakstzīmju parole tiek pieņemta. | PHPUnit / API | Izgāja |
-| BV-02 | Parole bez burtiem vai bez cipariem tiek noraidīta. | PHPUnit / API | Izgāja |
-| BV-03 | Negatīva cena tiek noraidīta ar `Dienas cenai jābūt vismaz 0.`. | PHPUnit / API / UI | Izgāja |
-| BV-04 | Negatīvs daudzums tiek noraidīts ar `Daudzumam jābūt vismaz 0.`. | PHPUnit / API / UI | Izgāja |
-| BV-05 | Pagātnes nomas sākuma datums tiek noraidīts bez saglabāta pasūtījuma. | PHPUnit / API | Izgāja |
-| BV-06 | Vienāds datums tiek pieņemts, apgriezts periods tiek noraidīts. | PHPUnit / API | Izgāja |
-| ER-01 | Dublēts e-pasts tiek noraidīts ar `Šis e-pasts jau ir reģistrēts.`. | PHPUnit / API / UI | Izgāja |
-| ER-02 | Klienta piekļuve administratora API tiek noraidīta ar `403`. | PHPUnit / API | Izgāja |
-| ER-03 | Aizņemts periods tiek noraidīts ar `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.`. | PHPUnit / API / UI | Izgāja |
-| ER-04 | Neautentificēts aizsargāta API maršruta pieprasījums saņem `401`. | PHPUnit / API | Izgāja |
+| ID | Pārbaudes rezultāts | Metode | Statuss | Testeris |
+|---|---|---|---|---|
+| FT-01 | Derīga reģistrācija izveido klienta kontu un atgriež tokenu. | PHPUnit / API | Izgāja | Marija (PHPUnit) |
+| FT-02 | Admina konts saņem tokenu un lomu `Administrators`. | PHPUnit / API | Izgāja | Marija (PHPUnit) |
+| FT-03 | Kataloga meklēšana atgriež atbilstošus publiskos rīkus. | PHPUnit / API | Izgāja | Marija (API pieprasījumi) |
+| FT-04 | Kategorijas filtrs atgriež izvēlētās kategorijas rīkus. | PHPUnit / API | Izgāja | Marija (API pieprasījumi) |
+| FT-05 | Derīga rezervācija tiek saglabāta ar pareizu summu un datumiem. | PHPUnit / API | Izgāja | Marija (PHPUnit) |
+| FT-06 | Klients redz un atceļ tikai savu jauno rezervāciju. | PHPUnit / API | Izgāja | Marija (PHPUnit) |
+| FT-07 | Administrators var izveidot, mainīt un arhivēt rīku ar attēlu. | PHPUnit / API | Izgāja | Marija (PHPUnit) |
+| FT-08 | Administrators var filtrēt pasūtījumus un mainīt statusu. | PHPUnit / API | Izgāja | Marija (PHPUnit) |
+| FT-09 | Rīka detaļas un pieejamības aprēķins atgriež pareizus datus. | PHPUnit / API | Izgāja | Marija (API pieprasījumi) |
+| BV-01 | 7 rakstzīmju parole tiek noraidīta, 8 rakstzīmju parole tiek pieņemta. | PHPUnit / API | Izgāja | Marija (PHPUnit) |
+| BV-02 | Parole bez burtiem vai bez cipariem tiek noraidīta. | PHPUnit / API | Izgāja | Marija (PHPUnit) |
+| BV-03 | Negatīva cena tiek noraidīta ar `Dienas cenai jābūt vismaz 0.`. | PHPUnit / API / UI | Izgāja | Marija (PHPUnit), Ksenija (UI) |
+| BV-04 | Negatīvs daudzums tiek noraidīts ar `Daudzumam jābūt vismaz 0.`. | PHPUnit / API / UI | Izgāja | Marija (PHPUnit), Ksenija (UI) |
+| BV-05 | Pagātnes nomas sākuma datums tiek noraidīts bez saglabāta pasūtījuma. | PHPUnit / API | Izgāja | Marija (PHPUnit) |
+| BV-06 | Vienāds datums tiek pieņemts, apgriezts periods tiek noraidīts. | PHPUnit / API | Izgāja | Marija (PHPUnit) |
+| ER-01 | Dublēts e-pasts tiek noraidīts ar `Šis e-pasts jau ir reģistrēts.`. | PHPUnit / API / UI | Izgāja | Marija (PHPUnit), Ksenija (UI) |
+| ER-02 | Klienta piekļuve administratora API tiek noraidīta ar `403`. | PHPUnit / API | Izgāja | Marija (API pieprasījumi) |
+| ER-03 | Aizņemts periods tiek noraidīts ar `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.`. | PHPUnit / API / UI | Izgāja | Marija (PHPUnit), Ksenija (UI) |
+| ER-04 | Neautentificēts aizsargāta API maršruta pieprasījums saņem `401`. | PHPUnit / API | Izgāja | Marija (API pieprasījumi) |
 
 ## UI pierādījumi
 
