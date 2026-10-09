@@ -49,13 +49,13 @@ Testiem izmantota MySQL `8.4.3` datubāze `riki_noma_test`. Papildu pārbaudei i
 | FT-09 | Apskata rīka detaļas un pieejamību. | Redz pareizu informāciju. | Izgāja ar PHPUnit un API. |
 | BV-01 | Izmēģina 7 un 8 rakstzīmju paroli. | 7 noraida, 8 pieņem. | Izgāja ar PHPUnit un API. |
 | BV-02 | Izmēģina paroli bez burtiem vai cipariem. | Paroli noraida. | Izgāja ar PHPUnit un API. |
-| BV-03 | Ievada cenu 0 un negatīvu cenu. | 0 pieņem, negatīvu noraida. | API izgāja. UI rādīja `Value must be greater than or equal to 0.` |
-| BV-04 | Ievada daudzumu 0 un negatīvu daudzumu. | 0 pieņem, negatīvu noraida. | API izgāja. UI rādīja `Value must be greater than or equal to 0.` |
+| BV-03 | Ievada cenu 0 un negatīvu cenu. | 0 pieņem, negatīvu noraida. | API un UI izgāja. UI rādīja `Dienas cenai jābūt vismaz 0.` |
+| BV-04 | Ievada daudzumu 0 un negatīvu daudzumu. | 0 pieņem, negatīvu noraida. | API un UI izgāja. UI rādīja `Daudzumam jābūt vismaz 0.` |
 | BV-05 | Ievada vakardienas datumu. | Rezervāciju noraida. | Izgāja ar PHPUnit un API. |
 | BV-06 | Ievada vienādus un apgrieztus datumus. | Vienādus pieņem, apgrieztus noraida. | Izgāja ar PHPUnit un API. |
 | ER-01 | Reģistrē jau izmantotu e-pastu. | Otro kontu neizveido. | API un UI izgāja. UI teksts: `Šis e-pasts jau ir reģistrēts.` |
 | ER-02 | Klients atver admina daļu. | Piekļuvi noraida. | Izgāja ar PHPUnit un API. |
-| ER-03 | Mēģina rezervēt aizņemtu rīku. | Rezervāciju noraida. | API izgāja. UI neļāva izvēlēties aizņemto dienu un poga bija atspējota. |
+| ER-03 | Mēģina rezervēt aizņemtu rīku. | Rezervāciju noraida. | API un UI izgāja. UI rādīja `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.` |
 | ER-04 | Neielogots lietotājs atver aizsargātu daļu. | Saņem 401 vai login iespēju. | Izgāja ar PHPUnit un API. |
 
 ## Pierādījumi
