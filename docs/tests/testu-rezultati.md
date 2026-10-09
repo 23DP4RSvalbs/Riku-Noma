@@ -2,32 +2,49 @@
 
 Datums: 2026-10-09
 
-## Backend
+## Kopsavilkums
 
-| Pārbaude | Faktiskais rezultāts | Statuss | Testeris |
+| Pārbaude | Faktiskais rezultāts | Statuss |
+|---|---|---|
+| Plānotie testa gadījumi | 19 no 19 izpildīti API un PHPUnit līmenī | Izgāja |
+| PHPUnit ar SQLite | 25 testi, 107 pārbaudes | Izgāja |
+| PHPUnit ar MySQL 8.4.3 | 25 testi, 107 pārbaudes | Izgāja |
+| UI pārbaudes | 4 no 4 izpildītas ar Chromium | Izgāja |
+| Frontend lint | Pārbaude izgāja | Izgāja |
+| Frontend build | Būve izveidojās bez kļūdām | Izgāja |
+
+## 19 testa gadījumi
+
+| ID | Pārbaudes rezultāts | Metode | Statuss |
 |---|---|---|---|
-| PHPUnit ar SQLite | 25 testi, 107 pārbaudes. | Izgāja | Marija (PHPUnit) |
-| PHPUnit ar MySQL 8.4.3 | 25 testi, 107 pārbaudes. | Izgāja | Marija (PHPUnit) |
-| Administratora pieslēgšanās | Admina konts saņēma tokenu un lomu `Administrators`. | Izgāja | Marija (PHPUnit) |
-| Frontend lint | Pārbaude izgāja. | Izgāja | Ksenija (frontend) |
-| Frontend build | Būve izveidojās bez kļūdām. | Izgāja | Ksenija (frontend) |
+| FT-01 | Derīga reģistrācija izveido klienta kontu un atgriež tokenu. | PHPUnit / API | Izgāja |
+| FT-02 | Admina konts saņem tokenu un lomu `Administrators`. | PHPUnit / API | Izgāja |
+| FT-03 | Kataloga meklēšana atgriež atbilstošus publiskos rīkus. | PHPUnit / API | Izgāja |
+| FT-04 | Kategorijas filtrs atgriež izvēlētās kategorijas rīkus. | PHPUnit / API | Izgāja |
+| FT-05 | Derīga rezervācija tiek saglabāta ar pareizu summu un datumiem. | PHPUnit / API | Izgāja |
+| FT-06 | Klients redz un atceļ tikai savu jauno rezervāciju. | PHPUnit / API | Izgāja |
+| FT-07 | Administrators var izveidot, mainīt un arhivēt rīku ar attēlu. | PHPUnit / API | Izgāja |
+| FT-08 | Administrators var filtrēt pasūtījumus un mainīt statusu. | PHPUnit / API | Izgāja |
+| FT-09 | Rīka detaļas un pieejamības aprēķins atgriež pareizus datus. | PHPUnit / API | Izgāja |
+| BV-01 | 7 rakstzīmju parole tiek noraidīta, 8 rakstzīmju parole tiek pieņemta. | PHPUnit / API | Izgāja |
+| BV-02 | Parole bez burtiem vai bez cipariem tiek noraidīta. | PHPUnit / API | Izgāja |
+| BV-03 | Negatīva cena tiek noraidīta ar `Dienas cenai jābūt vismaz 0.`. | PHPUnit / API / UI | Izgāja |
+| BV-04 | Negatīvs daudzums tiek noraidīts ar `Daudzumam jābūt vismaz 0.`. | PHPUnit / API / UI | Izgāja |
+| BV-05 | Pagātnes nomas sākuma datums tiek noraidīts bez saglabāta pasūtījuma. | PHPUnit / API | Izgāja |
+| BV-06 | Vienāds datums tiek pieņemts, apgriezts periods tiek noraidīts. | PHPUnit / API | Izgāja |
+| ER-01 | Dublēts e-pasts tiek noraidīts ar `Šis e-pasts jau ir reģistrēts.`. | PHPUnit / API / UI | Izgāja |
+| ER-02 | Klienta piekļuve administratora API tiek noraidīta ar `403`. | PHPUnit / API | Izgāja |
+| ER-03 | Aizņemts periods tiek noraidīts ar `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.`. | PHPUnit / API / UI | Izgāja |
+| ER-04 | Neautentificēts aizsargāta API maršruta pieprasījums saņem `401`. | PHPUnit / API | Izgāja |
 
-MySQL servera versija: `8.4.3`.
+## UI pierādījumi
 
-Admina konts: `admin@riki-noma.lv` / `admin123`
+Četri UI scenāriji tika iesniegti pārlūkā ar nederīgām vērtībām. Redzamie teksti un attēli ir [ui-results.md](./screen/ui-results.md).
 
-Klienta konts: `marija@test.lv` / `test123`
-
-## UI pārbaudes
-
-| ID | Faktiskais rezultāts | Statuss | Testeris | Ekrānuzņēmums |
-|---|---|---|---|---|
-| BV-03 | Pārlūks rādīja `Value must be greater than or equal to 0.`. | Neizgāja | Ksenija (pārlūks) | [BV-03.png](./screen/BV-03.png) |
-| BV-04 | Pārlūks rādīja `Value must be greater than or equal to 0.`. | Neizgāja | Ksenija (pārlūks) | [BV-04.png](./screen/BV-04.png) |
-| ER-01 | Forma rādīja `Šis e-pasts jau ir reģistrēts.`. | Izgāja | Ksenija (pārlūks) | [ER-01.png](./screen/ER-01.png) |
-| ER-03 | Aizņemtā diena nebija izvēlama. Poga `Apstiprināt rezervāciju` bija atspējota. | Neizgāja | Ksenija (pārlūks) | [ER-03.png](./screen/ER-03.png) |
-
-Pilnie četru UI ierakstu teksti ir [ui-results.md](./screen/ui-results.md).
+- [BV-03.png](./screen/BV-03.png)
+- [BV-04.png](./screen/BV-04.png)
+- [ER-01.png](./screen/ER-01.png)
+- [ER-03.png](./screen/ER-03.png)
 
 ## Vide
 
@@ -37,6 +54,10 @@ Node.js: `22.21.0`
 
 PHP paplašinājumi: `gd`, `pdo_mysql`, `pdo_sqlite`
 
-Testa datubāze: MySQL `8.4.3`, datubāze `riki_noma_test`.
+MySQL serveris: `8.4.3`
 
-Papildu SQLite pārbaude tika veikta atsevišķā testa datnē.
+MySQL testa datubāze: `riki_noma_test`
+
+Admina konts: `admin@riki-noma.lv` / `admin123`
+
+Klienta konts: `marija@test.lv` / `test123`

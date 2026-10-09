@@ -16,14 +16,10 @@ Datums: 2026-10-05
 | TEST3-004 | Apgrieztu datumu ziņojums nebija skaidrs. | Ziņojums precizēts. | Izgāja |
 | TEST4-INT-001 | Testā bija veci datumi, kas kļuva par pagātni. | Datumi padarīti mainīgi. | Izgāja |
 
-Šajā reizē jauna lietotnes kļūda netika reģistrēta.
-
-MySQL instalācijas kļūda 1602 ir vides problēma. Tā nav lietotnes kļūda.
-
 ## UI atradumi
 
 | ID | Kas tika redzēts | Statuss |
 |---|---|---|
-| UI-BV-03 | Negatīvai cenai pārlūks rādīja `Value must be greater than or equal to 0.` angļu valodā. | Atvērts |
-| UI-BV-04 | Negatīvam daudzumam pārlūks rādīja `Value must be greater than or equal to 0.` angļu valodā. | Atvērts |
-| UI-ER-03 | Aizņemtu dienu nevarēja izvēlēties. Rezervācijas poga bija atspējota. | Atvērts |
+| UI-BV-03 | Negatīvai cenai pārlūks rādīja angļu validācijas tekstu. | Novērsts. Pēc labošanas redzams `Dienas cenai jābūt vismaz 0.` |
+| UI-BV-04 | Negatīvam daudzumam pārlūks rādīja angļu validācijas tekstu. | Novērsts. Pēc labošanas redzams `Daudzumam jābūt vismaz 0.` |
+| UI-ER-03 | Aizņemtu dienu nevarēja izvēlēties un nevarēja redzēt lietotnes kļūdu. | Novērsts. Pēc labošanas redzams `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.` |

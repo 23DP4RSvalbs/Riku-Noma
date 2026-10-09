@@ -2,9 +2,9 @@
 
 Datums: 2026-10-09
 
-| ID | Faktiskais teksts | Statuss | Ekrānuzņēmums |
+| ID | Faktiskais rezultāts | Statuss | Ekrānuzņēmums |
 |---|---|---|---|
-| BV-03 | Pārlūks rādīja: `Value must be greater than or equal to 0.` | Neizgāja | [BV-03.png](./BV-03.png) |
-| BV-04 | Pārlūks rādīja: `Value must be greater than or equal to 0.` | Neizgāja | [BV-04.png](./BV-04.png) |
-| ER-01 | Forma rādīja: `Šis e-pasts jau ir reģistrēts.` | Izgāja | [ER-01.png](./ER-01.png) |
-| ER-03 | Aizņemtā diena nebija izvēlama. Poga `Apstiprināt rezervāciju` bija atspējota. | Neizgāja | [ER-03.png](./ER-03.png) |
+| BV-03 | Iesniedzot cenu `-0.01`, forma rādīja `Dienas cenai jābūt vismaz 0.`. | Izgāja | [BV-03.png](./BV-03.png) |
+| BV-04 | Iesniedzot daudzumu `-1`, forma rādīja `Daudzumam jābūt vismaz 0.`. | Izgāja | [BV-04.png](./BV-04.png) |
+| ER-01 | Iesniedzot `marija@test.lv`, forma rādīja `Šis e-pasts jau ir reģistrēts.`. | Izgāja | [ER-01.png](./ER-01.png) |
+| ER-03 | Aizņemtam periodam forma rādīja `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.`. | Izgāja | [ER-03.png](./ER-03.png) |

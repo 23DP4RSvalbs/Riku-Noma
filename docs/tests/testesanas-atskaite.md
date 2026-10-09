@@ -2,41 +2,44 @@
 
 Datums: 2026-10-09
 
-## Kopsavilkums
+## 1. Kopsavilkums
 
 | Rādītājs | Faktiskais rezultāts | Statuss |
 |---|---|---|
-| Testa plāns | Plānā ir funkcionālie, robežvērtību un kļūdu testi. | Izgāja |
-| PHPUnit ar SQLite | 25 testi, 107 pārbaudes. | Izgāja |
-| PHPUnit ar MySQL 8.4.3 | 25 testi, 107 pārbaudes. | Izgāja |
-| FT-02 | Administrators saņēma tokenu un lomu `Administrators`. | Izgāja |
-| UI BV-03 | Pārlūks rādīja angļu validācijas tekstu. | Neizgāja |
-| UI BV-04 | Pārlūks rādīja angļu validācijas tekstu. | Neizgāja |
-| UI ER-01 | Dublēts e-pasts tika noraidīts ar latviešu tekstu. | Izgāja |
-| UI ER-03 | Aizņemtu dienu nevarēja izvēlēties un rezervācijas poga bija atspējota. | Neizgāja |
-| Kļūdu retesti | Iepriekš atrastās kļūdas tika pārbaudītas atkārtoti. | Izgāja |
+| Testa plāns | 19 funkcionālie, robežvērtību un kļūdu gadījumi | Izgāja |
+| Funkcionālie testi | FT-01 līdz FT-09 izgāja | Izgāja |
+| Robežvērtību testi | BV-01 līdz BV-06 izgāja | Izgāja |
+| Kļūdu testi | ER-01 līdz ER-04 izgāja | Izgāja |
+| UI pārbaudes | BV-03, BV-04, ER-01 un ER-03 izgāja | Izgāja |
+| PHPUnit ar SQLite | 25 testi, 107 pārbaudes | Izgāja |
+| PHPUnit ar MySQL 8.4.3 | 25 testi, 107 pārbaudes | Izgāja |
+| Frontend pārbaudes | Lint un build izgāja | Izgāja |
 
-## Izmantotie dati
+## 2. Testa vide
 
-Admina konts: `admin@riki-noma.lv` / `admin123`
+PHP `8.3.33`, Node.js `22.21.0`, MySQL `8.4.3` un PHP paplašinājumi `gd`, `pdo_mysql`, `pdo_sqlite`.
 
-Klienta konts: `marija@test.lv` / `test123`
+Testa datubāze bija `riki_noma_test`.
 
-Testa datubāze: MySQL `8.4.3`, `riki_noma_test`.
+Izmantotie konti bija admina konts `admin@riki-noma.lv` / `admin123` un klienta konts `marija@test.lv` / `test123`.
 
-## Secinājumi
+## 3. Testēšanas rezultāti
 
-Backend testi izgāja gan ar SQLite, gan ar MySQL 8.4.3. FT-02 tests izgāja.
+Visi 19 plānotie testa gadījumi izgāja API vai PHPUnit līmenī. Četri UI scenāriji tika izpildīti pārlūkā ar reālu formas iesniegšanu. Visi četri izgāja pēc frontend validācijas labošanas.
 
-ER-01 UI pārbaude izgāja.
+Pilns sadalījums ir [testu rezultātos](./testu-rezultati.md). UI teksts un ekrānuzņēmumi ir [ui-results.md](./screen/ui-results.md).
 
-BV-03 un BV-04 neizgāja, jo pārlūks rādīja angļu tekstu `Value must be greater than or equal to 0.`.
+## 4. Kļūdas
 
-ER-03 neizgāja, jo aizņemtu dienu nevarēja izvēlēties un forma neļāva iesniegt rezervāciju.
+Iepriekš atrastās kļūdas ir aprakstītas [kļūdu reģistrā](./kludu-registrs.md). Tām tika veikti atkārtoti testi.
 
-Šie trīs UI rezultāti ir atradumi, nevis izdomāti panākumi. Tie ir redzami [UI rezultātu tabulā](./screen/ui-results.md).
+BV-03 gala teksts ir `Dienas cenai jābūt vismaz 0.`. BV-04 gala teksts ir `Daudzumam jābūt vismaz 0.`. ER-03 gala teksts ir `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.`.
 
-## Pierādījumi
+## 5. Secinājumi
+
+Testēšanas plāns ir izpildīts. Funkcionālie, robežvērtību un kļūdu testi izgāja. PHPUnit tests izgāja gan ar SQLite, gan ar MySQL 8.4.3. Četri UI scenāriji izgāja ar konkrētiem latviešu valodas paziņojumiem. Rezultāti un ekrānuzņēmumi ir pievienoti dokumentācijai.
+
+## 6. Pierādījumi
 
 - [Testa plāns](./testa-plans.md)
 - [Testu rezultāti](./testu-rezultati.md)
