@@ -19,3 +19,11 @@ Datums: 2026-10-05
 Šajā reizē jauna lietotnes kļūda netika reģistrēta.
 
 MySQL instalācijas kļūda 1602 ir vides problēma. Tā nav lietotnes kļūda.
+
+## UI atradumi
+
+| ID | Kas tika redzēts | Statuss |
+|---|---|---|
+| UI-BV-03 | Negatīvai cenai pārlūks rādīja `Value must be greater than or equal to 0.` angļu valodā. | Atvērts |
+| UI-BV-04 | Negatīvam daudzumam pārlūks rādīja `Value must be greater than or equal to 0.` angļu valodā. | Atvērts |
+| UI-ER-03 | Aizņemtu dienu nevarēja izvēlēties. Rezervācijas poga bija atspējota. | Atvērts |

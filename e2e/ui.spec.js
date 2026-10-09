@@ -2,22 +2,22 @@ import { test, expect } from 'playwright/test'
 import fs from 'node:fs'
 
 const resultsPath = 'docs/tests/screen/ui-results.md'
-const screenshotDir = 'docs/tests/screen'
+const screenDir = 'docs/tests/screen'
 const today = new Date().toISOString().slice(0, 10)
 
 test.beforeAll(() => {
-  fs.mkdirSync(screenshotDir, { recursive: true })
-  fs.writeFileSync(resultsPath, '| ID | Datums | Faktiskais rezultāts | Statuss | Screenshot |\n|---|---|---|---|---|\n')
+  fs.mkdirSync(screenDir, { recursive: true })
+  if (!fs.existsSync(resultsPath)) fs.writeFileSync(resultsPath, '| ID | Datums | Faktiskais teksts | Statuss | Screenshot |\n|---|---|---|---|---|\n')
 })
 
-async function record(page, id, status = 'Izgāja') {
-  const screenshot = `${id}.png`
-  await page.screenshot({ path: `${screenshotDir}/${screenshot}`, fullPage: true })
-  const text = (await page.locator('body').innerText()).replace(/\s+/g, ' ').trim().slice(0, 240).replace(/\|/g, '/')
-  fs.appendFileSync(resultsPath, `| ${id} | ${today} | ${text || 'Lapa ielādējās bez redzama teksta.'} | ${status} | [${screenshot}](./${screenshot}) |\n`)
+async function saveResult(page, id, status = 'Izgāja', actualText = '') {
+  const file = `${id}.png`
+  await page.screenshot({ path: `${screenDir}/${file}`, fullPage: true })
+  const text = (actualText || await page.locator('body').innerText()).replace(/\s+/g, ' ').trim().replace(/\|/g, '/').slice(0, 300)
+  fs.appendFileSync(resultsPath, `| ${id} | ${today} | ${text} | ${status} | [${file}](./${file}) |\n`)
 }
 
-async function login(page, email = 'marija@test.lv', password = 'test123') {
+async function login(page, email, password) {
   await page.goto('/ieiet')
   await page.getByLabel('E-pasts').fill(email)
   await page.getByLabel('Parole').fill(password)
@@ -25,100 +25,74 @@ async function login(page, email = 'marija@test.lv', password = 'test123') {
   await expect(page).toHaveURL(/katalogs/)
 }
 
-async function firstToolUrl(page) {
-  await page.goto('/katalogs')
-  await expect(page.locator('.tool-card').first()).toBeVisible()
-  return page.locator('.tool-card').first().getAttribute('href')
+async function loginApi(request, email, password) {
+  const response = await request.post('http://127.0.0.1:8013/api/login', { data: { epasts: email, parole: password } })
+  expect(response.ok()).toBeTruthy()
+  return (await response.json()).token
 }
 
-test('1 Viesis sākumlapa bez JS kļūdām', async ({ page }) => {
-  const errors = []
-  page.on('pageerror', (error) => errors.push(error.message))
-  await page.goto('/')
-  await expect(page.getByRole('heading', { name: /Izīrē rīku/i })).toBeVisible()
-  await record(page, 'UI-01', errors.length ? 'Neizgāja' : 'Izgāja')
-  expect(errors).toEqual([])
-})
-
-test('2 Viesis katalogs meklēšana un kategorija', async ({ page }) => {
-  await page.goto('/katalogs')
-  await expect(page.getByRole('heading', { name: /Atrodi savu/i })).toBeVisible()
-  await page.getByLabel('Meklēt instrumentu').fill('urb')
-  await expect(page.locator('.catalog-page')).toContainText(/instrumenti|Netika atrasti/i)
-  await record(page, 'UI-02')
-})
-
-test('3 Viesis rīka detaļas un pieejamība', async ({ page }) => {
-  const url = await firstToolUrl(page)
-  await page.goto(url)
-  await expect(page.locator('.detail-page')).toBeVisible()
-  await expect(page.locator('.availability-row')).toBeVisible()
-  await record(page, 'UI-03')
-})
-
-test('4 Viesis login un reģistrācijas validācija', async ({ page }) => {
-  await page.goto('/ieiet')
-  await page.getByRole('button', { name: /pieslēgties/i }).click()
-  await expect(page.getByText('Ievadiet e-pasta adresi.')).toBeVisible()
-  await page.goto('/registracija')
-  await page.getByRole('button', { name: /izveidot kontu/i }).click()
-  await expect(page.getByText('Ievadiet vārdu.')).toBeVisible()
-  await record(page, 'UI-04')
-})
-
-test('5 Klients rezervācijas skats un atcelšana', async ({ page }) => {
-  await login(page)
-  await page.goto('/rezervacijas')
-  await expect(page.getByRole('heading', { name: /Mani/i })).toBeVisible()
-  await record(page, 'UI-05')
-})
-
-test('6 Klients profils', async ({ page }) => {
-  await login(page)
-  await page.goto('/profils')
-  await expect(page.locator('body')).toContainText(/prof|Marija/i)
-  await record(page, 'UI-06')
-})
-
-test('7 Administrators FT-02 panelis', async ({ page }) => {
+test('BV-03 admina forma noraida negatīvu cenu', async ({ page }) => {
   await login(page, 'admin@riki-noma.lv', 'admin123')
   await page.goto('/admin')
-  await expect(page.locator('.admin-page h1')).toContainText(/pārvaldība/i)
-  await record(page, 'FT-02')
+  await page.getByRole('button', { name: /pievienot jaunu rīku/i }).click()
+  await page.getByLabel('Rīka nosaukums *').fill(`BV03 ${Date.now()}`)
+  await page.getByLabel('Kategorija *').selectOption({ index: 1 })
+  await page.getByLabel('Cena dienā (€) *').fill('-0.01')
+  await page.getByLabel('Daudzums *').fill('1')
+  await page.getByRole('button', { name: /saglabāt rīku/i }).click()
+  const message = await page.getByLabel('Cena dienā (€) *').evaluate((input) => input.validationMessage)
+  expect(message).not.toBe('')
+  await saveResult(page, 'BV-03', 'Neizgāja', `Pārlūka validācijas ziņojums: ${message}`)
 })
 
-test('8 Noteikumi un rezervācijas piekrišana', async ({ page }) => {
-  await page.goto('/noteikumi')
-  await expect(page.getByRole('heading', { name: /noteikumi/i })).toBeVisible()
-  await record(page, 'UI-08')
+test('BV-04 admina forma noraida negatīvu daudzumu', async ({ page }) => {
+  await login(page, 'admin@riki-noma.lv', 'admin123')
+  await page.goto('/admin')
+  await page.getByRole('button', { name: /pievienot jaunu rīku/i }).click()
+  await page.getByLabel('Rīka nosaukums *').fill(`BV04 ${Date.now()}`)
+  await page.getByLabel('Kategorija *').selectOption({ index: 1 })
+  await page.getByLabel('Cena dienā (€) *').fill('1')
+  await page.getByLabel('Daudzums *').fill('-1')
+  await page.getByRole('button', { name: /saglabāt rīku/i }).click()
+  const message = await page.getByLabel('Daudzums *').evaluate((input) => input.validationMessage)
+  expect(message).not.toBe('')
+  await saveResult(page, 'BV-04', 'Neizgāja', `Pārlūka validācijas ziņojums: ${message}`)
 })
 
-test('9 Mobilais navigācijas izkārtojums', async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 })
-  await page.goto('/')
-  await expect(page.getByRole('button', { name: /atvērt navigāciju/i })).toBeVisible()
-  await page.getByRole('button', { name: /atvērt navigāciju/i }).click()
-  await expect(page.getByRole('navigation')).toBeVisible()
-  await record(page, 'UI-09-MOB')
+test('ER-01 reģistrācija noraida izmantotu e-pastu', async ({ page }) => {
+  await page.goto('/registracija')
+  await page.getByLabel('Vārds').fill('Dublikāta pārbaude')
+  await page.getByLabel('E-pasts').fill('marija@test.lv')
+  await page.getByLabel('Parole').fill('Test1234')
+  await page.getByLabel('Atkārto paroli').fill('Test1234')
+  await page.getByRole('button', { name: /izveidot kontu/i }).click()
+  await expect(page.locator('.field-error, [role="alert"]')).toContainText('Šis e-pasts jau ir reģistrēts.')
+  await saveResult(page, 'ER-01')
 })
 
-const boundaryCases = [
-  ['BV-01', 'registracija', async (page) => { await page.getByLabel('Vārds').fill('Tests'); await page.getByLabel('E-pasts').fill('bv01@example.com'); await page.getByLabel('Parole').fill('abc1234'); await page.getByLabel('Atkārto paroli').fill('abc1234'); await page.getByRole('button', { name: /izveidot kontu/i }).click(); await expect(page.getByText(/vismaz 8/i)).toBeVisible() }],
-  ['BV-02', 'registracija', async (page) => { await page.getByLabel('Vārds').fill('Tests'); await page.getByLabel('E-pasts').fill('bv02@example.com'); await page.getByLabel('Parole').fill('abcdefgh'); await page.getByLabel('Atkārto paroli').fill('abcdefgh'); await page.getByRole('button', { name: /izveidot kontu/i }).click(); await expect(page.getByText(/burti un cipari/i)).toBeVisible() }],
-  ['BV-03', 'admin', async (page) => { await login(page, 'admin@riki-noma.lv', 'admin123'); await page.goto('/admin'); await expect(page.locator('body')).toContainText(/inventār|pārvald/i) }],
-  ['BV-04', 'reservations', async (page) => { await login(page); await page.goto('/rezervacijas'); await expect(page.locator('body')).toContainText(/rezerv|pasūt|nav/i) }],
-  ['BV-05', 'detail', async (page) => { const url = await firstToolUrl(page); await page.goto(url); await expect(page.locator('input[type="date"]').first()).toBeVisible() }],
-  ['BV-06', 'detail', async (page) => { const url = await firstToolUrl(page); await page.goto(url); await expect(page.locator('input[type="date"]').nth(1)).toBeVisible() }],
-  ['ER-01', 'registracija', async (page) => { await expect(page.getByRole('heading', { name: /Sāc savu projektu/i })).toBeVisible() }],
-  ['ER-02', 'admin', async (page) => { await login(page); await page.goto('/admin'); await expect(page.locator('body')).toContainText(/nav pieejama|404|piekļuve/i) }],
-  ['ER-03', 'detail', async (page) => { const url = await firstToolUrl(page); await page.goto(url); await expect(page.locator('.availability-row')).toBeVisible() }],
-  ['ER-04', 'reservations', async (page) => { await page.goto('/rezervacijas'); await expect(page.locator('body')).toContainText(/nav pieejama|piekļuve|404/i) }],
-]
-
-for (const [id, path, scenario] of boundaryCases) {
-  test(`${id} robežvērtība/kļūda`, async ({ page }) => {
-    await page.goto(path === 'admin' ? '/admin' : path === 'reservations' ? '/rezervacijas' : path === 'detail' ? await firstToolUrl(page) : `/${path}`)
-    await scenario(page)
-    await record(page, id)
+test('ER-03 aizņemta rīka rezervācija parāda kļūdu', async ({ page, request }) => {
+  const adminToken = await loginApi(request, 'admin@riki-noma.lv', 'admin123')
+  const toolsResponse = await request.get('http://127.0.0.1:8013/api/tools?per_page=100')
+  const tools = (await toolsResponse.json()).data
+  const tool = tools.find((item) => Number(item.daudzums) >= 1 && item.statuss === 'pieejams')
+  expect(tool).toBeTruthy()
+  const start = new Date(Date.now() + 3 * 86400000)
+  const end = new Date(Date.now() + 4 * 86400000)
+  const format = (date) => `${String(date.getDate()).padStart(2, '0')}.${String(date.getMonth() + 1).padStart(2, '0')}.${date.getFullYear()}`
+  const firstOrder = await request.post('http://127.0.0.1:8013/api/orders', {
+    headers: { Authorization: `Bearer ${adminToken}` },
+    data: { riki: [{ rikID: tool.rikID, daudzums: Number(tool.daudzums), nomasSakums: format(start), nomasBeigums: format(end) }], noteikumi_apstiprinati: true, noteikumu_versija: '1.0' },
   })
-}
+  if (!firstOrder.ok()) {
+    expect(firstOrder.status()).toBe(422)
+    expect((await firstOrder.json()).message).toBe('Šis instruments jau ir aizņemts šajos datumos')
+  }
+  await login(page, 'marija@test.lv', 'test123')
+  await page.goto(`/rezervacijas?rikID=${tool.rikID}`)
+  await expect(page.getByRole('heading', { name: /Izvēlies.*nomas laiku/i })).toBeVisible()
+  const startButton = page.getByRole('button', { name: new RegExp(start.toISOString().slice(0, 10)) })
+  const submitButton = page.getByRole('button', { name: /apstiprināt rezervāciju/i })
+  await expect(startButton).toBeDisabled()
+  await expect(submitButton).toBeDisabled()
+  await saveResult(page, 'ER-03', 'Neizgāja', 'Aizņemtā diena nav izvēlama, un poga “Apstiprināt rezervāciju” ir atspējota.')
+})

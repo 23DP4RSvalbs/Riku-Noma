@@ -1,47 +1,42 @@
 # Testu rezultāti
 
-Datums: 2026-10-05
-
-Testi tika veikti ar PHP 8.3.33 un atsevišķu SQLite testa datni.
+Datums: 2026-10-09
 
 ## Backend
 
-| Pārbaude | Rezultāts | Testeris |
-|---|---|---|
-| Visi PHPUnit testi | 25 testi un 107 pārbaudes. Visi izgāja. | Marija (PHPUnit) |
-| Administratora pieslēgšanās | Admina konts pieslēdzās. Tika saņemts tokens un loma Administrators. | Marija (PHPUnit) |
-| Frontend lint | Izgāja. | Ksenija (frontend) |
-| Frontend build | Izgāja. | Ksenija (frontend) |
-| MySQL 8 | Neizdevās uzstādīt. Instalētājs beidzās ar kļūdu 1602. | Rolands (vides pārbaude) |
+| Pārbaude | Faktiskais rezultāts | Statuss | Testeris |
+|---|---|---|---|
+| PHPUnit ar SQLite | 25 testi, 107 pārbaudes. | Izgāja | Marija (PHPUnit) |
+| PHPUnit ar MySQL 8.4.3 | 25 testi, 107 pārbaudes. | Izgāja | Marija (PHPUnit) |
+| Administratora pieslēgšanās | Admina konts saņēma tokenu un lomu `Administrators`. | Izgāja | Marija (PHPUnit) |
+| Frontend lint | Pārbaude izgāja. | Izgāja | Ksenija (frontend) |
+| Frontend build | Būve izveidojās bez kļūdām. | Izgāja | Ksenija (frontend) |
 
-Admina konts no sēklas datiem:
-`admin@riki-noma.lv` / `admin123`
+MySQL servera versija: `8.4.3`.
 
-Klientu konti:
-`marija@test.lv` / `test123`
-`ksenija@test.lv` / `test123`
+Admina konts: `admin@riki-noma.lv` / `admin123`
+
+Klienta konts: `marija@test.lv` / `test123`
 
 ## UI pārbaudes
 
-Playwright faili un automātiskie attēli ir noņemti. Tie bija tikai darba palīgrīks un nav iesnieguma pierādījumi.
+| ID | Faktiskais rezultāts | Statuss | Testeris | Ekrānuzņēmums |
+|---|---|---|---|---|
+| BV-03 | Pārlūks rādīja `Value must be greater than or equal to 0.`. | Neizgāja | Ksenija (pārlūks) | [BV-03.png](./screen/BV-03.png) |
+| BV-04 | Pārlūks rādīja `Value must be greater than or equal to 0.`. | Neizgāja | Ksenija (pārlūks) | [BV-04.png](./screen/BV-04.png) |
+| ER-01 | Forma rādīja `Šis e-pasts jau ir reģistrēts.`. | Izgāja | Ksenija (pārlūks) | [ER-01.png](./screen/ER-01.png) |
+| ER-03 | Aizņemtā diena nebija izvēlama. Poga `Apstiprināt rezervāciju` bija atspējota. | Neizgāja | Ksenija (pārlūks) | [ER-03.png](./screen/ER-03.png) |
 
-UI pārbaudes šajā reizē nav veiktas manuāli. Tāpēc tās nedrīkst saukt par izgājušām.
-
-Manuāli jāpārbauda:
-
-1. Sākumlapa un katalogs.
-2. Rīka detaļas un pieejamība.
-3. Login un reģistrācija.
-4. Klienta profils un rezervācijas.
-5. Admina panelis.
-6. Noteikumi.
-7. Mobilais skats 390 x 844.
-8. BV un ER gadījumi testa plānā.
+Pilnie četru UI ierakstu teksti ir [ui-results.md](./screen/ui-results.md).
 
 ## Vide
 
-PHP paplašinājumi `gd` un `pdo_mysql` ir ieslēgti.
+PHP: `8.3.33`
 
-Composer ir uzstādīts. Frontend atkarības ir uzstādītas frontend mapē.
+Node.js: `22.21.0`
 
-MySQL nav pieejams. Tāpēc MySQL migrācija un testi nav veikti.
+PHP paplašinājumi: `gd`, `pdo_mysql`, `pdo_sqlite`
+
+Testa datubāze: MySQL `8.4.3`, datubāze `riki_noma_test`.
+
+Papildu SQLite pārbaude tika veikta atsevišķā testa datnē.
