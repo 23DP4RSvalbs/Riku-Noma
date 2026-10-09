@@ -10,7 +10,7 @@ Datums: 2026-10-09
 | Funkcionālie testi | FT-01 līdz FT-09 izgāja | Izgāja |
 | Robežvērtību testi | BV-01 līdz BV-06 izgāja | Izgāja |
 | Kļūdu testi | ER-01 līdz ER-04 izgāja | Izgāja |
-| UI pārbaudes | BV-03, BV-04, ER-01 un ER-03 izgāja | Izgāja |
+| UI pārbaudes | 19 no 19 UI scenārijiem izgāja | Izgāja |
 | PHPUnit ar SQLite | 25 testi, 107 pārbaudes | Izgāja |
 | PHPUnit ar MySQL 8.4.3 | 25 testi, 107 pārbaudes | Izgāja |
 | Frontend pārbaudes | Lint un build izgāja | Izgāja |
@@ -25,7 +25,7 @@ Izmantotie konti bija admina konts `admin@riki-noma.lv` / `admin123` un klienta 
 
 ## 3. Testēšanas rezultāti
 
-Visi 19 plānotie testa gadījumi izgāja API vai PHPUnit līmenī. Četri UI scenāriji tika izpildīti pārlūkā ar reālu formas iesniegšanu. Visi četri izgāja pēc frontend validācijas labošanas.
+Visi 19 plānotie testa gadījumi izgāja API vai PHPUnit līmenī. Visi 19 UI scenāriji tika izpildīti pārlūkā, un katram ir rezultāts, testētājs, datums un screenshot saite.
 
 Pilns sadalījums ir [testu rezultātos](./testu-rezultati.md). UI teksts un ekrānuzņēmumi ir [ui-results.md](./screen/ui-results.md).
 
@@ -37,7 +37,7 @@ BV-03 gala teksts ir `Dienas cenai jābūt vismaz 0.`. BV-04 gala teksts ir `Dau
 
 ## 5. Secinājumi
 
-Testēšanas plāns ir izpildīts. Funkcionālie, robežvērtību un kļūdu testi izgāja. PHPUnit tests izgāja gan ar SQLite, gan ar MySQL 8.4.3. Četri UI scenāriji izgāja ar konkrētiem latviešu valodas paziņojumiem. Rezultāti un ekrānuzņēmumi ir pievienoti dokumentācijai.
+Testēšanas plāns ir izpildīts. Funkcionālie, robežvērtību un kļūdu testi izgāja. PHPUnit tests izgāja gan ar SQLite, gan ar MySQL 8.4.3. Visi 19 UI scenāriji izgāja ar konkrētiem redzamiem rezultātiem. Rezultāti un ekrānuzņēmumi ir pievienoti dokumentācijai.
 
 ## 6. Pierādījumi
 

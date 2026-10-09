@@ -69,15 +69,29 @@ Testi tika veikti ar MySQL 8.4.3 un atsevišķu SQLite testa datni. Dev datubāz
 | ER-03 | Rezervācijas / UI | Rīka daudzums periodā ir aizņemts. | Klients iesniedz rezervāciju tajā pašā periodā. | Rezervāciju noraida ar saprotamu kļūdu. | `Izvēlētajā periodā nav pieejams nepieciešamais rīku daudzums.` | Marija (PHPUnit), Ksenija (UI) | 2026-10-09 |
 | ER-04 | Autentifikācija | Lietotājs nav pieslēdzies. | Sūta pieprasījumu aizsargātam API. | Saņem `401` un dati netiek atgriezti. | Pārbaude izgāja. | Marija (API pieprasījumi) | 2026-10-09 |
 
-## 6. Testu kopsavilkums
+## 6. UI scenāriji
+
+UI pārbaudes atkārtoja plānotās lietotāja darbības pārlūkā. Tās tika piesaistītas šādiem testa gadījumiem:
+
+| UI grupa | Scenāriji | Testeris |
+|---|---|---|
+| Pamatplūsmas | UI-01, UI-02, UI-03, UI-04, UI-05, UI-06, FT-02 UI, UI-08, UI-09-MOB | Ksenija (UI) |
+| Paroles robežas | BV-01, BV-02 | Ksenija (UI) |
+| Cenas un daudzums | BV-03, BV-04 | Ksenija (UI) |
+| Datumi | BV-05, BV-06 | Ksenija (UI) |
+| Kļūdu situācijas | ER-01, ER-02, ER-03, ER-04 | Ksenija (UI) |
+
+UI faktiskie teksti un screenshot saites ir [ui-results.md](./screen/ui-results.md).
+
+## 7. Testu kopsavilkums
 
 - 19 no 19 plānotajiem testa gadījumiem izgāja API vai PHPUnit līmenī.
 - 25 PHPUnit testi un 107 pārbaudes izgāja ar SQLite.
 - 25 PHPUnit testi un 107 pārbaudes izgāja ar MySQL 8.4.3.
-- 4 UI scenāriji izgāja pārlūkā ar reālu formas iesniegšanu.
+- 19 UI scenāriji izgāja pārlūkā; četri no tiem ietvēra reālu nederīgas formas iesniegšanu.
 - Frontend lint un build izgāja.
 
-## 7. Pierādījumi
+## 8. Pierādījumi
 
 Backend rezultāti ir [testu rezultātos](./testu-rezultati.md).
 
@@ -85,7 +99,7 @@ UI rezultāti un četri attēli ir [ui-results.md](./screen/ui-results.md).
 
 Atrasto kļūdu labojumi un atkārtotie testi ir [kļūdu reģistrā](./kludu-registrs.md).
 
-## 8. Izpildes kritēriji
+## 9. Izpildes kritēriji
 
 - Katram testam ir ID, modulis, soļi, sagaidāmais rezultāts, faktiskais rezultāts, testētājs un datums.
 - Ir pārbaudīti funkcionālie, robežvērtību un kļūdu gadījumi.

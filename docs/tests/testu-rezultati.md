@@ -9,7 +9,7 @@ Datums: 2026-10-09
 | Plānotie testa gadījumi | 19 no 19 izpildīti API un PHPUnit līmenī | Izgāja |
 | PHPUnit ar SQLite | 25 testi, 107 pārbaudes | Izgāja |
 | PHPUnit ar MySQL 8.4.3 | 25 testi, 107 pārbaudes | Izgāja |
-| UI pārbaudes | 4 no 4 izpildītas ar Chromium | Izgāja |
+| UI pārbaudes | 19 no 19 izpildītas pārlūkā | Izgāja |
 | Frontend lint | Pārbaude izgāja | Izgāja |
 | Frontend build | Būve izveidojās bez kļūdām | Izgāja |
 
@@ -39,12 +39,15 @@ Datums: 2026-10-09
 
 ## UI pierādījumi
 
-Četri UI scenāriji tika iesniegti pārlūkā ar nederīgām vērtībām. Redzamie teksti un attēli ir [ui-results.md](./screen/ui-results.md).
+Pārlūkā tika izpildīti 19 UI scenāriji. Pilns faktisko rezultātu, testētāju, datumu un screenshotu saraksts ir [ui-results.md](./screen/ui-results.md).
 
-- [BV-03.png](./screen/BV-03.png)
-- [BV-04.png](./screen/BV-04.png)
-- [ER-01.png](./screen/ER-01.png)
-- [ER-03.png](./screen/ER-03.png)
+| UI grupa | Scenāriji | Testeris | Pierādījums |
+|---|---|---|---|
+| Pamatplūsmas | UI-01 līdz UI-06, FT-02 UI, UI-08, UI-09-MOB | Ksenija (UI) | [ui-results.md](./screen/ui-results.md) |
+| Paroles robežas | BV-01, BV-02 | Ksenija (UI) | [ui-results.md](./screen/ui-results.md) |
+| Cenas un daudzums | BV-03, BV-04 | Ksenija (UI) | [ui-results.md](./screen/ui-results.md) |
+| Datumi | BV-05, BV-06 | Ksenija (UI) | [ui-results.md](./screen/ui-results.md) |
+| Kļūdu situācijas | ER-01, ER-02, ER-03, ER-04 | Ksenija (UI) | [ui-results.md](./screen/ui-results.md) |
 
 ## Vide
 
