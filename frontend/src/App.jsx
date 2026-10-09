@@ -634,7 +634,7 @@ function BookingForm({ toolId, searchParams }) {
           {calendarCells.map((cell) => {
             const available = availabilityByMonth[month]?.days?.[cell.value]?.available_quantity
             const unavailable = !Number.isInteger(available) || available < quantity
-            const disabled = !cell.inMonth || cell.value < today || unavailable || tool.statuss !== 'pieejams'
+            const disabled = !cell.inMonth || cell.value < today || tool.statuss !== 'pieejams'
             const inRange = dates.from && dates.to && cell.value >= dates.from && cell.value <= dates.to
             const isEndpoint = cell.value === dates.from || cell.value === dates.to
             const className = ['calendar-day', !cell.inMonth && 'is-outside', unavailable && cell.inMonth && 'is-busy', inRange && 'is-in-range', isEndpoint && 'is-endpoint', cell.value === today && 'is-today'].filter(Boolean).join(' ')
@@ -659,7 +659,7 @@ function BookingForm({ toolId, searchParams }) {
         <div className="booking-total"><span>Kopā</span><strong>{formatMoney(totalPrice)}</strong></div>
         <label className="terms-check"><input type="checkbox" checked={termsAccepted} onChange={(event) => { setTermsAccepted(event.target.checked); setFormError('') }} /><span>Esmu iepazinies ar <Link to="/noteikumi" target="_blank" rel="noreferrer">nomas lietošanas noteikumiem</Link> un piekrītu tiem.</span></label>
         {formError && <p className="form-error" role="alert">{formError}</p>}
-        <button className="button booking-submit" disabled={submitting || !dates.from || !dates.to || !rangeLoaded || quantity > rangeCapacity || calendarLoading || Boolean(calendarError)}>{submitting ? 'Apstiprina...' : 'Apstiprināt rezervāciju ↗'}</button>
+        <button className="button booking-submit" disabled={submitting || !dates.from || !dates.to || !rangeLoaded || calendarLoading || Boolean(calendarError)}>{submitting ? 'Apstiprina...' : 'Apstiprināt rezervāciju ↗'}</button>
         <p className="booking-note">Summa aprēķināta par katru nomas dienu, ieskaitot sākuma un beigu datumu.</p>
       </aside>
     </form>
@@ -827,8 +827,8 @@ function AdminToolForm({ tool, categories, onClose, onSaved }) {
       <div className="form-grid">
         <label className="field"><span>Rīka nosaukums *</span><input required value={form.nosaukums} onChange={(event) => update('nosaukums', event.target.value)} /></label>
         <label className="field"><span>Kategorija *</span><select required value={form.kategorijaID} onChange={(event) => update('kategorijaID', event.target.value)}><option value="">Izvēlies kategoriju</option>{categories.map((category) => <option key={category.kategorijaID} value={category.kategorijaID}>{category.nosaukums}</option>)}</select></label>
-        <label className="field"><span>Cena dienā (€) *</span><input required type="number" min="0" step="0.01" value={form.cenadiena} onChange={(event) => update('cenadiena', event.target.value)} /></label>
-        <label className="field"><span>Daudzums *</span><input required type="number" min="0" step="1" value={form.daudzums} onChange={(event) => update('daudzums', event.target.value)} /></label>
+        <label className="field"><span>Cena dienā (€) *</span><input required type="number" step="0.01" value={form.cenadiena} onChange={(event) => update('cenadiena', event.target.value)} /></label>
+        <label className="field"><span>Daudzums *</span><input required type="number" step="1" value={form.daudzums} onChange={(event) => update('daudzums', event.target.value)} /></label>
         <label className="field"><span>Statuss *</span><select required value={form.statuss} onChange={(event) => update('statuss', event.target.value)}>{toolStatuses.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
         <label className="field"><span>Redzams katalogā</span><select value={form.redzamsKatalogs ? '1' : '0'} onChange={(event) => update('redzamsKatalogs', event.target.value === '1')}><option value="1">Jā</option><option value="0">Nē</option></select></label>
         <label className="field"><span>Kods</span><input value={form.kods || ''} onChange={(event) => update('kods', event.target.value)} /></label>

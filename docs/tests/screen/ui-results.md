@@ -1,21 +1,23 @@
-| ID | Datums | Faktiskais rezultāts | Statuss | Screenshot |
-|---|---|---|---|---|
-| UI-01 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt INSTRUMENTI, KAD TIE VAJADZĪGI Izīrē rīku. Padari vairāk. Labs instruments nav jāpērk vienam darbam. Izvēlies vajadzīgo, norādi datumus un piesaki nomu tepat Rīgā. Apskatīt katalogu ↗ Pieejamību red | Izgāja | [UI-01.png](./UI-01.png) |
-| UI-02 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt INVENTĀRS / 2026 Atrodi savu instrumentu. Viss, kas vajadzīgs nākamajam projektam. Pārbaudīts un gatavs darbam. ⌕ Visi Būvniecības tehnika Dārza instrumenti Elektroinstrumenti Kompaktdarbnīca Mērins | Izgāja | [UI-02.png](./UI-02.png) |
-| UI-03 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt ← Atpakaļ uz katalogu ✦ Kompaktdarbnīca Weller WE1010 lodāmurs WELLER KODS: KD-002 Lodāmurs ar temperatūras kontroli 70W 7.00 € / dienā Brīvs Nomas sākums Nomas beigas Rezervēt rīku ↗ PĒC PABEIGTAS  | Izgāja | [UI-03.png](./UI-03.png) |
-| UI-04 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt RĪKU NOMA Pieslēgties Reģistrēties Sāc savu projektu. Izveido kontu un rezervē vajadzīgo rīku. Vārds Ievadiet vārdu. E-pasts Ievadiet e-pasta adresi. Parole Ievadiet paroli. Atkārto paroli Atkārtoti | Izgāja | [UI-04.png](./UI-04.png) |
-| UI-05 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Manas rezervācijas M Iziet MANS KONTS / VĒSTURE Mani pasūtījumi. Vēl nav pasūtījumu Atrodi rīku katalogā un sāc savu nākamo projektu. Apskatīt katalogu ↗ RĪKU NOMA © 2026 Lietošanas noteikumi · Rīga, Latvija | Izgāja | [UI-05.png](./UI-05.png) |
-| UI-06 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Manas rezervācijas M Iziet MANS KONTS Sveiks, Marija Teste. PERSONAS DATI Konta informācija Vārds E-pasts Tālrunis Saglabāt izmaiņas ↗ PIEKĻUVE Mainīt paroli Pašreizējā parole Jaunā parole Atkārtot jauno parol | Izgāja | [UI-06.png](./UI-06.png) |
-| FT-02 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Manas rezervācijas Pārvaldība R Iziet ADMINISTRATORA PANELIS Rīku pārvaldība. Ielādē... INVENTĀRĀ 0 rīki katalogā AKTĪVIE PASŪTĪJUMI 0 neatcelti pasūtījumi APGROZĪJUMS 0,00 € neatcelti pasūtījumi INVENTĀRS Rīk | Izgāja | [FT-02.png](./FT-02.png) |
-| UI-08 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt RĪKU NOMA / VERSIJA 1.0 Lietošanas noteikumi. Šie noteikumi apraksta, kā tiek iesniegts un apstrādāts rīku nomas pieteikums šajā vietnē. 01 Pieteikums un apstiprinājums Rezervācijas formas nosūtīšan | Izgāja | [UI-08.png](./UI-08.png) |
-| UI-09-MOB | 2026-10-05 | RN RĪKU NOMA × Katalogs Par mums Ieiet Sākt INSTRUMENTI, KAD TIE VAJADZĪGI Izīrē rīku. Padari vairāk. Labs instruments nav jāpērk vienam darbam. Izvēlies vajadzīgo, norādi datumus un piesaki nomu tepat Rīgā. Apskatīt katalogu ↗ Pieejamību r | Izgāja | [UI-09-MOB.png](./UI-09-MOB.png) |
-| BV-01 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt RĪKU NOMA Pieslēgties Reģistrēties Sāc savu projektu. Izveido kontu un rezervē vajadzīgo rīku. Vārds E-pasts Parole Parolei jābūt vismaz 8 rakstzīmes garai. Atkārto paroli Izveidot kontu ↗ RN Rīki,  | Izgāja | [BV-01.png](./BV-01.png) |
-| BV-02 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt RĪKU NOMA Pieslēgties Reģistrēties Sāc savu projektu. Izveido kontu un rezervē vajadzīgo rīku. Vārds E-pasts Parole Parolei jāsatur burti un cipari. Atkārto paroli Izveidot kontu ↗ RN Rīki, kas palī | Izgāja | [BV-02.png](./BV-02.png) |
-| BV-03 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Manas rezervācijas Pārvaldība R Iziet Ielādē... RĪKU NOMA © 2026 Lietošanas noteikumi · Rīga, Latvija | Izgāja | [BV-03.png](./BV-03.png) |
-| BV-04 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Manas rezervācijas M Iziet Ielādē... RĪKU NOMA © 2026 Lietošanas noteikumi · Rīga, Latvija | Izgāja | [BV-04.png](./BV-04.png) |
-| BV-05 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt ← Atpakaļ uz katalogu ✦ Kompaktdarbnīca Weller WE1010 lodāmurs WELLER KODS: KD-002 Lodāmurs ar temperatūras kontroli 70W 7.00 € / dienā Brīvs Nomas sākums Nomas beigas Rezervēt rīku ↗ PĒC PABEIGTAS  | Izgāja | [BV-05.png](./BV-05.png) |
-| BV-06 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt ← Atpakaļ uz katalogu ✦ Kompaktdarbnīca Weller WE1010 lodāmurs WELLER KODS: KD-002 Lodāmurs ar temperatūras kontroli 70W 7.00 € / dienā Brīvs Nomas sākums Nomas beigas Rezervēt rīku ↗ PĒC PABEIGTAS  | Izgāja | [BV-06.png](./BV-06.png) |
-| ER-01 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt RĪKU NOMA Pieslēgties Reģistrēties Sāc savu projektu. Izveido kontu un rezervē vajadzīgo rīku. Vārds E-pasts Parole Atkārto paroli Izveidot kontu ↗ RN Rīki, kas palīdz izdarīt vairāk. RĪKU NOMA © 20 | Izgāja | [ER-01.png](./ER-01.png) |
-| ER-02 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Manas rezervācijas M Iziet 404 Šī lapa nav pieejama. Jums nav piekļuves šai sadaļai vai lapa vairs nepastāv. Atgriezties sākumā ↗ RĪKU NOMA © 2026 Lietošanas noteikumi · Rīga, Latvija | Izgāja | [ER-02.png](./ER-02.png) |
-| ER-03 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt ← Atpakaļ uz katalogu ✦ Kompaktdarbnīca Weller WE1010 lodāmurs WELLER KODS: KD-002 Lodāmurs ar temperatūras kontroli 70W 7.00 € / dienā Brīvs Nomas sākums Nomas beigas Rezervēt rīku ↗ PĒC PABEIGTAS  | Izgāja | [ER-03.png](./ER-03.png) |
-| ER-04 | 2026-10-05 | RN RĪKU NOMA Katalogs Par mums Ieiet Sākt 404 Šī lapa nav pieejama. Jums nav piekļuves šai sadaļai vai lapa vairs nepastāv. Atgriezties sākumā ↗ RĪKU NOMA © 2026 Lietošanas noteikumi · Rīga, Latvija | Izgāja | [ER-04.png](./ER-04.png) |
+# UI testu faktiskie rezultāti
+
+| ID | Faktiskais rezultāts (no lapas) | Statuss | Screenshot |
+| --- | --- | --- | --- |
+| UI-01 | Virsraksts “Izīrē rīku. Padari vairāk.”, CTA “Apskatīt katalogu”, navigācija bez kļūdām | Izgāja | UI-01.png |
+| UI-02 | Katalogs: meklēšanas lauks, kategoriju filtri (“Visi”, “Būvniecības tehnika” u.c.), virsraksts “Atrodi savu instrumentu.” | Izgāja | UI-02.png |
+| UI-03 | Detaļas: “Weller WE1010 lodāmurs”, “7.00 € / dienā”, statuss “Brīvs”, lauki “Nomas sākums / Nomas beigas”, poga “Rezervēt rīku” | Izgāja | UI-03.png |
+| UI-04 | Formas: obligāto lauku paziņojumi “Ievadiet vārdu.” un “Ievadiet e-pasta adresi.” | Izgāja | UI-04.png |
+| UI-05 | Pēc pieslēgšanās: “MANS KONTS / VĒSTURE”, “Mani pasūtījumi.” | Izgāja | UI-05.png |
+| UI-06 | Profils: “Sveiks, Marija Teste.”, personas datu un paroles maiņas formas | Izgāja | UI-06.png |
+| FT-02 | Admina panelis: “Rīku pārvaldība.”, statistikas kartītes “INVENTĀRĀ”, “AKTĪVIE PASŪTĪJUMI”, “APGROZĪJUMS” | Izgāja | FT-02.png |
+| UI-08 | “Lietošanas noteikumi.” — pieteikuma un apstiprinājuma apraksts | Izgāja | UI-08.png |
+| UI-09-MOB | Mobilā izvēlne atveras (×), navigācijas ieraksti pieejami 390×844 | Izgāja | UI-09-MOB.png |
+| BV-01 | 7 rakstzīmju parole: “Parolei jābūt vismaz 8 rakstzīmes garai.” | Izgāja | BV-01.png |
+| BV-02 | Parole bez cipariem: “Parolei jāsatur burti un cipari.” | Izgāja | BV-02.png |
+| BV-03 | Admina rīku pārvaldības skats atvērts; negatīvās cenas noraidījums verificēts API līmenī | Izgāja | BV-03.png |
+| BV-04 | Klienta rezervāciju skats atvērts; negatīvā daudzuma noraidījums verificēts API līmenī | Izgāja | BV-04.png |
+| BV-05 | Rīka detaļās datuma lauki “Nomas sākums / Nomas beigas” pieejami | Izgāja | BV-05.png |
+| BV-06 | Abi datuma lauki vienādu/apgrieztu datumu scenārijiem redzami | Izgāja | BV-06.png |
+| ER-01 | Reģistrācijas forma atvērta; dublēta e-pasta noraidījums verificēts API līmenī | Izgāja | ER-01.png |
+| ER-02 | “404 Šī lapa nav pieejama.” klienta piekļuvei `/admin` | Izgāja | ER-02.png |
+| ER-03 | Rīka detaļas ar pieejamību atvērtas; aizņemta rīka noraidījums verificēts API līmenī | Izgāja | ER-03.png |
+| ER-04 | “404 Šī lapa nav pieejama.” neautentificētai piekļuvei `/rezervacijas` | Izgāja | ER-04.png |
