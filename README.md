@@ -25,8 +25,8 @@ cita dalībnieka.
 ## Izstrādes plāns
 
 - [x] Fāze 1 – grupas organizēšana, tēmas izpēte, tehnoloģiju izvēle, GitHub + Trello bāze
-- [ ] Fāze 2 – Use Case diagramma, arhitektūra, ER diagramma, 8 saskarnes skices, uzdevumu plānošana Trello
-- [ ] Fāze 3 – realizācija (Sprinti 1–5: DB + autentifikācija → rīku CRUD → rezervēšana → admin panelis → UI/UX)
+- [x] Fāze 2 – Use Case diagramma, arhitektūra, ER diagramma, 8 saskarnes skices, uzdevumu plānošana Trello
+- [x] Fāze 3 – realizācija (Sprinti 1–5: DB + autentifikācija → rīku CRUD → rezervēšana → admin panelis → UI/UX)
 - [ ] Fāze 4 – testēšana (plāns, izpilde, kļūdu novēršana, atskaite)
 - [ ] Fāze 5 – prezentācija (lietotāja instrukcija, demonstrācija)
 
