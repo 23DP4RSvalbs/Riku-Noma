@@ -1,7 +1,7 @@
 # Rīku noma: testu rezultāti
 
 **Datums:** 2026-10-05
-**Vide:** PHP 8.3.33, Composer 2.10.3, Node.js 22.21.0, Playwright 1.63.0, Chromium 153.0.8010.12. Backend http://127.0.0.1:8013, frontend http://127.0.0.1:5173. Testu datubāze — izolēta SQLite datne `backend/database/testing.sqlite`.
+**Vide:** PHP 8.3.33, Composer 2.10.3, Node.js 22.21.0, Backend http://127.0.0.1:8013, frontend http://127.0.0.1:5173. Testu datubāze — izolēta SQLite datne `backend/database/testing.sqlite`.
 
 ## Kopsavilkums
 
@@ -9,7 +9,7 @@
 | --- | --- | --- | --- |
 | Backend PHPUnit | 25 testi, 107 assertions, visi izgāja | Izgāja | Marija (PHPUnit) |
 | FT-02 administrators | Sēklu konts pieslēdzās, saņēma tokenu un lomu `Administrators`; 1 tests, 6 assertions | Izgāja | Marija (PHPUnit) |
-| UI Playwright | 19 scenāriji, 19 ekrānuzņēmumi (`screen/`) | Izgāja | Ksenija |
+| UI | 19 scenāriji, 19 ekrānuzņēmumi (`screen/`) | Izgāja | Rolands, Ksenija |
 | Frontend lint | `npm run lint` izejas kods 0 | Izgāja | Ksenija |
 | Frontend build | `npm run build` izveidoja Vite produkcijas būvi | Izgāja | Ksenija |
 | Testa datubāze | `migrate:fresh --seed` izpildīts pret izolēto testa datni; projekta dev datubāze netika skarta | Izgāja | Rolands (vides pārbaude) |
@@ -51,4 +51,4 @@ UI scenāriju avots: `e2e/ui.spec.js`. Faktiskie lapas teksti: `screen/ui-result
 
 ## Vide
 
-PHP CLI ar paplašinājumiem `gd` un `pdo_mysql` (pārbaudīts ar `php -m`). Composer 2.10.3, Node.js 22.21.0, Playwright 1.63.0 ar Chromium 153.0.8010.12.
+PHP CLI ar paplašinājumiem `gd` un `pdo_mysql` (pārbaudīts ar `php -m`). Composer 2.10.3, Node.js 22.21.0
