@@ -3,13 +3,11 @@
 ## 1. Testēšanas mērķi
 
 Testēšanas mērķis ir pārbaudīt, ka Rīku noma sistēma atbilst prasībām un darbojas paredzami visām trim lomām:
-
 - **Viesis** var apskatīt katalogu, meklēt rīkus un filtrēt tos pēc kategorijas.
 - **Lietotājs** var reģistrēties, pieslēgties, apskatīt profilu un pasūtījumu vēsturi, kā arī izveidot un atcelt savas rezervācijas.
 - **Administrators** var pārvaldīt rīkus, apskatīt rezervācijas un mainīt to statusus.
 
-Testēšanas laikā pārbauda:
-
+Testēšanas laikā pārbaudīsim:
 - Laravel 11 API validāciju, autentifikāciju, autorizāciju un datu saglabāšanu;
 - React 18 lietotāja saskarni, navigāciju, formas, paziņojumus un responsīvu attēlojumu;
 - kataloga, rezervāciju un administratora funkciju darbību;
@@ -60,11 +58,11 @@ Pārbauda navigāciju, formas, datumu izvēli, lauku validācijas paziņojumus, 
 - **Pārbaudes:** `cd backend && php artisan test`; `cd frontend && npm run lint && npm run build`.
 - **Testa lietotāji:** viesis, parasts lietotājs ar lomu `Klients` un administrators ar lomu `Administrators`.
 - **Testa rīki:** rīks ar cenu `0`, rīks ar daudzumu `0`, rīks ar pietiekamu daudzumu un rīks, kuram pārbaudāmajā periodā viss daudzums jau ir rezervēts.
-- **Pierādījumi:** katram neveiksmīgam testam saglabā ekrānuzņēmumu vai API atbildi ar datumu un testa ID.
+- **Pierādījumi:** UI pārbaudēm saglabā ekrānuzņēmumu ar testa ID; API pārbaudēm saglabā testa izpildes rezultātu un nepieciešamības gadījumā API atbildi.
 
 ## 5. Testa gadījumi
 
-Rezultātu kolonnu aizpilda testētājs pēc izpildes. Plāns pats par sevi nesatur izdomātus faktiskos rezultātus.
+Rezultātu kolonnā ir atzīmēts izpildes statuss. Detalizētie faktiskie rezultāti, komandu iznākumi un ekrānuzņēmumi ir [testu rezultātos](./testu-rezultati.md).
 
 | ID | Modulis | Sākuma stāvoklis | Soļi/ievade | Sagaidāmais rezultāts | Rezultāts |
 |---|---|---|---|---|---|
@@ -81,10 +79,9 @@ Rezultātu kolonnu aizpilda testētājs pēc izpildes. Plāns pats par sevi nesa
 | BV-02 | Autentifikācija | E-pasts nav reģistrēts. | Reģistrēties ar `12345678` un ar `Rikikiki`. | Abas paroles tiek noraidītas, jo vienā nav burtu, bet otrā nav ciparu. | Izgāja — API, UI forma verificēta |
 | BV-03 | Katalogs / Datu pārvaldība | Administrators ir rīka izveides formā. | Ievadīt cenu `0.00`, pēc tam `-0.01`. | Cena `0.00` tiek pieņemta; negatīva cena tiek noraidīta un ieraksts netiek saglabāts. | Izgāja — API/PHPUnit, UI forma verificēta |
 | BV-04 | Katalogs / Datu pārvaldība | Administrators ir rīka izveides formā. | Ievadīt daudzumu `0`, pēc tam `-1`. | Daudzums `0` tiek pieņemts; negatīvs daudzums tiek noraidīts un ieraksts netiek saglabāts. | Izgāja — API/PHPUnit, UI forma verificēta |
-| BV-05 | Rezervācijas | Lietotājs ir pieslēdzies; rīks ir pieejams. | Iesniegt rezervāciju ar sākuma datumu vakar. | Rezervācija tiek noraidīta, jo nomas sākuma datums nedrīkst būt pagātnē. | Izgāja — API/PHPUnit, UI forma verificēta |
-| BV-06 | Rezervācijas | Lietotājs ir pieslēdzies; rīks ir pieejams. | Iesniegt rezervāciju ar vienādu sākuma un beigu datumu, pēc tam ar beigu datumu pirms sākuma datuma. | Vienādi datumi tiek pieņemti; beigu datums pirms sākuma datuma tiek noraidīts. | Izgāja — API/PHPUnit, UI forma verificēta |
+| BV-05 | Rezervācijas | Lietotājs ir pieslēdzies; rīks ir pieejams. | Iesniegt rezervāciju ar sākuma datumu vakar. | Rezervācija tiek noraidīta, jo nomas sākuma datums nedrīkst būt pagātnē. | Izgāja — API/PHPUnit |
+| BV-06 | Rezervācijas | Lietotājs ir pieslēdzies; rīks ir pieejams. | Iesniegt rezervāciju ar vienādu sākuma un beigu datumu, pēc tam ar beigu datumu pirms sākuma datuma. | Vienādi datumi tiek pieņemti; beigu datums pirms sākuma datuma tiek noraidīts. | Izgāja — API/PHPUnit |
 | ER-01 | Autentifikācija / Datu pārvaldība | E-pasts `lietotajs@example.com` jau eksistē. | Reģistrēt citu lietotāju ar to pašu e-pastu. | Tiek atgriezta e-pasta unikalitātes kļūda un otrais ieraksts netiek izveidots. | Izgāja — API, UI forma verificēta |
 | ER-02 | Administrēšana / Autorizācija | Parasts lietotājs ir pieslēdzies ar derīgu tokenu. | Atvērt admina paneli vai nosūtīt pieprasījumu admina API maršrutam. | Piekļuve tiek liegta ar `403`; admina dati lietotājam nav pieejami. | Izgāja — API, UI forma verificēta |
 | ER-03 | Rezervācijas | Rīka viss pieejamais daudzums ir rezervēts pārklājošā periodā. | Mēģināt rezervēt šo rīku tajā pašā periodā. | Rezervācija netiek izveidota un tiek parādīts kļūdas paziņojums par rīka nepieejamību. | Izgāja — API, UI forma verificēta |
 | ER-04 | Autentifikācija | Lietotājs nav autentificēts vai tokens ir anulēts. | Nosūtīt aizsargātam API maršrutam pieprasījumu bez derīga Bearer tokena. | API atgriež `401`, aizsargātie dati netiek atgriezti un UI piedāvā pieslēgties. | Izgāja — API, UI forma verificēta |
-
