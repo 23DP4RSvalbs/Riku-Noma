@@ -1,9 +1,7 @@
 # Kļūdu reģistrs
-
 **Gala retesta datums:** 2026-10-12
 
-| ID | Identificētā kļūda | Kļūdas cēlonis | Veiktā labošana | Commit | Atkārtotās testēšanas
-rezultāts | Statuss |
+| ID | Identificētā kļūda | Kļūdas cēlonis | Veiktā labošana | Commit | Atkārtotās testēšanas rezultāts | Statuss |
 |---|---|---|---|---|---|---|
 | TEST2-001 | PHPUnit guard kešoja stāvokli pēc logout; atsevišķā HTTP ciklā API kļūda nebija reproducējama. | Testa process atkārtoti izmantoja autentifikācijas guard stāvokli. | Tests atiestata guard un pārbauda tokena dzēšanu; gala PHPUnit kopa izgāja. | `d8963b4` | Marija (PHPUnit), 2026-10-12 — atkārtotā testēšana izgāja | Novērsta |
 | TEST2-002 | Order testa ievadē trūka noteikumu piekrišanas lauku. | Testa fixtures neatbilda rezervācijas API obligātajiem laukiem. | Pievienoti `noteikumi_apstiprinati` un `noteikumu_versija`; gala kopa izgāja. | `f7c70be` | Marija (PHPUnit), 2026-10-12 — atkārtotā testēšana izgāja | Novērsta |
