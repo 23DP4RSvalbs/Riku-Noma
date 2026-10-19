@@ -57,6 +57,8 @@ function getToolCategory(tool) { return tool.kategorija?.nosaukums || tool.kateg
 function getToolImage(tool) {
   if (!tool.foto) return null
   if (tool.foto.startsWith('http')) return tool.foto
+  const catalogPhoto = /^riki\/([a-z0-9-]+\.(?:jpg|png|webp))$/i.exec(tool.foto)
+  if (catalogPhoto) return `/images/riki/${catalogPhoto[1]}`
   const storageUrl = import.meta.env.VITE_STORAGE_URL || api.defaults.baseURL.replace(/\/api\/?$/, '') + '/storage'
   return `${storageUrl}/${tool.foto.replace(/^\//, '')}`
 }
@@ -181,7 +183,7 @@ function ToolDetail() {
   if (error || !tool) return <section className="page-width error-page"><h1>{error || 'Rīks nav atrasts.'}</h1><Link className="button" to="/katalogs">Atgriezties katalogā ↗</Link></section>
 
   const category = tool.kategorija?.nosaukums || tool.kategorija || 'Instruments'
-  const imageUrl = tool.foto ? (tool.foto.startsWith('http') ? tool.foto : `${import.meta.env.VITE_STORAGE_URL || api.defaults.baseURL.replace(/\/api\/?$/, '') + '/storage'}/${tool.foto}`) : null
+  const imageUrl = getToolImage(tool)
   const isAvailable = availability ? availability.available_quantity > 0 : tool.statuss === 'pieejams' && tool.daudzums > 0
   const reservationPath = `/rezervacijas?rikID=${tool.rikID}&nomasSakums=${dates.from}&nomasBeigums=${dates.to}`
 
