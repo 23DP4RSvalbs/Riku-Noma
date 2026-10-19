@@ -117,6 +117,20 @@ class OrderApiTest extends TestCase
         $this->assertDatabaseCount('pasutijuma_riks', 0);
     }
 
+    public function test_order_without_terms_consent_is_rejected_in_latvian(): void
+    {
+        $user = $this->userWithRole('Klients', 'no-terms@example.com');
+        $tool = $this->tool(2, '10.00');
+        $payload = $this->orderPayload($tool);
+        unset($payload['noteikumi_apstiprinati']);
+
+        $this->actingAs($user, 'sanctum')->postJson('/api/orders', $payload)
+            ->assertStatus(422)
+            ->assertJsonPath('errors.noteikumi_apstiprinati.0', 'Lai rezervētu, jāpiekrīt lietošanas noteikumiem.');
+
+        $this->assertDatabaseCount('pasutijums', 0);
+    }
+
     public function test_user_can_only_see_and_cancel_own_new_orders(): void
     {
         $owner = $this->userWithRole('Klients', 'owner@example.com');

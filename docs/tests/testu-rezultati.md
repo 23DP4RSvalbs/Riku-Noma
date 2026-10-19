@@ -8,7 +8,7 @@
 
 | Pārbaude | Faktiskais rezultāts | Statuss | Testeris |
 |---|---|---|---|
-| Backend PHPUnit | 25 testi, 107 assertions, visi izgāja | Izgāja | Marija (PHPUnit) |
+| Backend PHPUnit | 26 testi, 110 assertions, visi izgāja | Izgāja | Marija (PHPUnit) |
 | FT-02 administrators | Sēklu konts pieslēdzās, saņēma tokenu un lomu `Administrators`; 1 tests, 6 assertions | Izgāja | Marija (PHPUnit) |
 | UI Playwright | 19 scenāriji, 19 screenshot faili, rezultāti [ui-results.md](./screen/ui-results.md) | Izgāja | Ksenija (Playwright) |
 | Frontend lint | `npm.cmd run lint` atgrieza izejas kodu 0 | Izgāja | Ksenija (Playwright) |
@@ -24,7 +24,9 @@ Sēklu autentifikācijas dati: administrators `admin@riki-noma.lv` / `admin123`;
 | Komanda | Faktiskais rezultāts |
 |---|---|
 | `cd backend && php artisan test --filter=test_seeded_administrator_can_login_with_admin_role_and_token` | 1 tests, 6 assertions, izgāja |
-| `cd backend && php artisan test` | 25 testi, 107 assertions, visi izgāja |
+| `cd backend && php artisan test` | 26 testi, 110 assertions, visi izgāja |
+
+> Piezīme: 25 testi / 107 assertions bija stāvoklis pirms gala verifikācijas; pēc FINAL-001 labojuma pievienots 1 regresijas tests (skat. [atskaiti](./testesanas-atskaite.md)).
 
 ## UI izpilde
 
