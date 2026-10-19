@@ -756,6 +756,7 @@ function CancelOrderModal({ order, busy, error, onClose, onConfirm }) {
   </div>
 }
 const orderStatuses = ['Jauns', 'Apstiprinats', 'Izpildits', 'Atcelts']
+const orderStatusLabels = { Jauns: 'Jauns', Apstiprinats: 'Apstiprināts', Izpildits: 'Izpildīts', Atcelts: 'Atcelts' }
 
 function formatDate(date) {
   if (!date) return '-'
@@ -792,6 +793,7 @@ async function fetchDashboard(currentFilters) {
 }
 
 const toolStatuses = ['pieejams', 'iznomats', 'apkope', 'bojats', 'arhivets']
+const toolStatusLabels = { pieejams: 'Pieejams', iznomats: 'Iznomāts', apkope: 'Apkope', bojats: 'Bojāts', arhivets: 'Arhivēts' }
 const emptyToolForm = { nosaukums: '', apraksts: '', cenadiena: '', daudzums: '', kategorijaID: '', statuss: 'pieejams', kods: '', zimols: '', nomasilgumsmin: '', nomasilgumsmax: '', redzamsKatalogs: true, foto: null }
 
 function AdminToolForm({ tool, categories, onClose, onSaved }) {
@@ -807,9 +809,9 @@ function AdminToolForm({ tool, categories, onClose, onSaved }) {
     const payload = new FormData()
     if (tool) payload.append('_method', 'PATCH')
     Object.entries(form).forEach(([name, value]) => {
-      if (name !== 'foto' && value !== '' && value !== null) payload.append(name, name === 'redzamsKatalogs' ? (value ? '1' : '0') : value)
+      if (name !== 'foto' && name !== 'kategorija' && value !== '' && value !== null) payload.append(name, name === 'redzamsKatalogs' ? (value ? '1' : '0') : value)
     })
-    if (form.foto) payload.append('foto', form.foto)
+    if (form.foto instanceof File) payload.append('foto', form.foto)
     try {
       const response = tool
         ? await api.post(`/tools/${getToolId(tool)}`, payload)
@@ -831,7 +833,7 @@ function AdminToolForm({ tool, categories, onClose, onSaved }) {
         <label className="field"><span>Kategorija *</span><select required value={form.kategorijaID} onChange={(event) => update('kategorijaID', event.target.value)}><option value="">Izvēlies kategoriju</option>{categories.map((category) => <option key={category.kategorijaID} value={category.kategorijaID}>{category.nosaukums}</option>)}</select></label>
         <label className="field"><span>Cena dienā (€) *</span><input required type="number" step="0.01" value={form.cenadiena} onChange={(event) => update('cenadiena', event.target.value)} /></label>
         <label className="field"><span>Daudzums *</span><input required type="number" step="1" value={form.daudzums} onChange={(event) => update('daudzums', event.target.value)} /></label>
-        <label className="field"><span>Statuss *</span><select required value={form.statuss} onChange={(event) => update('statuss', event.target.value)}>{toolStatuses.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
+        <label className="field"><span>Statuss *</span><select required value={form.statuss} onChange={(event) => update('statuss', event.target.value)}>{toolStatuses.map((status) => <option key={status} value={status}>{toolStatusLabels[status]}</option>)}</select></label>
         <label className="field"><span>Redzams katalogā</span><select value={form.redzamsKatalogs ? '1' : '0'} onChange={(event) => update('redzamsKatalogs', event.target.value === '1')}><option value="1">Jā</option><option value="0">Nē</option></select></label>
         <label className="field"><span>Kods</span><input value={form.kods || ''} onChange={(event) => update('kods', event.target.value)} /></label>
         <label className="field"><span>Zīmols</span><input value={form.zimols || ''} onChange={(event) => update('zimols', event.target.value)} /></label>
@@ -990,12 +992,12 @@ function Admin() {
       <div className="order-filters">
         <label><span>No</span><input type="date" value={filters.datums_no} onChange={(event) => updateFilter('datums_no', event.target.value)} /></label>
         <label><span>Līdz</span><input type="date" value={filters.datums_lidz} onChange={(event) => updateFilter('datums_lidz', event.target.value)} /></label>
-        <label><span>Statuss</span><select value={filters.statuss} onChange={(event) => updateFilter('statuss', event.target.value)}><option value="">Visi statusi</option>{orderStatuses.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
+        <label><span>Statuss</span><select value={filters.statuss} onChange={(event) => updateFilter('statuss', event.target.value)}><option value="">Visi statusi</option>{orderStatuses.map((status) => <option key={status} value={status}>{orderStatusLabels[status]}</option>)}</select></label>
         <button className="button filter-button" onClick={() => loadDashboard()} disabled={loading}>Filtrēt</button>
         <button className="clear-button" onClick={() => { const emptyFilters = { statuss: '', datums_no: '', datums_lidz: '' }; setFilters(emptyFilters); loadDashboard(emptyFilters) }} disabled={loading}>Notīrīt</button>
       </div>
       {error && <p className="form-error admin-error">{error}</p>}
-      {loading ? <div className="admin-empty">Ielādē pasūtījumus...</div> : orders.length === 0 ? <div className="admin-empty">Šim filtram pasūtījumu nav.</div> : <div className="orders-table-wrap"><table className="orders-table"><thead><tr><th>Pasūtījums</th><th>Klients</th><th>Datums</th><th>Summa</th><th>Statuss</th></tr></thead><tbody>{orders.map((order) => <tr key={order.pasutijumsID}><td>#{order.pasutijumsID}</td><td>{order.lietotajs?.vards || 'Nezināms klients'}</td><td>{formatDate(order.izveidesdatums)}</td><td>{formatMoney(order.kopsumma)}</td><td><select className={`status-select status-${order.statuss?.toLowerCase()}`} value={order.statuss} onChange={(event) => changeStatus(order.pasutijumsID, event.target.value)} disabled={updatingOrder === order.pasutijumsID}>{orderStatuses.map((status) => <option key={status} value={status}>{status}</option>)}</select></td></tr>)}</tbody></table></div>}
+      {loading ? <div className="admin-empty">Ielādē pasūtījumus...</div> : orders.length === 0 ? <div className="admin-empty">Šim filtram pasūtījumu nav.</div> : <div className="orders-table-wrap"><table className="orders-table"><thead><tr><th>Pasūtījums</th><th>Klients</th><th>Datums</th><th>Summa</th><th>Statuss</th></tr></thead><tbody>{orders.map((order) => <tr key={order.pasutijumsID}><td>#{order.pasutijumsID}</td><td>{order.lietotajs?.vards || 'Nezināms klients'}</td><td>{formatDate(order.izveidesdatums)}</td><td>{formatMoney(order.kopsumma)}</td><td><select className={`status-select status-${order.statuss?.toLowerCase()}`} value={order.statuss} onChange={(event) => changeStatus(order.pasutijumsID, event.target.value)} disabled={updatingOrder === order.pasutijumsID}>{orderStatuses.map((status) => <option key={status} value={status}>{orderStatusLabels[status]}</option>)}</select></td></tr>)}</tbody></table></div>}
     </div>
   </section>
 }
