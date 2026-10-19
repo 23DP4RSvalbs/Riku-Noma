@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             KategorijaSeeder::class,
             LietotajsSeeder::class,
             RiksSeeder::class,
+            PasutijumsSeeder::class,
         ]);
     }
 }
