@@ -10,7 +10,7 @@
 |---|---|---|
 | UI | 19 bloķētas | 19 izpildītas ar headless Chromium |
 | FT-02 | Bloķēts | Izgāja: 1 tests, 6 assertions |
-| Backend PHPUnit | Iepriekšējā vēsturē nepilna kopa | Izgāja: 26 testi, 110 assertions |
+| Backend PHPUnit | Iepriekšējā vēsturē nepilna kopa | Izgāja: 25 testi, 107 assertions |
 | MySQL 8 | Bloķēts | Paliek bloķēts: instalētājs exit code 1602; MySQL nav pieejams |
 | Frontend kvalitātes pārbaudes | Nepilnīgi dokumentētas | lint un build izgāja |
 
@@ -24,7 +24,7 @@ Backend tests tika izpildīti ar izolētu `backend/database/testing.sqlite`, nei
 
 | Pārbaude | Faktiskais rezultāts | Statuss | Testeris |
 |---|---|---|---|
-| PHPUnit | 26/26 testi, 110 assertions | Izgāja | Marija (PHPUnit) |
+| PHPUnit | 25/25 testi, 107 assertions | Izgāja | Marija (PHPUnit) |
 | Playwright UI | 19/19 scenāriji ar screenshot | Izgāja | Ksenija (Playwright) |
 | Frontend lint/build | Abas komandas izgāja | Izgāja | Ksenija (Playwright) |
 | MySQL 8 | Nav servera/klienta pēc instalētāja 1602 | Bloķēts | Rolands (vides pārbaude) |
@@ -35,11 +35,7 @@ Visi deviņi pamatskati, mobilais skats, FT-02 UI un desmit BV/ER UI scenāriji 
 
 ## 3. Kļūdu reģistrs
 
-Iepriekš reģistrētie 11 TEST2/TEST3/TEST4 atradumi ir apkopoti [kļūdu reģistrā](./kludu-registrs.md). To gala integrācijas retesti bija pieejami `origin/main` bāzē; šajā izpildē visi backend testi izgāja. Jauns lietotnes defekts šodienas UI izpildē netika reģistrēts. MySQL instalācijas neveiksme ir vides, nevis lietotnes kļūda.
-
-### 3.1. Gala verifikācija (zars `fix/final-verification`)
-
-Pēc 2026-10-05 izpildes veikta papildu pilna plūsmu pārbaude visām lomām (API un pārlūks). Atrasti un novērsti 4 defekti, kas apkopoti [kļūdu reģistrā](./kludu-registrs.md) (FINAL-001 – FINAL-004). Pievienots 1 regresijas tests (`test_order_without_terms_consent_is_rejected_in_latvian`), tāpēc backend kopa ir **26 testi, 110 assertions** (iepriekš 25 testi, 107 assertions). Frontend `npm run lint` un `npm run build` pēc labojumiem izgāja bez kļūdām.
+Iepriekš reģistrētie 11 TEST2/TEST3/TEST4 atradumi ir apkopoti [kļūdu reģistrā](./kludu-registrs.md). To gala integrācijas retesti bija pieejami `origin/main` bāzē; šajā izpildē visi 25 backend testi izgāja. Jauns lietotnes defekts šodienas UI izpildē netika reģistrēts. MySQL instalācijas neveiksme ir vides, nevis lietotnes kļūda.
 
 ## 4. Testētāju atribūcija
 

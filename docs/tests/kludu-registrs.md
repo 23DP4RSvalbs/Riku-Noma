@@ -17,13 +17,4 @@
 | TEST3-004 | Apgrieztu datumu ziņojums bija pretrunīgs ar vienas dienas nomu. | Precizēts ziņojums; vienāds datums tiek pieņemts, apgriezts noraidīts. | `eb2c191` | Marija (PHPUnit), 2026-10-05 |
 | TEST4-INT-001 | Integrētajos testos bija novecojuši statiski pagātnes datumi. | Fixtures pārcelti uz relatīviem nākotnes datumiem; order regresija izgāja. | `TEST-4 integrācija` | Marija (PHPUnit), 2026-10-05 |
 
-## Gala verifikācija (zars `fix/final-verification`)
-
-| ID | Simptoms | Loma | Reproducēšana | Cēlonis | Labojums |
-|---|---|---|---|---|---|
-| FINAL-001 | Angļu valodas validācijas ziņojumi, piem., *The noteikumi apstiprinati field is required.*, *The selected statuss is invalid.*, *The from field is required…*; 404 ziņojums *No query results for model…* | Klients, Administrators, Viesis | `POST /api/orders` bez `noteikumi_apstiprinati`; `PATCH /api/orders/{id}/status` ar nederīgu statusu; `GET /api/tools/9999` | Nebija latviešu valodas faila `lang/lv`, lokalizācija `en` | Pievienots `backend/lang/lv/validation.php`, lokalizācija `lv`, 404 apstrādātājs `bootstrap/app.php`; pievienots regresijas tests |
-| FINAL-002 | Esoša rīka rediģēšana ar fotogrāfiju neizdevās: *Laukam foto jābūt attēlam.* | Administrators | **Pārvaldība** → **Rediģēt** rīkam ar foto → **Saglabāt rīku ↗** | Rediģēšanas forma nosūtīja esošo foto ceļu kā tekstu | `frontend/src/App.jsx`: `foto` sūta tikai ja izvēlēts jauns fails |
-| FINAL-003 | Administratora izvēlnēs statusi bez garumzīmēm (*Apstiprinats*, *Izpildits*, *iznomats*, *bojats*) | Administrators | **Pārvaldība** → pasūtījumu statusa izvēlne un rīka statusa lauks | Attēlota datubāzes vērtība | Pievienotas attēlojamās etiķetes (*Apstiprināts*, *Izpildīts*, *Iznomāts*, *Bojāts*); saglabātās vērtības nemainītas |
-| FINAL-004 | README norādīja `php artisan serve` (ports 8000), bet frontend starpniekserveris (`vite.config.js`) izmanto 8013 — lietotne pēc README nedarbojās | Visi | Izpildīt README soļus | Dokumentācijas neatbilstība | README: `php artisan serve --port=8013` |
-
 Šodienas Playwright izpildē jauns lietotnes defekts netika konstatēts. MySQL instalācijas exit code `1602` ir vides bloķējums, nevis lietotnes kļūda.
