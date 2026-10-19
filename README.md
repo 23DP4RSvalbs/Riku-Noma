@@ -27,7 +27,7 @@ cita dalībnieka.
 - [x] Fāze 1 – grupas organizēšana, tēmas izpēte, tehnoloģiju izvēle, GitHub + Trello bāze
 - [x] Fāze 2 – Use Case diagramma, arhitektūra, ER diagramma, 8 saskarnes skices, uzdevumu plānošana Trello
 - [x] Fāze 3 – realizācija (Sprinti 1–5: DB + autentifikācija → rīku CRUD → rezervēšana → admin panelis → UI/UX)
-- [ ] Fāze 4 – testēšana (plāns, izpilde, kļūdu novēršana, atskaite)
+- [x] Fāze 4 – testēšana (plāns, izpilde, kļūdu novēršana, atskaite)
 - [ ] Fāze 5 – prezentācija (lietotāja instrukcija, demonstrācija)
 
 ## Galvenās funkcionalitātes
@@ -149,7 +149,7 @@ php artisan key:generate
 php artisan migrate          # izveido tabulas
 php artisan db:seed          # sākuma lomas, konti, kategorijas un inventārs
 php artisan storage:link     # publiska piekļuve augšupielādētajiem attēliem
-php artisan serve            # API: http://localhost:8000
+php artisan serve --port=8013   # API: http://127.0.0.1:8013 (uz šo portu norāda Vite proxy)
 
 # Frontend (React)
 cd frontend
@@ -158,3 +158,9 @@ npm run dev                  # Lietotne: http://localhost:5173
 ```
 
 Sēklas datus pievieno tikai jaunai, tikko migrētai datubāzei. Tie paredzēti lokālai izstrādei un demonstrācijai; pirms publiskas izvietošanas nomaini sākotnējo kontu paroles.
+
+## Lietotāja instrukcija
+
+Soli pa solim instrukcija viesim, klientam un administratoram (reģistrācija, rezervēšana, atcelšana, atsauksmes, rīku un lietotāju pārvaldība, biežākie jautājumi): [docs/lietotaja-instrukcija.md](docs/lietotaja-instrukcija.md).
+
+**Demonstrācijas konti** (pēc `php artisan db:seed`): administrators `admin@riki-noma.lv` / `admin123`; klienti `marija@test.lv` un `ksenija@test.lv` / `test123`.
