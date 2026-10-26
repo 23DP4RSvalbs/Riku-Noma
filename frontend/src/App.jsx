@@ -365,11 +365,8 @@ function Field({ label, name, type = 'text', value, error, onChange, autoComplet
 function Profile() {
   const { user, updateProfile } = useAuth()
   const [form, setForm] = useState({ vards: user?.vards || '', epasts: user?.epasts || '', telefons: user?.telefons || '' })
-  const [passwordForm, setPasswordForm] = useState({ parole_veca: '', parole: '', parole_confirmation: '' })
   const [profileErrors, setProfileErrors] = useState({})
-  const [passwordErrors, setPasswordErrors] = useState({})
   const [profileMessage, setProfileMessage] = useState('')
-  const [passwordMessage, setPasswordMessage] = useState('')
   const [busy, setBusy] = useState('')
 
   const saveProfile = async (event) => {
@@ -389,23 +386,6 @@ function Profile() {
     }
   }
 
-  const savePassword = async (event) => {
-    event.preventDefault()
-    setBusy('password')
-    setPasswordErrors({})
-    setPasswordMessage('')
-    try {
-      await updateProfile({ ...form, ...passwordForm })
-      setPasswordForm({ parole_veca: '', parole: '', parole_confirmation: '' })
-      setPasswordMessage('Parole nomainīta.')
-    } catch (requestError) {
-      setPasswordErrors(requestError.response?.data?.errors || {})
-      if (!requestError.response?.data?.errors) setPasswordErrors({ general: [requestError.response?.data?.message || 'Neizdevās nomainīt paroli.'] })
-    } finally {
-      setBusy('')
-    }
-  }
-
   return <section className="page-width simple-page profile-page">
     <p className="eyebrow">MANS KONTS</p>
     <h1>Sveiks, <em>{user?.vards}</em>.</h1>
@@ -419,18 +399,12 @@ function Profile() {
         {profileMessage && <p className="form-success" role="status">{profileMessage}</p>}
         <button className="button" disabled={busy !== ''}>{busy === 'profile' ? 'Saglabā...' : 'Saglabāt izmaiņas ↗'}</button>
       </form>
-      <form className="profile-settings-section" onSubmit={savePassword}>
-        <div><p className="eyebrow">PIEKĻUVE</p><h2>Mainīt paroli</h2></div>
-        <Field label="Pašreizējā parole" name="parole_veca" type="password" value={passwordForm.parole_veca} error={passwordErrors.parole_veca?.[0]} onChange={(event) => setPasswordForm((current) => ({ ...current, parole_veca: event.target.value }))} autoComplete="current-password" />
-        <Field label="Jaunā parole" name="parole" type="password" value={passwordForm.parole} error={passwordErrors.parole?.[0]} onChange={(event) => setPasswordForm((current) => ({ ...current, parole: event.target.value }))} autoComplete="new-password" />
-        <Field label="Atkārtot jauno paroli" name="parole_confirmation" type="password" value={passwordForm.parole_confirmation} error={passwordErrors.parole_confirmation?.[0]} onChange={(event) => setPasswordForm((current) => ({ ...current, parole_confirmation: event.target.value }))} autoComplete="new-password" />
-        {passwordErrors.general && <p className="form-error" role="alert">{passwordErrors.general[0]}</p>}
-        {passwordMessage && <p className="form-success" role="status">{passwordMessage}</p>}
-        <button className="button" disabled={busy !== ''}>{busy === 'password' ? 'Maina...' : 'Nomainīt paroli ↗'}</button>
-      </form>
     </div>
-    <Link className="arrow-link profile-orders-link" to="/rezervacijas">Skatīt pasūtījumu vēsturi ↗</Link>
-    <p><Link className="arrow-link" to="/noteikumi">Lietošanas noteikumi ↗</Link></p>
+    <div className="profile-links">
+      <Link className="arrow-link" to="/rezervacijas">Skatīt pasūtījumu vēsturi ↗</Link>
+      <Link className="arrow-link" to="/instrukcija">Kā lietot vietni ↗</Link>
+      <Link className="arrow-link" to="/noteikumi">Lietošanas noteikumi ↗</Link>
+    </div>
   </section>
 }
 
@@ -1017,8 +991,24 @@ function Terms() {
     <p className="terms-version-note">Piekrišana tiek saglabāta kopā ar pasūtījumu un noteikumu versiju. Pirms šīs sistēmas publiskas komerciālas lietošanas noteikumi jāsaskaņo ar faktiskajiem nomas, norēķinu un datu apstrādes procesiem.</p>
   </section>
 }
+function Guide() {
+  return <section className="page-width simple-page terms-page">
+    <p className="eyebrow">PALĪDZĪBA</p>
+    <h1>Kā lietot<br /><em>vietni.</em></h1>
+    <p className="wide-copy">Īss ceļvedis soli pa solim: kā atrast rīku, to rezervēt un sekot pasūtījumam.</p>
+    <div className="terms-sections">
+      <article><span>01</span><div><h2>Rīku apskate</h2><p>Konts nav vajadzīgs. Izvēlnē nospied “Katalogs”, ieraksti rīka nosaukumu meklēšanas laukā vai izvēlies kategoriju. Nospied uz rīka, lai redzētu aprakstu, cenu par dienu, pieejamību un citu klientu atsauksmes.</p></div></article>
+      <article><span>02</span><div><h2>Konta izveide un ieeja</h2><p>Nospied “Ieiet”, izvēlies “Reģistrēties” un aizpildi vārdu, e-pastu un paroli (vismaz 8 rakstzīmes, burti un cipari). Nākamreiz izmanto to pašu e-pastu un paroli, lai pieslēgtos. Lai izietu, nospied “Iziet”.</p></div></article>
+      <article><span>03</span><div><h2>Rīka rezervēšana</h2><p>Rīka lapā nospied “Rezervēt rīku”. Kalendārā nospied pirmo un pēdējo nomas dienu, vajadzības gadījumā norādi daudzumu, pārbaudi kopējo summu, atzīmē, ka piekrīti noteikumiem, un nospied “Apstiprināt rezervāciju”. Pasūtījums saņem statusu “Jauns”, kamēr nomas punkts to apstiprina.</p></div></article>
+      <article><span>04</span><div><h2>Mani pasūtījumi</h2><p>Sadaļā “Manas rezervācijas” redzi visus savus pasūtījumus un to statusu: “Jauns”, “Apstiprināts”, “Izpildīts” vai “Atcelts”. Ja pasūtījums ir “Jauns”, to vari atcelt ar pogu “Atcelt”. Apstiprinātu nomu atceļ, sazinoties ar nomas punktu.</p></div></article>
+      <article><span>05</span><div><h2>Atsauksme</h2><p>Kad noma ir pabeigta, rīka lapā parādīsies veidlapa atsauksmei. Izvēlies zvaigznes, uzraksti pāris teikumus un nospied “Publicēt atsauksmi”. Par vienu rīku var atstāt vienu atsauksmi.</p></div></article>
+      <article><span>06</span><div><h2>Mans konts</h2><p>Sadaļā “Mans konts” vari mainīt vārdu, e-pastu un tālruni.</p></div></article>
+      <article><span>07</span><div><h2>Ja kaut kas nedarbojas</h2><p>Ja datumu nevar izvēlēties, rīks šajā laikā ir aizņemts vai datums jau pagājis — izvēlies citu periodu. Ja rīks katalogā nav redzams, tas šobrīd nav pieejams. Citos jautājumos sazinies ar nomas punktu.</p></div></article>
+    </div>
+  </section>
+}
 function ErrorPage() { return <section className="page-width error-page"><span>404</span><h1>Šī lapa nav<br /><em>pieejama.</em></h1><p>Jums nav piekļuves šai sadaļai vai lapa vairs nepastāv.</p><Link className="button" to="/">Atgriezties sākumā ↗</Link></section> }
 function ProtectedRoute({ children, adminOnly = false }) { const { user, loading, isAdmin } = useAuth(); if (loading) return <div className="loading">Ielādē...</div>; if (!user || (adminOnly && !isAdmin)) return <ErrorPage />; return children }
 
 const Router = import.meta.env.VITE_DEMO === 'true' ? HashRouter : BrowserRouter
-export default function App() { return <Router><AuthProvider><Routes><Route element={<Layout />}><Route index element={<Home />} /><Route path="katalogs" element={<Catalog />} /><Route path="katalogs/:id" element={<ToolDetail />} /><Route path="par-mums" element={<About />} /><Route path="noteikumi" element={<Terms />} /><Route path="ieiet" element={<AuthPage mode="login" />} /><Route path="registracija" element={<AuthPage mode="register" />} /><Route path="profils" element={<ProtectedRoute><Profile /></ProtectedRoute>} /><Route path="rezervacijas" element={<ProtectedRoute><Reservations /></ProtectedRoute>} /><Route path="admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} /><Route path="*" element={<ErrorPage />} /></Route></Routes></AuthProvider></Router> }
+export default function App() { return <Router><AuthProvider><Routes><Route element={<Layout />}><Route index element={<Home />} /><Route path="katalogs" element={<Catalog />} /><Route path="katalogs/:id" element={<ToolDetail />} /><Route path="par-mums" element={<About />} /><Route path="noteikumi" element={<Terms />} /><Route path="instrukcija" element={<Guide />} /><Route path="ieiet" element={<AuthPage mode="login" />} /><Route path="registracija" element={<AuthPage mode="register" />} /><Route path="profils" element={<ProtectedRoute><Profile /></ProtectedRoute>} /><Route path="rezervacijas" element={<ProtectedRoute><Reservations /></ProtectedRoute>} /><Route path="admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} /><Route path="*" element={<ErrorPage />} /></Route></Routes></AuthProvider></Router> }

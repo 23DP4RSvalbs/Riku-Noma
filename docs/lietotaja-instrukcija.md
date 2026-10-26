@@ -9,7 +9,7 @@
 3. [Klients: rīka rezervēšana](#3-klients-rīka-rezervēšana)
 4. [Klients: pasūtījumu vēsture un atcelšana](#4-klients-pasūtījumu-vēsture-un-atcelšana)
 5. [Klients: atsauksme pēc pabeigtas nomas](#5-klients-atsauksme-pēc-pabeigtas-nomas)
-6. [Klients: profils un paroles maiņa](#6-klients-profils-un-paroles-maiņa)
+6. [Klients: profils](#6-klients-profils)
 7. [Administrators: rīku pārvaldība](#7-administrators-rīku-pārvaldība)
 8. [Administrators: pasūtījumi un lietotāji](#8-administrators-pasūtījumi-un-lietotāji)
 9. [Biežāk uzdotie jautājumi](#9-biežāk-uzdotie-jautājumi)
@@ -87,12 +87,11 @@ Atcelt var tikai savus pasūtījumus ar statusu **Jauns**. Apstiprinātu nomu at
 
 Par vienu rīku vari atstāt vienu atsauksmi. Pēc tam redzēsi *Paldies! Atsauksmi par šo rīku jau esi pievienojis.* Ja noma vēl nav pabeigta, redzēsi *Atsauksmi var pievienot pēc pabeigtas šī rīka nomas.*
 
-## 6. Klients: profils un paroles maiņa
+## 6. Klients: profils
 
 1. Nospied sava vārda burtu augšējā izvēlnē vai atver lapu **Mans konts**.
 2. **Konta informācija:** nomaini **Vārds**, **E-pasts** vai **Tālrunis** un nospied **Saglabāt izmaiņas ↗**. Redzēsi *Konta informācija saglabāta.*
-3. **Mainīt paroli:** ievadi **Pašreizējā parole**, **Jaunā parole** (vismaz 8 rakstzīmes, burti un cipari) un **Atkārtot jauno paroli**, tad nospied **Nomainīt paroli ↗**. Redzēsi *Parole nomainīta.* Ja pašreizējā parole nav pareiza, redzēsi *Pašreizējā parole nav pareiza.*
-4. Zemāk ir saites **Skatīt pasūtījumu vēsturi ↗** un **Lietošanas noteikumi ↗**.
+3. Zemāk ir saites **Skatīt pasūtījumu vēsturi ↗**, **Kā lietot vietni ↗** un **Lietošanas noteikumi ↗**.
 
 ## 7. Administrators: rīku pārvaldība
 
@@ -136,9 +135,6 @@ Pieslēdzies ar administratora kontu un augšējā izvēlnē nospied **Pārvald�
 Klienti nevar atvērt sadaļu **Pārvaldība**: viņi redz lapu *Šī lapa nav pieejama*. Citu lietotāju pasūtījumi klientiem nav pieejami.
 
 ## 9. Biežāk uzdotie jautājumi
-
-**Es aizmirsu paroli. Ko darīt?**
-Sistēmā nav paroles atjaunošanas saites. Sazinies ar administratoru; viņš var palīdzēt ar piekļuvi. Ja vari pieslēgties, paroli nomaini sadaļā **Mans konts** → **Mainīt paroli**.
 
 **Kāpēc nevaru izvēlēties noteiktu datumu kalendārā?**
 Datums ir pagātnē, vai arī rīks (vai izvēlētais daudzums) šajā dienā jau ir rezervēts. Pamēģini citu periodu vai mazāku daudzumu.
